@@ -1,0 +1,78 @@
+
+entity Tools {
+	name String
+    description String
+}
+
+entity Guidelines {
+	name String
+    description String
+}
+
+entity Roles {
+	name String
+    description String
+}
+
+entity Artifacts {
+	name String
+    description String
+    optional Boolean
+}
+
+entity Templates {
+	name String
+    description String
+}
+
+entity Process {
+	processName String
+    processDescription String
+}
+
+entity Phase {
+	name String
+    description String
+}
+
+entity Project {
+	name String
+    description String
+    gitHubToken String
+    gitHubRepository String
+    gitHubNodeId String    
+}
+
+entity Task {
+	name String
+    description String
+    gitHubUrl String
+    gitHubNodeId String 
+}
+
+entity Activity {
+	name String
+    description String
+    inputCriterion String
+    
+}
+
+relationship OneToMany {
+	Process to Phase{process(processName)}
+    Phase to Activity{phase(name)}    
+    Project to Task{project(name)}
+    Process to Project{process(processName)}    
+}
+
+relationship ManyToMany {
+	Artifacts{templates(name)} to Templates{artifacts(name)}
+    Task{activities(name)} to Activity{tasks(name)}
+    Activity{subActivities(name)} to Activity{predecessorActivities(name)}
+    Activity{templates(name)} to Templates{activities(name)}
+    Activity{guidelines(name)} to Guidelines{activities(name)}
+    Activity{participantRoles(name)} to Roles{participantActivities(name)}
+    Activity{responsibleRoles(name)} to Roles{responsibleActivities(name)}
+    Activity{tools(name)} to Tools{activities(name)}
+    Activity{requiredArtifacts(name)} to Artifacts{dependentActivities(name)}
+    Activity{producedArtifacts(name)} to Artifacts{producingActivities(name)}    
+}
