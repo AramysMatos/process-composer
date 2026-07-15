@@ -1,0 +1,136 @@
+.process-tree-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 8rem;
+  }
+
+  &__tree {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__node {
+    margin: 0;
+    padding: 0;
+  }
+
+  &__children {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 1rem;
+    border-left: 1px solid #dee2e6;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 2rem;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    &--selected {
+      background-color: rgba(13, 110, 253, 0.12);
+    }
+  }
+
+  &__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    flex-shrink: 0;
+    border-radius: 0.25rem;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.06);
+    }
+
+    &--placeholder {
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex: 1;
+    min-width: 0;
+    padding: 0.25rem 0.375rem;
+    border: none;
+    background: transparent;
+    text-align: left;
+    color: inherit;
+
+    &--branch {
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    &--leaf {
+      cursor: pointer;
+      width: 100%;
+
+      &:hover {
+        color: #0d6efd;
+      }
+    }
+
+    &--process {
+      font-weight: 700;
+    }
+  }
+
+  &__label-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 0.875rem;
+    color: #6c757d;
+  }
+
+  &__create {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0.25rem 0 0.5rem 1.75rem;
+    padding: 0.125rem 0.5rem;
+    border: none;
+    background: transparent;
+    color: #0d6efd;
+    font-size: 0.875rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__empty {
+    margin: 0.25rem 0 0.5rem 1.75rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+  }
+}

@@ -1,0 +1,19 @@
+.jh-breadcrumb {
+  --bs-breadcrumb-divider: '>';
+
+  margin-bottom: 1rem;
+
+  .breadcrumb-item a {
+    color: #533f03;
+    font-weight: bold;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .breadcrumb-item.active {
+    color: #6c757d;
+  }
+}

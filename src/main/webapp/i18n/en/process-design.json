@@ -1,0 +1,139 @@
+{
+  "processComposerApp": {
+    "processDesign": {
+      "list": {
+        "title": "Processes",
+        "subtitle": "Browse and manage all process definitions",
+        "searchPlaceholder": "Search by name...",
+        "createLabel": "New Process",
+        "notFound": "No processes found"
+      },
+      "wizard": {
+        "title": "New Process",
+        "subtitle": "Define the process skeleton before modeling activities on the canvas",
+        "steps": {
+          "process": "Process",
+          "phases": "Phases",
+          "confirm": "Confirm"
+        },
+        "processStep": {
+          "title": "Process details"
+        },
+        "phasesStep": {
+          "title": "Phases",
+          "addPhase": "Add phase",
+          "moveUp": "Move up",
+          "moveDown": "Move down"
+        },
+        "confirmStep": {
+          "title": "Review and confirm",
+          "process": "Process",
+          "phases": "Phases"
+        },
+        "actions": {
+          "previous": "Previous",
+          "next": "Next",
+          "confirm": "Create process",
+          "creating": "Creating..."
+        },
+        "submitError": "Could not create the process. Please try again.",
+        "validation": {
+          "processNameRequired": "Process name is required.",
+          "phaseNameRequired": "Phase name is required.",
+          "atLeastOnePhase": "Add at least one phase before continuing."
+        }
+      },
+      "tree": {
+        "ariaLabel": "Process structure",
+        "untitledProcess": "Untitled process",
+        "expandProcess": "Expand process",
+        "collapseProcess": "Collapse process",
+        "expandPhase": "Expand phase",
+        "collapsePhase": "Collapse phase",
+        "newActivity": "New activity",
+        "newPhase": "New phase",
+        "noPhases": "No phases defined yet",
+        "noActivities": "No activities yet",
+        "processNotFound": "Process not found"
+      },
+      "overview": {
+        "breadcrumbProcesses": "Processes",
+        "loadingProcess": "Loading...",
+        "invalidProcessId": "Invalid process id",
+        "contentAriaLabel": "Process content",
+        "viewList": "List",
+        "viewCanvas": "Canvas",
+        "canvasUnavailable": "Canvas view will be available soon",
+        "activityCount": "{{count}} activities",
+        "rolesCount": "{{count}} roles",
+        "artifactsCount": "{{count}} artifacts"
+      },
+      "canvas": {
+        "contentAriaLabel": "Activity canvas",
+        "untitledActivity": "Untitled activity",
+        "rolesBadge": "{{count}} roles",
+        "artifactsBadge": "{{count}} artifacts",
+        "edgePredecessor": "Predecessor",
+        "edgeSubActivity": "Sub-activity",
+        "relationTitle": "Relationship type",
+        "relationQuestion": "Predecessor or sub-activity?",
+        "relationPredecessor": "Predecessor",
+        "relationSubActivity": "Sub-activity",
+        "relationError": "Could not save the relationship.",
+        "newActivity": "New activity",
+        "createTitle": "New activity",
+        "activityName": "Activity name",
+        "targetPhase": "Target phase",
+        "createValidation": "Name and phase are required.",
+        "createError": "Could not create the activity.",
+        "createPhaseTitle": "New phase",
+        "phaseName": "Phase name",
+        "targetProcess": "Target process",
+        "createPhaseValidation": "Name and process are required.",
+        "createPhaseError": "Could not create the phase.",
+        "backToList": "Back to list view"
+      },
+      "drawer": {
+        "title": "Activity details",
+        "save": "Save",
+        "saving": "Saving...",
+        "saveSuccess": "Activity saved successfully.",
+        "saveError": "Could not save the activity.",
+        "tabs": {
+          "general": "General",
+          "roles": "Roles",
+          "resources": "Resources",
+          "artifacts": "Artifacts",
+          "dependencies": "Dependencies"
+        },
+        "general": {
+          "name": "Name",
+          "description": "Description",
+          "inputCriterion": "Input criterion"
+        },
+        "roles": {
+          "participantRoles": "Participant roles",
+          "responsibleRoles": "Responsible role(s)"
+        },
+        "resources": {
+          "tools": "Tools",
+          "guidelines": "Guidelines",
+          "templates": "Templates"
+        },
+        "artifacts": {
+          "input": "Input",
+          "output": "Output",
+          "requiredArtifacts": "Required artifacts",
+          "producedArtifacts": "Produced artifacts"
+        },
+        "dependencies": {
+          "predecessors": "Predecessor activities",
+          "subActivities": "Sub-activities",
+          "noPredecessors": "No predecessor activities defined",
+          "noSubActivities": "No sub-activities defined",
+          "canvasHint": "Edit dependencies by connecting nodes on the canvas."
+        }
+      }
+    }
+  }
+}

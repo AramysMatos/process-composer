@@ -24,6 +24,7 @@ public class ActivityRepositoryWithBagRelationshipsImpl implements ActivityRepos
     public Optional<Activity> fetchBagRelationships(Optional<Activity> activity) {
         return activity
             .map(this::fetchSubActivities)
+            .map(this::fetchPredecessorActivities)
             .map(this::fetchTemplates)
             .map(this::fetchGuidelines)
             .map(this::fetchParticipantRoles)
@@ -43,6 +44,7 @@ public class ActivityRepositoryWithBagRelationshipsImpl implements ActivityRepos
         return Optional
             .of(activities)
             .map(this::fetchSubActivities)
+            .map(this::fetchPredecessorActivities)
             .map(this::fetchTemplates)
             .map(this::fetchGuidelines)
             .map(this::fetchParticipantRoles)
@@ -70,6 +72,32 @@ public class ActivityRepositoryWithBagRelationshipsImpl implements ActivityRepos
         List<Activity> result = entityManager
             .createQuery(
                 "select distinct activity from Activity activity left join fetch activity.subActivities where activity in :activities",
+                Activity.class
+            )
+            .setParameter("activities", activities)
+            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+            .getResultList();
+        Collections.sort(result, (o1, o2) -> Integer.compare(order.get(o1.getId()), order.get(o2.getId())));
+        return result;
+    }
+
+    Activity fetchPredecessorActivities(Activity result) {
+        return entityManager
+            .createQuery(
+                "select activity from Activity activity left join fetch activity.predecessorActivities where activity is :activity",
+                Activity.class
+            )
+            .setParameter("activity", result)
+            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+            .getSingleResult();
+    }
+
+    List<Activity> fetchPredecessorActivities(List<Activity> activities) {
+        HashMap<Object, Integer> order = new HashMap<>();
+        IntStream.range(0, activities.size()).forEach(index -> order.put(activities.get(index).getId(), index));
+        List<Activity> result = entityManager
+            .createQuery(
+                "select distinct activity from Activity activity left join fetch activity.predecessorActivities where activity in :activities",
                 Activity.class
             )
             .setParameter("activities", activities)

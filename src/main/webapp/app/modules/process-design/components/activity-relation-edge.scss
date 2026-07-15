@@ -1,0 +1,23 @@
+.activity-relation-edge__delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: 1px solid #dee2e6;
+  border-radius: 50%;
+  background: #fff;
+  color: #6c757d;
+  font-size: 0.65rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    color: #dc3545;
+    border-color: #dc3545;
+    background: #fff5f5;
+  }
+}

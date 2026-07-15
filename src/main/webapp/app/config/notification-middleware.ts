@@ -2,6 +2,8 @@ import { translate } from 'react-jhipster';
 import { toast } from 'react-toastify';
 import { isFulfilledAction, isRejectedAction } from 'app/shared/reducers/reducer.utils';
 
+const isSilentNotificationAction = (action: { type?: string }) => typeof action.type === 'string' && action.type.includes('_silent/');
+
 const addErrorAlert = (message, key?, data?) => {
   key = key ? key : message;
   toast.error(translate(key, data));
@@ -14,7 +16,7 @@ export default () => next => action => {
    *
    * The notification middleware serves to add success and error notifications
    */
-  if (isFulfilledAction(action) && payload && payload.headers) {
+  if (isFulfilledAction(action) && payload && payload.headers && !isSilentNotificationAction(action)) {
     const headers = payload?.headers;
     let alert: string | null = null;
     let alertParams: string | null = null;

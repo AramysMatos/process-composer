@@ -7,6 +7,16 @@
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Entities",
+        "tools": "Tools",
+        "guidelines": "Guidelines",
+        "roles": "Roles",
+        "artifacts": "Artifacts",
+        "templates": "Templates",
+        "process": "Process",
+        "phase": "Phase",
+        "project": "Project",
+        "task": "Task",
+        "activity": "Activity",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

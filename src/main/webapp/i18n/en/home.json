@@ -14,6 +14,28 @@
       "follow": "follow @jhipster on Twitter"
     },
     "like": "If you like JHipster, don't forget to give us a star on",
-    "github": "GitHub"
+    "github": "GitHub",
+    "dashboard": {
+      "title": "Home",
+      "subtitle": "Overview of your process definitions and running projects",
+      "myProcesses": "My Processes",
+      "myProjects": "My Projects",
+      "viewAll": "View all",
+      "process": {
+        "phaseCount": "{{count}} phases",
+        "activityCount": "{{count}} activities",
+        "open": "Open",
+        "instantiateProject": "Instantiate Project",
+        "empty": "You have not created any process yet. Start by defining your first process template.",
+        "createFirst": "Create my first process"
+      },
+      "project": {
+        "sourceProcess": "Source process",
+        "githubConnected": "GitHub connected",
+        "githubNotConnected": "GitHub not connected",
+        "requiresProcess": "Projects are created from an existing process. Create at least one process before instantiating a project.",
+        "empty": "No projects yet. Use \"Instantiate Project\" on a process card to create your first one."
+      }
+    }
   }
 }

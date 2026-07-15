@@ -1,0 +1,368 @@
+import './process-overview.scss';
+
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { Alert, Button, ButtonGroup, Card, CardBody, CardHeader, Collapse, Spinner, UncontrolledTooltip } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Translate, translate } from 'react-jhipster';
+
+import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { getEntities as getActivityEntities } from 'app/entities/activity/activity.reducer';
+import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
+import { IActivity } from 'app/shared/model/activity.model';
+import { IPhase } from 'app/shared/model/phase.model';
+import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
+import { Breadcrumb } from 'app/shared-ui/breadcrumb';
+import { ActivityDetailDrawer } from 'app/modules/process-design/components/activity-detail-drawer/activity-detail-drawer';
+import { CreateActivityModal } from 'app/modules/process-design/components/create-activity-modal';
+import { CreatePhaseModal } from 'app/modules/process-design/components/create-phase-modal';
+import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
+
+/** Rota `/processos/:id/canvas` registrada em `routes.tsx`. */
+export const PROCESS_CANVAS_ROUTE_ENABLED = true;
+
+type ViewMode = 'list' | 'canvas';
+
+const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
+
+const sortActivities = (activities: IActivity[]): IActivity[] =>
+  [...activities].sort((left, right) => {
+    const nameCompare = (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' });
+    if (nameCompare !== 0) {
+      return nameCompare;
+    }
+    return (left.id ?? 0) - (right.id ?? 0);
+  });
+
+export const ProcessOverview = () => {
+  const dispatch = useAppDispatch();
+  const { id } = useParams<'id'>();
+
+  const processId = Number(id);
+  const isValidProcessId = Number.isFinite(processId) && processId > 0;
+
+  const process = useAppSelector(state => state.process.entity);
+  const processLoading = useAppSelector(state => state.process.loading);
+  const phaseEntities = useAppSelector(state => state.phase.entities);
+  const phaseLoading = useAppSelector(state => state.phase.loading);
+  const activityEntities = useAppSelector(state => state.activity.entities);
+  const activityLoading = useAppSelector(state => state.activity.loading);
+
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [selectedActivityId, setSelectedActivityId] = useState<number | undefined>();
+  const [drawerActivityId, setDrawerActivityId] = useState<number | null>(null);
+  const [createModalPhaseId, setCreateModalPhaseId] = useState<number | null>(null);
+  const [createPhaseModalOpen, setCreatePhaseModalOpen] = useState(false);
+  const [openPhaseIds, setOpenPhaseIds] = useState<Set<number>>(() => new Set());
+  const accordionInitializedRef = React.useRef(false);
+
+  const phases = useMemo(
+    () => (isValidProcessId ? sortById(phaseEntities.filter(phase => phase.process?.id === processId)) : []),
+    [isValidProcessId, phaseEntities, processId]
+  );
+
+  const activitiesByPhaseId = useMemo(() => {
+    const grouped = new Map<number, IActivity[]>();
+
+    phases.forEach(phase => {
+      if (!phase.id) {
+        return;
+      }
+
+      grouped.set(phase.id, sortActivities(activityEntities.filter(activity => activity.phase?.id === phase.id)));
+    });
+
+    return grouped;
+  }, [activityEntities, phases]);
+
+  useEffect(() => {
+    accordionInitializedRef.current = false;
+    setOpenPhaseIds(new Set());
+    setSelectedActivityId(undefined);
+    setViewMode('list');
+  }, [processId]);
+
+  useEffect(() => {
+    if (accordionInitializedRef.current || phases.length === 0) {
+      return;
+    }
+
+    const firstPhaseId = phases.find(phase => phase.id !== undefined)?.id;
+    if (firstPhaseId !== undefined) {
+      setOpenPhaseIds(new Set([firstPhaseId]));
+    }
+    accordionInitializedRef.current = true;
+  }, [phases]);
+
+  const loading = processLoading || phaseLoading || activityLoading;
+  const processMatches = process.id === processId;
+  const processName = process.processName ?? translate('processComposerApp.processDesign.tree.untitledProcess', 'Untitled process');
+
+  const handleSelectActivity = useCallback((activityId: number) => {
+    setSelectedActivityId(activityId);
+    setDrawerActivityId(activityId);
+  }, []);
+
+  const handleCloseDrawer = useCallback(() => {
+    setDrawerActivityId(null);
+  }, []);
+
+  const handleActivitySaved = useCallback(() => {
+    dispatch(getActivityEntities({ eagerload: true }));
+  }, [dispatch]);
+
+  const handleCreateActivity = useCallback((phaseId: number) => {
+    setCreateModalPhaseId(phaseId);
+  }, []);
+
+  const handleCreatePhase = useCallback(() => {
+    setCreatePhaseModalOpen(true);
+  }, []);
+
+  const handleCloseCreatePhaseModal = useCallback(() => {
+    setCreatePhaseModalOpen(false);
+  }, []);
+
+  const handleCloseCreateModal = useCallback(() => {
+    setCreateModalPhaseId(null);
+  }, []);
+
+  const handleActivityCreated = useCallback(
+    (activityId: number) => {
+      dispatch(getActivityEntities({ eagerload: true }));
+      setSelectedActivityId(activityId);
+      setDrawerActivityId(activityId);
+      setCreateModalPhaseId(null);
+    },
+    [dispatch]
+  );
+
+  const handlePhaseCreated = useCallback(
+    (phaseId: number) => {
+      dispatch(getPhaseEntities({}));
+      setOpenPhaseIds(current => new Set([...current, phaseId]));
+    },
+    [dispatch]
+  );
+
+  const togglePhasePanel = (phaseId: number) => {
+    setOpenPhaseIds(current => {
+      const next = new Set(current);
+      if (next.has(phaseId)) {
+        next.delete(phaseId);
+      } else {
+        next.add(phaseId);
+      }
+      return next;
+    });
+  };
+
+  const renderActivityRow = (activity: IActivity) => {
+    if (!activity.id) {
+      return null;
+    }
+
+    const roleCount = countRoles(activity);
+    const artifactCount = countArtifacts(activity);
+    const isSelected = selectedActivityId === activity.id;
+
+    return (
+      <li key={activity.id} className="process-overview__activity-item">
+        <button
+          type="button"
+          className={`process-overview__activity-button${isSelected ? ' process-overview__activity-button--selected' : ''}`}
+          onClick={() => handleSelectActivity(activity.id as number)}
+        >
+          <span className="process-overview__activity-name">{activity.name}</span>
+          <span className="process-overview__activity-meta">
+            <span>
+              <Translate contentKey="processComposerApp.processDesign.overview.rolesCount" interpolate={{ count: roleCount }}>
+                {`${roleCount} roles`}
+              </Translate>
+            </span>
+            <span>
+              <Translate contentKey="processComposerApp.processDesign.overview.artifactsCount" interpolate={{ count: artifactCount }}>
+                {`${artifactCount} artifacts`}
+              </Translate>
+            </span>
+          </span>
+        </button>
+      </li>
+    );
+  };
+
+  const renderPhasePanel = (phase: IPhase) => {
+    if (!phase.id) {
+      return null;
+    }
+
+    const phaseActivities = activitiesByPhaseId.get(phase.id) ?? [];
+    const isOpen = openPhaseIds.has(phase.id);
+    const panelId = `process-phase-panel-${phase.id}`;
+
+    return (
+      <Card key={phase.id} className="process-overview__phase-card">
+        <CardHeader
+          className="process-overview__phase-trigger"
+          onClick={() => togglePhasePanel(phase.id as number)}
+          role="button"
+          tabIndex={0}
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          onKeyDown={event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              togglePhasePanel(phase.id as number);
+            }
+          }}
+        >
+          <div className="process-overview__phase-header">
+            <span className="process-overview__phase-title">
+              <FontAwesomeIcon icon={isOpen ? 'chevron-down' : 'chevron-right'} className="me-2 text-muted" />
+              {phase.name}
+            </span>
+            <span className="process-overview__phase-count">
+              <Translate
+                contentKey="processComposerApp.processDesign.overview.activityCount"
+                interpolate={{ count: phaseActivities.length }}
+              >
+                {`${phaseActivities.length} activities`}
+              </Translate>
+            </span>
+          </div>
+        </CardHeader>
+        <Collapse isOpen={isOpen}>
+          <CardBody id={panelId} className="p-0">
+            {phaseActivities.length === 0 ? (
+              <p className="process-overview__empty px-3 py-2 mb-0">
+                <Translate contentKey="processComposerApp.processDesign.tree.noActivities">No activities yet</Translate>
+              </p>
+            ) : (
+              <ul className="process-overview__activity-list">{phaseActivities.map(renderActivityRow)}</ul>
+            )}
+          </CardBody>
+        </Collapse>
+      </Card>
+    );
+  };
+
+  if (!isValidProcessId) {
+    return (
+      <div className="process-overview" data-cy="process-overview">
+        <Alert color="danger">
+          <Translate contentKey="processComposerApp.processDesign.overview.invalidProcessId">Invalid process id</Translate>
+        </Alert>
+      </div>
+    );
+  }
+
+  return (
+    <div className="process-overview" data-cy="process-overview">
+      <header className="process-overview__header">
+        <Breadcrumb
+          items={[
+            {
+              label: translate('processComposerApp.processDesign.overview.breadcrumbProcesses', 'Processes'),
+              path: '/processos',
+            },
+            { label: processMatches ? processName : translate('processComposerApp.processDesign.overview.loadingProcess', 'Loading...') },
+          ]}
+          data-cy="process-overview-breadcrumb"
+        />
+      </header>
+
+      <div className="process-overview__layout">
+        <aside className="process-overview__sidebar">
+          <ProcessTreeSidebar
+            processId={processId}
+            selectedActivityId={selectedActivityId}
+            onSelectActivity={handleSelectActivity}
+            onCreateActivity={handleCreateActivity}
+            onCreatePhase={handleCreatePhase}
+          />
+        </aside>
+
+        <section
+          className="process-overview__content"
+          aria-label={translate('processComposerApp.processDesign.overview.contentAriaLabel', 'Process content')}
+        >
+          <div className="process-overview__toolbar">
+            <ButtonGroup className="process-overview__view-toggle" data-cy="process-view-toggle">
+              <Button color="primary" outline={viewMode !== 'list'} active={viewMode === 'list'} onClick={() => setViewMode('list')}>
+                <FontAwesomeIcon icon="list" className="me-1" />
+                <Translate contentKey="processComposerApp.processDesign.overview.viewList">List</Translate>
+              </Button>
+              <Button
+                tag={Link}
+                to={`/processos/${processId}/canvas`}
+                id="process-overview-canvas-toggle"
+                color="primary"
+                outline={viewMode !== 'canvas'}
+                active={viewMode === 'canvas'}
+                disabled={!PROCESS_CANVAS_ROUTE_ENABLED}
+              >
+                <FontAwesomeIcon icon="project-diagram" className="me-1" />
+                <Translate contentKey="processComposerApp.processDesign.overview.viewCanvas">Canvas</Translate>
+              </Button>
+            </ButtonGroup>
+
+            {!PROCESS_CANVAS_ROUTE_ENABLED && (
+              <UncontrolledTooltip target="process-overview-canvas-toggle">
+                <Translate contentKey="processComposerApp.processDesign.overview.canvasUnavailable">
+                  Canvas view will be available soon
+                </Translate>
+              </UncontrolledTooltip>
+            )}
+          </div>
+
+          {loading && (
+            <div className="process-overview__loading">
+              <Spinner color="primary" />
+            </div>
+          )}
+
+          {!loading && !processMatches && (
+            <Alert color="warning">
+              <Translate contentKey="processComposerApp.processDesign.tree.processNotFound">Process not found</Translate>
+            </Alert>
+          )}
+
+          {!loading && processMatches && viewMode === 'list' && (
+            <>
+              {phases.length === 0 ? (
+                <Alert color="info">
+                  <Translate contentKey="processComposerApp.processDesign.tree.noPhases">No phases defined yet</Translate>
+                </Alert>
+              ) : (
+                <div className="process-overview__accordion">{phases.map(renderPhasePanel)}</div>
+              )}
+            </>
+          )}
+        </section>
+      </div>
+
+      <ActivityDetailDrawer
+        activityId={drawerActivityId}
+        isOpen={drawerActivityId !== null}
+        onClose={handleCloseDrawer}
+        onSaved={handleActivitySaved}
+      />
+
+      <CreateActivityModal
+        isOpen={createModalPhaseId !== null}
+        phaseId={createModalPhaseId}
+        onClose={handleCloseCreateModal}
+        onCreated={handleActivityCreated}
+      />
+
+      <CreatePhaseModal
+        isOpen={createPhaseModalOpen}
+        processId={processId}
+        onClose={handleCloseCreatePhaseModal}
+        onCreated={handlePhaseCreated}
+      />
+    </div>
+  );
+};
+
+export default ProcessOverview;

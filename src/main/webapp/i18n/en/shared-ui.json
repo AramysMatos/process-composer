@@ -1,0 +1,12 @@
+{
+  "processComposerApp": {
+    "sharedUi": {
+      "entityCombobox": {
+        "placeholder": "Search or select...",
+        "create": "+ Create '{{ name }}'",
+        "removeItem": "Remove {{ name }}",
+        "noResults": "No matching options"
+      }
+    }
+  }
+}

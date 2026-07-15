@@ -42,6 +42,12 @@ export const createEntity = createAsyncThunk(
   { serializeError: serializeAxiosError }
 );
 
+export const createEntitySilent = createAsyncThunk(
+  'phase/create_entity_silent',
+  async (entity: IPhase) => axios.post<IPhase>(apiUrl, cleanEntity(entity)),
+  { serializeError: serializeAxiosError }
+);
+
 export const updateEntity = createAsyncThunk(
   'phase/update_entity',
   async (entity: IPhase, thunkAPI) => {
@@ -98,7 +104,7 @@ export const PhaseSlice = createEntitySlice({
           entities: data,
         };
       })
-      .addMatcher(isFulfilled(createEntity, updateEntity, partialUpdateEntity), (state, action) => {
+      .addMatcher(isFulfilled(createEntity, updateEntity, partialUpdateEntity, createEntitySilent), (state, action) => {
         state.updating = false;
         state.loading = false;
         state.updateSuccess = true;
@@ -109,7 +115,7 @@ export const PhaseSlice = createEntitySlice({
         state.updateSuccess = false;
         state.loading = true;
       })
-      .addMatcher(isPending(createEntity, updateEntity, partialUpdateEntity, deleteEntity), state => {
+      .addMatcher(isPending(createEntity, updateEntity, partialUpdateEntity, deleteEntity, createEntitySilent), state => {
         state.errorMessage = null;
         state.updateSuccess = false;
         state.updating = true;
