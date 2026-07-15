@@ -1,0 +1,41 @@
+{
+  "applications": "*",
+  "changelogDate": "20260708131024",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "roles",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Roles",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "activity",
+      "otherEntityRelationshipName": "participantRoles",
+      "ownerSide": false,
+      "relationshipName": "participantActivities",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "activity",
+      "otherEntityRelationshipName": "responsibleRoles",
+      "ownerSide": false,
+      "relationshipName": "responsibleActivities",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "service": "no"
+}

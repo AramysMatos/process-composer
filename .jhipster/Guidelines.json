@@ -1,0 +1,33 @@
+{
+  "applications": "*",
+  "changelogDate": "20260708131023",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "guidelines",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Guidelines",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "activity",
+      "otherEntityRelationshipName": "guidelines",
+      "ownerSide": false,
+      "relationshipName": "activities",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "service": "no"
+}

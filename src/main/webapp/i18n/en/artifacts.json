@@ -1,0 +1,29 @@
+{
+  "processComposerApp": {
+    "artifacts": {
+      "home": {
+        "title": "Artifacts",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Artifacts",
+        "createOrEditLabel": "Create or edit a Artifacts",
+        "notFound": "No Artifacts found"
+      },
+      "created": "A new Artifacts is created with identifier {{ param }}",
+      "updated": "A Artifacts is updated with identifier {{ param }}",
+      "deleted": "A Artifacts is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Artifacts {{ id }}?"
+      },
+      "detail": {
+        "title": "Artifacts"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "optional": "Optional",
+      "templates": "Templates",
+      "dependentActivities": "Dependent Activities",
+      "producingActivities": "Producing Activities"
+    }
+  }
+}

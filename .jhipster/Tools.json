@@ -1,0 +1,33 @@
+{
+  "applications": "*",
+  "changelogDate": "20260708131022",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "tools",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Tools",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "activity",
+      "otherEntityRelationshipName": "tools",
+      "ownerSide": false,
+      "relationshipName": "activities",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "service": "no"
+}

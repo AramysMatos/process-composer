@@ -1,0 +1,26 @@
+{
+  "processComposerApp": {
+    "guidelines": {
+      "home": {
+        "title": "Guidelines",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Guidelines",
+        "createOrEditLabel": "Create or edit a Guidelines",
+        "notFound": "No Guidelines found"
+      },
+      "created": "A new Guidelines is created with identifier {{ param }}",
+      "updated": "A Guidelines is updated with identifier {{ param }}",
+      "deleted": "A Guidelines is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Guidelines {{ id }}?"
+      },
+      "detail": {
+        "title": "Guidelines"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "activities": "Activities"
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "applications": "*",
+  "changelogDate": "20260708131025",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "artifacts",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "optional",
+      "fieldType": "Boolean"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Artifacts",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "templates",
+      "otherEntityRelationshipName": "artifacts",
+      "ownerSide": true,
+      "relationshipName": "templates",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "activity",
+      "otherEntityRelationshipName": "requiredArtifacts",
+      "ownerSide": false,
+      "relationshipName": "dependentActivities",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "activity",
+      "otherEntityRelationshipName": "producedArtifacts",
+      "ownerSide": false,
+      "relationshipName": "producingActivities",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "service": "no"
+}

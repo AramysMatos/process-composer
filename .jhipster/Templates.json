@@ -1,0 +1,41 @@
+{
+  "applications": "*",
+  "changelogDate": "20260708131026",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "templates",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Templates",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "artifacts",
+      "otherEntityRelationshipName": "templates",
+      "ownerSide": false,
+      "relationshipName": "artifacts",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "activity",
+      "otherEntityRelationshipName": "templates",
+      "ownerSide": false,
+      "relationshipName": "activities",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "service": "no"
+}

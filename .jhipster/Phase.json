@@ -1,0 +1,38 @@
+{
+  "applications": "*",
+  "changelogDate": "20260708131028",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "phase",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Phase",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "activity",
+      "otherEntityRelationshipName": "phase",
+      "relationshipName": "activity",
+      "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityField": "processName",
+      "otherEntityName": "process",
+      "otherEntityRelationshipName": "phase",
+      "relationshipName": "process",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "no"
+}

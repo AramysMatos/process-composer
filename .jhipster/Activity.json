@@ -1,0 +1,116 @@
+{
+  "applications": "*",
+  "changelogDate": "20260708131031",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "activity",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "inputCriterion",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Activity",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "activity",
+      "otherEntityRelationshipName": "predecessorActivities",
+      "ownerSide": true,
+      "relationshipName": "subActivities",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "templates",
+      "otherEntityRelationshipName": "activities",
+      "ownerSide": true,
+      "relationshipName": "templates",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "guidelines",
+      "otherEntityRelationshipName": "activities",
+      "ownerSide": true,
+      "relationshipName": "guidelines",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "roles",
+      "otherEntityRelationshipName": "participantActivities",
+      "ownerSide": true,
+      "relationshipName": "participantRoles",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "roles",
+      "otherEntityRelationshipName": "responsibleActivities",
+      "ownerSide": true,
+      "relationshipName": "responsibleRoles",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "tools",
+      "otherEntityRelationshipName": "activities",
+      "ownerSide": true,
+      "relationshipName": "tools",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "artifacts",
+      "otherEntityRelationshipName": "dependentActivities",
+      "ownerSide": true,
+      "relationshipName": "requiredArtifacts",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "artifacts",
+      "otherEntityRelationshipName": "producingActivities",
+      "ownerSide": true,
+      "relationshipName": "producedArtifacts",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "phase",
+      "otherEntityRelationshipName": "activity",
+      "relationshipName": "phase",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "task",
+      "otherEntityRelationshipName": "activities",
+      "ownerSide": false,
+      "relationshipName": "tasks",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "activity",
+      "otherEntityRelationshipName": "subActivities",
+      "ownerSide": false,
+      "relationshipName": "predecessorActivities",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "service": "no"
+}

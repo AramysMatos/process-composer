@@ -1,0 +1,50 @@
+{
+  "applications": "*",
+  "changelogDate": "20260708131029",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "project",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "gitHubToken",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "gitHubRepository",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "gitHubNodeId",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Project",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "task",
+      "otherEntityRelationshipName": "project",
+      "relationshipName": "task",
+      "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityField": "processName",
+      "otherEntityName": "process",
+      "otherEntityRelationshipName": "project",
+      "relationshipName": "process",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "no"
+}

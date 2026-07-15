@@ -1,0 +1,26 @@
+{
+  "processComposerApp": {
+    "tools": {
+      "home": {
+        "title": "Tools",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Tools",
+        "createOrEditLabel": "Create or edit a Tools",
+        "notFound": "No Tools found"
+      },
+      "created": "A new Tools is created with identifier {{ param }}",
+      "updated": "A Tools is updated with identifier {{ param }}",
+      "deleted": "A Tools is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Tools {{ id }}?"
+      },
+      "detail": {
+        "title": "Tools"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "activities": "Activities"
+    }
+  }
+}

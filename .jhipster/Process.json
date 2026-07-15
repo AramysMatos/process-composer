@@ -1,0 +1,37 @@
+{
+  "applications": "*",
+  "changelogDate": "20260708131027",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "process",
+  "fields": [
+    {
+      "fieldName": "processName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "processDescription",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Process",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "phase",
+      "otherEntityRelationshipName": "process",
+      "relationshipName": "phase",
+      "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityName": "project",
+      "otherEntityRelationshipName": "process",
+      "relationshipName": "project",
+      "relationshipType": "one-to-many"
+    }
+  ],
+  "service": "no"
+}

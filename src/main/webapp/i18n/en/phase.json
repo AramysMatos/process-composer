@@ -1,0 +1,27 @@
+{
+  "processComposerApp": {
+    "phase": {
+      "home": {
+        "title": "Phases",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Phase",
+        "createOrEditLabel": "Create or edit a Phase",
+        "notFound": "No Phases found"
+      },
+      "created": "A new Phase is created with identifier {{ param }}",
+      "updated": "A Phase is updated with identifier {{ param }}",
+      "deleted": "A Phase is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Phase {{ id }}?"
+      },
+      "detail": {
+        "title": "Phase"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "activity": "Activity",
+      "process": "Process"
+    }
+  }
+}
