@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <!--
+        Added the constraints for entity Artifacts.
+    -->
+    <changeSet id="20260708131025-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="artifacts_id"
+                                 baseTableName="rel_artifacts__templates"
+                                 constraintName="fk_rel_artifacts__templates__artifacts_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="artifacts"/>
+
+        <addForeignKeyConstraint baseColumnNames="templates_id"
+                                 baseTableName="rel_artifacts__templates"
+                                 constraintName="fk_rel_artifacts__templates__templates_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="templates"/>
+    </changeSet>
+</databaseChangeLog>

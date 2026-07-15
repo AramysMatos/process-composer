@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <!--
+        Added the constraints for entity Activity.
+    -->
+    <changeSet id="20260708131031-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="activity_id"
+                                 baseTableName="rel_activity__sub_activities"
+                                 constraintName="fk_rel_activity__sub_activities__activity_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="activity"/>
+
+        <addForeignKeyConstraint baseColumnNames="sub_activities_id"
+                                 baseTableName="rel_activity__sub_activities"
+                                 constraintName="fk_rel_activity__sub_activities__sub_activities_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="activity"/>
+
+        <addForeignKeyConstraint baseColumnNames="activity_id"
+                                 baseTableName="rel_activity__templates"
+                                 constraintName="fk_rel_activity__templates__activity_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="activity"/>
+
+        <addForeignKeyConstraint baseColumnNames="templates_id"
+                                 baseTableName="rel_activity__templates"
+                                 constraintName="fk_rel_activity__templates__templates_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="templates"/>
+
+        <addForeignKeyConstraint baseColumnNames="activity_id"
+                                 baseTableName="rel_activity__guidelines"
+                                 constraintName="fk_rel_activity__guidelines__activity_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="activity"/>
+
+        <addForeignKeyConstraint baseColumnNames="guidelines_id"
+                                 baseTableName="rel_activity__guidelines"
+                                 constraintName="fk_rel_activity__guidelines__guidelines_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="guidelines"/>
+
+        <addForeignKeyConstraint baseColumnNames="activity_id"
+                                 baseTableName="rel_activity__participant_roles"
+                                 constraintName="fk_rel_activity__participant_roles__activity_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="activity"/>
+
+        <addForeignKeyConstraint baseColumnNames="participant_roles_id"
+                                 baseTableName="rel_activity__participant_roles"
+                                 constraintName="fk_rel_activity__participant_roles__participant_roles_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="roles"/>
+
+        <addForeignKeyConstraint baseColumnNames="activity_id"
+                                 baseTableName="rel_activity__responsible_roles"
+                                 constraintName="fk_rel_activity__responsible_roles__activity_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="activity"/>
+
+        <addForeignKeyConstraint baseColumnNames="responsible_roles_id"
+                                 baseTableName="rel_activity__responsible_roles"
+                                 constraintName="fk_rel_activity__responsible_roles__responsible_roles_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="roles"/>
+
+        <addForeignKeyConstraint baseColumnNames="activity_id"
+                                 baseTableName="rel_activity__tools"
+                                 constraintName="fk_rel_activity__tools__activity_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="activity"/>
+
+        <addForeignKeyConstraint baseColumnNames="tools_id"
+                                 baseTableName="rel_activity__tools"
+                                 constraintName="fk_rel_activity__tools__tools_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tools"/>
+
+        <addForeignKeyConstraint baseColumnNames="activity_id"
+                                 baseTableName="rel_activity__required_artifacts"
+                                 constraintName="fk_rel_activity__required_artifacts__activity_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="activity"/>
+
+        <addForeignKeyConstraint baseColumnNames="required_artifacts_id"
+                                 baseTableName="rel_activity__required_artifacts"
+                                 constraintName="fk_rel_activity__required_artifacts__required_artifacts_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="artifacts"/>
+
+        <addForeignKeyConstraint baseColumnNames="activity_id"
+                                 baseTableName="rel_activity__produced_artifacts"
+                                 constraintName="fk_rel_activity__produced_artifacts__activity_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="activity"/>
+
+        <addForeignKeyConstraint baseColumnNames="produced_artifacts_id"
+                                 baseTableName="rel_activity__produced_artifacts"
+                                 constraintName="fk_rel_activity__produced_artifacts__produced_artifacts_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="artifacts"/>
+
+        <addForeignKeyConstraint baseColumnNames="phase_id"
+                                 baseTableName="activity"
+                                 constraintName="fk_activity__phase_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="phase"/>
+    </changeSet>
+</databaseChangeLog>
