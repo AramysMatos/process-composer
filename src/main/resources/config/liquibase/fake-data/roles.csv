@@ -1,11 +1,11 @@
 id;name;description
-1;CSS AI;Beauty Account FTP
-2;Outdoors CSS deposit;Balboa card
-3;extensible Mauritania;SSL optimize
-4;system payment grid-enabled;Jamaica
-5;deploy Implementation plum;Games
-6;impactful;Team-oriented RAM
-7;Ball impactful Engineer;Cambridgeshire initiative
-8;Course hack;connect Response
-9;Dynamic;Group Licensed Pants
-10;Wisconsin Tuna;Berkshire Rapids 6th
+1;Product Owner;Responsável por priorizar o backlog e definir o valor de negócio do produto
+2;Scrum Master;Facilita cerimônias ágeis e remove impedimentos da equipe de desenvolvimento
+3;Desenvolvedor Backend;Implementa APIs, regras de negócio e integrações com banco de dados
+4;Desenvolvedor Frontend;Desenvolve interfaces web responsivas e integra com APIs REST
+5;Arquiteto de Software;Define padrões arquiteturais, decisões técnicas e documentação de arquitetura
+6;Analista de Requisitos;Levanta, documenta e valida requisitos funcionais e não funcionais
+7;QA / Testador;Planeja e executa testes manuais e automatizados para garantir qualidade
+8;DevOps Engineer;Configura pipelines CI/CD, infraestrutura e monitoramento da aplicação
+9;UX Designer;Cria wireframes, protótipos e conduz pesquisas de usabilidade com usuários
+10;Tech Lead;Coordena decisões técnicas da equipe e revisa código dos desenvolvedores

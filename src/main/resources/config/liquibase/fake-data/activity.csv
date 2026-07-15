@@ -1,11 +1,11 @@
 id;name;description;input_criterion
-1;drive reboot sticky;navigate solid;reboot
-2;Accounts Cove;blue maximize Rufiyaa;withdrawal PCI full-range
-3;Kiribati matrix;SCSI;Avon pink Frozen
-4;sensor Optimization;revolutionary Extended;Awesome integrate
-5;attitude-oriented Coordinator payment;Iran;even-keeled
-6;ivory web;blue holistic concept;Wisconsin
-7;Small;matrix firewall;Bulgarian convergence
-8;override;Facilitator Cayman navigating;magenta
-9;silver Unbranded;models Global;Integration
-10;Market Games;Tactics Granite project;rich Zloty Engineer
+1;Levantar requisitos com stakeholders;Conduzir entrevistas e workshops para capturar necessidades do produto;Documento de Visão aprovado pelos stakeholders
+2;Priorizar backlog do produto;Ordenar histórias por valor de negócio, risco e dependências técnicas;Backlog do Produto com estimativas iniciais
+3;Modelar arquitetura da solução;Definir componentes, integrações e padrões tecnológicos do sistema;Especificação de Requisitos validada
+4;Prototipar interfaces principais;Criar wireframes e protótipos navegáveis das telas críticas;Diagrama de Arquitetura revisado pelo Tech Lead
+5;Implementar funcionalidade;Desenvolver código seguindo padrões, com testes unitários e documentação;Protótipo de Interface aprovado pelo PO
+6;Executar testes de integração;Validar fluxos end-to-end entre módulos e serviços externos;Código-fonte mergeado na branch principal
+7;Realizar code review;Revisar pull request quanto a qualidade, segurança e aderência aos padrões;Pull request aberto com CI verde
+8;Preparar release;Gerar build, executar testes de regressão e documentar mudanças;Relatório de Cobertura acima de 80%
+9;Implantar em produção;Executar deploy com estratégia blue-green e validar health checks;Notas de Release aprovadas pelo PO
+10;Conduzir retrospectiva da sprint;Identificar melhorias no processo e definir ações para próxima iteração;Sprint encerrada com métricas de velocity registradas

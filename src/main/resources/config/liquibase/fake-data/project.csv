@@ -1,11 +1,11 @@
 id;name;description;git_hub_token;git_hub_repository;git_hub_node_id
-1;contextually-based Alaska Fresh;Table Micronesia;Center;payment utilize Account;Regional
-2;technologies Soft Senior;Assistant Bike;Guadeloupe digital;Malagasy Alley Practical;solution
-3;Supervisor index Diverse;Brand copying;Corners Buckinghamshire Keyboard;Oklahoma;Tennessee Direct Radial
-4;magenta;Assurance systemic;International open-source;Jewelery application users;back-end
-5;program;input;actuating Corporate quantifying;digital parsing;Berkshire Vision-oriented empowering
-6;Small Pakistan Directives;bluetooth Borders;Metrics;Computer digital matrix;Metal matrix back-end
-7;Cross-group compelling;Cote;supply-chains;South;teal e-services
-8;International networks;Architect Metal;mission-critical connect JBOD;exploit;Arabia withdrawal
-9;black disintermediate;Buckinghamshire;Handmade bypassing;Borders;Handmade Swiss
-10;Architect;withdrawal;Fords Afghanistan Philippines;programming Technician Organized;initiatives
+1;E-commerce Platform;Plataforma de vendas online com catálogo, carrinho e checkout;ghp_fake_token_001;acme-corp/ecommerce-platform;PR_kwDOAbc123
+2;Sistema de Gestão Acadêmica;Portal para matrículas, notas e gestão de turmas universitárias;ghp_fake_token_002;universidade-br/sga-portal;PR_kwDOAbc456
+3;API de Pagamentos;Microsserviço de processamento de transações e conciliação financeira;ghp_fake_token_003;fintech-pay/payment-api;PR_kwDOAbc789
+4;App de Delivery;Aplicativo mobile para pedidos de restaurantes com rastreamento em tempo real;ghp_fake_token_004;foodtech-br/delivery-app;PR_kwDOAbc012
+5;Dashboard Analytics;Painel de métricas e relatórios para tomada de decisão gerencial;ghp_fake_token_005;data-corp/analytics-dashboard;PR_kwDOAbc345
+6;CRM Corporativo;Sistema de gestão de relacionamento com clientes e pipeline de vendas;ghp_fake_token_006;sales-inc/crm-system;PR_kwDOAbc678
+7;Portal do Colaborador;Intranet com folha de ponto, benefícios e comunicação interna;ghp_fake_token_007;hr-solutions/employee-portal;PR_kwDOAbc901
+8;Plataforma de Cursos;LMS com videoaulas, avaliações e certificados digitais;ghp_fake_token_008;edutech-br/learning-platform;PR_kwDOAbc234
+9;Sistema de Tickets;Help desk para abertura e acompanhamento de chamados de suporte;ghp_fake_token_009;support-co/ticket-system;PR_kwDOAbc567
+10;API de Autenticação;Serviço centralizado de login, SSO e gestão de permissões;ghp_fake_token_010;security-lab/auth-service;PR_kwDOAbc890

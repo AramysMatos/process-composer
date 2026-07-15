@@ -1,11 +1,11 @@
 id;name;description
-1;content;Solutions
-2;bypassing invoice bricks-and-clicks;Senior bandwidth
-3;Consultant user-centric;seamless Garden turquoise
-4;Home calculating Wooden;Senegal Cotton
-5;HDD envisioneer;Cambridgeshire matrices web-enabled
-6;orchestrate;Implemented
-7;parse;users
-8;Pants Global Glen;encompassing alliance Plastic
-9;fuchsia interfaces solution-oriented;Chile Account reciprocal
-10;proactive;Trail
+1;Template de História de Usuário;Modelo padrão: Como [persona], quero [ação], para [benefício]
+2;Template de Caso de Teste;Formato com pré-condições, passos, resultado esperado e prioridade
+3;Template de ADR;Registro de decisão arquitetural com contexto, opções e consequências
+4;Template de Sprint Planning;Agenda para planejamento de sprint com metas e capacidade da equipe
+5;Template de Retrospectiva;Formato Start/Stop/Continue para retrospectivas ágeis
+6;Template de Pull Request;Checklist de revisão: testes, documentação, breaking changes
+7;Template de Especificação de API;Contrato OpenAPI com endpoints, schemas e exemplos de payload
+8;Template de Bug Report;Formulário padronizado para reportar defeitos com passos de reprodução
+9;Template de Release Notes;Estrutura para documentar versões com novidades e correções
+10;Template de Diagrama C4;Modelo para documentar contexto, containers, componentes e código

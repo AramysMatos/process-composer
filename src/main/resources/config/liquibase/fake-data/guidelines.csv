@@ -1,11 +1,11 @@
 id;name;description
-1;Shoes Regional;whiteboard Rustic
-2;firewall Cotton copying;Checking
-3;cross-platform;withdrawal SCSI
-4;Markets;Product payment Bolivia
-5;user;Handcrafted
-6;Lek;e-tailers capacitor
-7;Computer Account;invoice convergence
-8;empower Lead;Intelligent
-9;hard green program;interface overriding
-10;Iowa virtual;Wooden
+1;Definition of Ready;História de usuário só entra na sprint quando critérios de prontidão estão atendidos
+2;Definition of Done;Critérios mínimos para considerar uma funcionalidade concluída e entregável
+3;Code Review obrigatório;Todo pull request deve ser revisado por pelo menos um desenvolvedor sênior
+4;Cobertura mínima de testes;Novas funcionalidades devem manter cobertura de testes acima de 80%
+5;Conventional Commits;Mensagens de commit devem seguir o padrão Conventional Commits
+6;Pair Programming;Atividades críticas devem ser desenvolvidas em par para reduzir defeitos
+7;Trunk-Based Development;Integrações frequentes na branch principal com feature flags quando necessário
+8;Documentar ADRs;Decisões arquiteturais relevantes devem ser registradas como Architecture Decision Records
+9;Segurança por padrão;Validar entrada de dados, autenticação e autorização em toda nova API
+10;Retrospectiva contínua;Registrar lições aprendidas e ações de melhoria ao final de cada sprint

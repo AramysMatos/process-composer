@@ -1,11 +1,11 @@
 id;name;description
-1;pixel;copying Intelligent
-2;upward-trending Licensed;Credit payment
-3;standardization;Nevada transmitting
-4;Liaison infomediaries web-readiness;Administrator Books Forward
-5;driver revolutionize convergence;invoice e-markets
-6;Auto Small Concrete;Outdoors
-7;transparent;Creative Account Steel
-8;Switchable Analyst Account;lavender
-9;Research;pink
-10;Account;Creative
+1;Jira;Ferramenta de gestão de projetos ágeis para backlog, sprints e acompanhamento de issues
+2;GitHub;Plataforma de versionamento de código com pull requests, code review e actions
+3;Figma;Ferramenta de design colaborativo para protótipos e especificação de interfaces
+4;SonarQube;Análise estática de código para detecção de bugs, vulnerabilidades e code smells
+5;Docker;Containerização de aplicações para ambientes de desenvolvimento e produção
+6;Postman;Cliente HTTP para testar, documentar e automatizar chamadas de API REST
+7;Confluence;Wiki corporativa para documentação de requisitos, decisões e runbooks
+8;Jenkins;Servidor de automação para pipelines de build, teste e deploy contínuo
+9;Draw.io;Editor de diagramas para modelagem de arquitetura, fluxos e processos
+10;Slack;Comunicação em equipe com canais dedicados por projeto e integrações

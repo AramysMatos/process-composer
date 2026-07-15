@@ -1,11 +1,11 @@
 id;process_name;process_description
-1;Expressway deposit Lead;Heights compressing Granite
-2;Enterprise-wide Gorgeous;Investor
-3;Usability;Garden Music Lira
-4;moderator reinvent deposit;District Soap
-5;Intelligent bleeding-edge;discrete
-6;Executive XML emulation;indexing Hryvnia
-7;Land impactful;Ball
-8;Rubber copying;Technician
-9;panel Loan SSL;Automotive calculating driver
-10;Stream Carolina;Unbranded
+1;Scrum;Framework ágil iterativo com sprints, papéis definidos e entregas incrementais de software
+2;Kanban;Fluxo contínuo de trabalho com limitação de WIP e visualização do pipeline de entrega
+3;Extreme Programming (XP);Práticas de engenharia como TDD, pair programming e integração contínua
+4;RUP Simplificado;Processo iterativo com fases de elaboração, construção e transição
+5;DevOps Pipeline;Fluxo automatizado de build, teste, deploy e monitoramento contínuo
+6;Design Thinking para Software;Processo centrado no usuário com empatia, ideação e prototipação
+7;CI/CD Tradicional;Integração e entrega contínuas com gates de qualidade e aprovação manual
+8;Lean Startup;Ciclo construir-medir-aprender com MVPs e validação de hipóteses de produto
+9;Feature-Driven Development;Desenvolvimento orientado a features com modelagem de domínio
+10;OpenUP;Processo unificado leve com disciplinas de gerência, requisitos e desenvolvimento
