@@ -6,7 +6,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.mycompany.myapp.IntegrationTest;
+import com.mycompany.myapp.domain.Activity;
+import com.mycompany.myapp.domain.Phase;
 import com.mycompany.myapp.domain.Process;
+import com.mycompany.myapp.repository.ActivityRepository;
+import com.mycompany.myapp.repository.PhaseRepository;
 import com.mycompany.myapp.repository.ProcessRepository;
 import java.util.List;
 import java.util.Random;
@@ -43,6 +47,12 @@ class ProcessResourceIT {
 
     @Autowired
     private ProcessRepository processRepository;
+
+    @Autowired
+    private PhaseRepository phaseRepository;
+
+    @Autowired
+    private ActivityRepository activityRepository;
 
     @Autowired
     private EntityManager em;
@@ -369,5 +379,29 @@ class ProcessResourceIT {
         // Validate the database contains one less item
         List<Process> processList = processRepository.findAll();
         assertThat(processList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    void deleteProcessWithPhasesAndActivities() throws Exception {
+        processRepository.saveAndFlush(process);
+
+        Phase phase = new Phase().name("Phase in process").process(process);
+        phaseRepository.saveAndFlush(phase);
+
+        Activity activity = new Activity().name("Activity in phase").phase(phase);
+        activityRepository.saveAndFlush(activity);
+
+        int databaseSizeBeforeDelete = processRepository.findAll().size();
+        int phaseCountBeforeDelete = phaseRepository.findAll().size();
+        int activityCountBeforeDelete = activityRepository.findAll().size();
+
+        restProcessMockMvc
+            .perform(delete(ENTITY_API_URL_ID, process.getId()).accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        assertThat(processRepository.findAll()).hasSize(databaseSizeBeforeDelete - 1);
+        assertThat(phaseRepository.findAll()).hasSize(phaseCountBeforeDelete - 1);
+        assertThat(activityRepository.findAll()).hasSize(activityCountBeforeDelete - 1);
     }
 }

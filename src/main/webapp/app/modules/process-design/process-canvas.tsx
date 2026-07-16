@@ -2,14 +2,17 @@ import './process-canvas.scss';
 
 import React, { useCallback, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Alert, Button, ButtonGroup } from 'reactstrap';
+import { Alert, Button, ButtonGroup, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getActivityEntities } from 'app/entities/activity/activity.reducer';
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
+import { deleteEntity as deleteProcess } from 'app/entities/process/process.reducer';
+import { duplicateProcess } from 'app/modules/process-design/duplicate-process';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
+import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { ActivityCanvas } from 'app/modules/process-design/components/activity-canvas';
 import { ActivityDetailDrawer } from 'app/modules/process-design/components/activity-detail-drawer/activity-detail-drawer';
 import { ConfirmDeleteModal } from 'app/modules/process-design/components/confirm-delete-modal';
@@ -34,6 +37,9 @@ export const ProcessCanvas = () => {
   const [drawerActivityId, setDrawerActivityId] = useState<number | null>(null);
   const [createModalPhaseId, setCreateModalPhaseId] = useState<number | null>(null);
   const [createPhaseModalOpen, setCreatePhaseModalOpen] = useState(false);
+  const [deleteProcessTarget, setDeleteProcessTarget] = useState(false);
+  const [deletingProcess, setDeletingProcess] = useState(false);
+  const [duplicatingProcess, setDuplicatingProcess] = useState(false);
 
   const handleSelectActivity = useCallback((activityId: number) => {
     setSelectedActivityId(activityId);
@@ -106,6 +112,49 @@ export const ProcessCanvas = () => {
     onActivityDeleted: handleActivityDeleted,
   });
 
+  const handleRequestDeleteProcess = useCallback(() => {
+    setDeleteProcessTarget(true);
+  }, []);
+
+  const handleCancelDeleteProcess = useCallback(() => {
+    if (!deletingProcess) {
+      setDeleteProcessTarget(false);
+    }
+  }, [deletingProcess]);
+
+  const handleConfirmDeleteProcess = useCallback(async () => {
+    if (!processId) {
+      return;
+    }
+
+    setDeletingProcess(true);
+    try {
+      await dispatch(deleteProcess(processId)).unwrap();
+      setDeleteProcessTarget(false);
+      navigate('/processos');
+    } catch {
+      // Modal stays open so the user can retry or cancel.
+    } finally {
+      setDeletingProcess(false);
+    }
+  }, [dispatch, navigate, processId]);
+
+  const handleDuplicateProcess = useCallback(async () => {
+    if (!processId || duplicatingProcess) {
+      return;
+    }
+
+    setDuplicatingProcess(true);
+    try {
+      const newProcessId = await duplicateProcess(dispatch, processId);
+      navigate(`/processos/${newProcessId}/canvas`);
+    } catch {
+      // Error notification is handled by middleware.
+    } finally {
+      setDuplicatingProcess(false);
+    }
+  }, [dispatch, duplicatingProcess, navigate, processId]);
+
   if (!isValidProcessId) {
     return (
       <div className="process-canvas" data-cy="process-canvas">
@@ -119,20 +168,67 @@ export const ProcessCanvas = () => {
   return (
     <div className="process-canvas" data-cy="process-canvas">
       <header className="process-canvas__header">
-        <Breadcrumb
-          items={[
-            {
-              label: translate('processComposerApp.processDesign.overview.breadcrumbProcesses', 'Processes'),
-              path: '/processos',
-            },
-            {
-              label: processMatches ? processName : translate('processComposerApp.processDesign.overview.loadingProcess', 'Loading...'),
-              path: `/processos/${processId}`,
-            },
-            { label: translate('processComposerApp.processDesign.overview.viewCanvas', 'Canvas') },
-          ]}
-          data-cy="process-canvas-breadcrumb"
-        />
+        <div className="process-canvas__header-main">
+          <Breadcrumb
+            items={[
+              {
+                label: translate('processComposerApp.processDesign.overview.breadcrumbProcesses', 'Processes'),
+                path: '/processos',
+              },
+              {
+                label: processMatches ? processName : translate('processComposerApp.processDesign.overview.loadingProcess', 'Loading...'),
+                path: `/processos/${processId}`,
+              },
+              { label: translate('processComposerApp.processDesign.overview.viewCanvas', 'Canvas') },
+            ]}
+            data-cy="process-canvas-breadcrumb"
+          />
+        </div>
+        {processMatches && (
+          <CardActionsMenu
+            data-cy={`processCanvasMenu-${processId}`}
+            items={[
+              {
+                key: 'duplicate',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="copy" className="me-2" />
+                    <Translate contentKey="processComposerApp.processDesign.list.actions.duplicate">Duplicate process</Translate>
+                  </>
+                ),
+                onClick() {
+                  void handleDuplicateProcess();
+                },
+                disabled: duplicatingProcess,
+                'data-cy': `processDuplicate-${processId}`,
+              },
+              {
+                key: 'export',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="file-code" className="me-2" />
+                    <Translate contentKey="processComposerApp.processDesign.list.actions.exportYaml">Export YAML</Translate>
+                  </>
+                ),
+                to: `/processos/${processId}/exportar`,
+                'data-cy': `processExportYaml-${processId}`,
+              },
+              {
+                key: 'delete',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="trash" className="me-2" />
+                    <Translate contentKey="entity.action.delete">Delete</Translate>
+                  </>
+                ),
+                onClick: handleRequestDeleteProcess,
+                danger: true,
+                disabled: deletingProcess,
+                'data-cy': `processDelete-${processId}`,
+              },
+            ]}
+          />
+        )}
       </header>
 
       <div className="process-canvas__layout">
@@ -200,6 +296,32 @@ export const ProcessCanvas = () => {
       />
 
       <ConfirmDeleteModal target={deleteTarget} deleting={deleting} onCancel={cancelDelete} onConfirm={confirmDelete} />
+
+      <Modal isOpen={deleteProcessTarget} toggle={handleCancelDeleteProcess}>
+        <ModalHeader toggle={handleCancelDeleteProcess} data-cy="processCanvasDeleteDialogHeading">
+          <Translate contentKey="entity.delete.title">Confirm delete operation</Translate>
+        </ModalHeader>
+        <ModalBody>
+          <Translate contentKey="processComposerApp.processDesign.list.delete.confirm" interpolate={{ name: processName }}>
+            {`Are you sure you want to delete the process "${processName}"?`}
+          </Translate>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={handleCancelDeleteProcess} disabled={deletingProcess}>
+            <FontAwesomeIcon icon="ban" /> <Translate contentKey="entity.action.cancel">Cancel</Translate>
+          </Button>
+          <Button
+            color="danger"
+            onClick={() => {
+              void handleConfirmDeleteProcess();
+            }}
+            disabled={deletingProcess}
+            data-cy="processCanvasConfirmDeleteButton"
+          >
+            <FontAwesomeIcon icon="trash" /> <Translate contentKey="entity.action.delete">Delete</Translate>
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 };

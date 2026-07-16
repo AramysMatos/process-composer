@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
+    boolean existsByProcess_Id(Long processId);
+
     default Optional<Project> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }

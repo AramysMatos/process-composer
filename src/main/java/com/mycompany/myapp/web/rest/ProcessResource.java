@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Process;
 import com.mycompany.myapp.repository.ProcessRepository;
+import com.mycompany.myapp.service.ProcessDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,9 +39,11 @@ public class ProcessResource {
     private String applicationName;
 
     private final ProcessRepository processRepository;
+    private final ProcessDeletionService processDeletionService;
 
-    public ProcessResource(ProcessRepository processRepository) {
+    public ProcessResource(ProcessRepository processRepository, ProcessDeletionService processDeletionService) {
         this.processRepository = processRepository;
+        this.processDeletionService = processDeletionService;
     }
 
     /**
@@ -179,7 +182,7 @@ public class ProcessResource {
     @DeleteMapping("/processes/{id}")
     public ResponseEntity<Void> deleteProcess(@PathVariable Long id) {
         log.debug("REST request to delete Process : {}", id);
-        processRepository.deleteById(id);
+        processDeletionService.deleteProcess(id);
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

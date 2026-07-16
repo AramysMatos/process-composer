@@ -1,6 +1,15 @@
 .process-canvas {
   &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
     margin-bottom: 1rem;
+  }
+
+  &__header-main {
+    flex: 1;
+    min-width: 0;
   }
 
   &__layout {
