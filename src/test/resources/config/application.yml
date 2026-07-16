@@ -86,6 +86,10 @@ jhipster:
 # ===================================================================
 
 # application:
+
+application:
+  github:
+    token-encryption-key: ${GITHUB_TOKEN_ENCRYPTION_KEY:dev-github-token-encryption-key-32b}
 management:
   health:
     mail:

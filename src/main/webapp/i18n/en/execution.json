@@ -115,6 +115,51 @@
         }
       },
       "github": {
+        "status": {
+          "title": "GitHub connection",
+          "repository": "Repository",
+          "tokenConfigured": "Personal Access Token configured. The backend uses it to communicate with GitHub on your behalf.",
+          "connected": "Connected",
+          "disconnected": "Not connected",
+          "disconnectedHint": "Connect a GitHub repository to generate issues from project tasks.",
+          "connect": "Connect to GitHub",
+          "reconnect": "Change token",
+          "connectSuccess": "GitHub connected successfully."
+        },
+        "modal": {
+          "title": "Connect to GitHub",
+          "tokenLabel": "Personal Access Token",
+          "tokenHelp": "The token is stored encrypted and used by the backend to communicate with GitHub on your behalf. It is never shown again after saving.",
+          "tokenHelpLink": "How to generate a token",
+          "tokenScope": "Minimum required scope: repo.",
+          "repositoryLabel": "Repository",
+          "confirm": "Connect",
+          "submitError": "Could not connect to GitHub. Check the token and repository.",
+          "validation": {
+            "tokenRequired": "Token is required.",
+            "repositoryRequired": "Repository is required.",
+            "repositoryFormat": "Use the owner/repo format."
+          }
+        },
+        "generate": {
+          "title": "Automatic backlog",
+          "hint": "Generate one GitHub issue preview for each project task.",
+          "button": "Generate backlog automatically",
+          "connectFirst": "Connect the project to GitHub before generating the backlog.",
+          "noTasks": "Create tasks before generating the backlog.",
+          "error": "Failed to generate issue previews."
+        },
+        "preview": {
+          "title": "Issue preview",
+          "include": "Include",
+          "issueTitle": "Title",
+          "issueBody": "Body",
+          "alreadyPublished": "Already published:",
+          "publish": "Publish on GitHub",
+          "noSelection": "Select at least one issue to publish.",
+          "publishSuccess": "{{count}} issue(s) published on GitHub.",
+          "publishError": "Failed to publish issues on GitHub."
+        },
         "placeholder": "GitHub integration panel — connect the repository and generate issues from tasks."
       }
     }

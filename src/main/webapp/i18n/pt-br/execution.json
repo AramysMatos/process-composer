@@ -115,6 +115,51 @@
         }
       },
       "github": {
+        "status": {
+          "title": "Conexão GitHub",
+          "repository": "Repositório",
+          "tokenConfigured": "Personal Access Token configurado. O backend usa esse token para se comunicar com o GitHub em seu nome.",
+          "connected": "Conectado",
+          "disconnected": "Não conectado",
+          "disconnectedHint": "Conecte um repositório GitHub para gerar issues a partir das tarefas do projeto.",
+          "connect": "Conectar ao GitHub",
+          "reconnect": "Trocar token",
+          "connectSuccess": "Conexão com o GitHub realizada com sucesso."
+        },
+        "modal": {
+          "title": "Conectar ao GitHub",
+          "tokenLabel": "Personal Access Token",
+          "tokenHelp": "O token é armazenado de forma criptografada e usado pelo backend para se comunicar com o GitHub em seu nome. Ele não será exibido novamente após salvar.",
+          "tokenHelpLink": "Como gerar um token",
+          "tokenScope": "Escopo mínimo necessário: repo.",
+          "repositoryLabel": "Repositório",
+          "confirm": "Conectar",
+          "submitError": "Não foi possível conectar ao GitHub. Verifique o token e o repositório.",
+          "validation": {
+            "tokenRequired": "O token é obrigatório.",
+            "repositoryRequired": "O repositório é obrigatório.",
+            "repositoryFormat": "Use o formato owner/repo."
+          }
+        },
+        "generate": {
+          "title": "Backlog automático",
+          "hint": "Gere um preview de issue do GitHub para cada tarefa do projeto.",
+          "button": "Gerar backlog automaticamente",
+          "connectFirst": "Conecte o projeto ao GitHub antes de gerar o backlog.",
+          "noTasks": "Crie tarefas antes de gerar o backlog.",
+          "error": "Falha ao gerar previews de issues."
+        },
+        "preview": {
+          "title": "Preview das issues",
+          "include": "Incluir",
+          "issueTitle": "Título",
+          "issueBody": "Descrição",
+          "alreadyPublished": "Já publicada:",
+          "publish": "Publicar no GitHub",
+          "noSelection": "Selecione pelo menos uma issue para publicar.",
+          "publishSuccess": "{{count}} issue(s) publicada(s) no GitHub.",
+          "publishError": "Falha ao publicar issues no GitHub."
+        },
         "placeholder": "Painel de integração GitHub — conecte o repositório e gere issues a partir das tarefas."
       }
     }

@@ -6,6 +6,7 @@ export interface IProject {
   name?: string | null;
   description?: string | null;
   gitHubToken?: string | null;
+  gitHubTokenConfigured?: boolean | null;
   gitHubRepository?: string | null;
   gitHubNodeId?: string | null;
   tasks?: ITask[] | null;

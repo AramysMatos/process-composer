@@ -162,7 +162,8 @@ class ProjectResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(project.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].gitHubToken").value(hasItem(DEFAULT_GIT_HUB_TOKEN)))
+            .andExpect(jsonPath("$.[*].gitHubToken").doesNotExist())
+            .andExpect(jsonPath("$.[*].gitHubTokenConfigured").value(hasItem(true)))
             .andExpect(jsonPath("$.[*].gitHubRepository").value(hasItem(DEFAULT_GIT_HUB_REPOSITORY)))
             .andExpect(jsonPath("$.[*].gitHubNodeId").value(hasItem(DEFAULT_GIT_HUB_NODE_ID)));
     }
@@ -198,7 +199,8 @@ class ProjectResourceIT {
             .andExpect(jsonPath("$.id").value(project.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
-            .andExpect(jsonPath("$.gitHubToken").value(DEFAULT_GIT_HUB_TOKEN))
+            .andExpect(jsonPath("$.gitHubToken").doesNotExist())
+            .andExpect(jsonPath("$.gitHubTokenConfigured").value(true))
             .andExpect(jsonPath("$.gitHubRepository").value(DEFAULT_GIT_HUB_REPOSITORY))
             .andExpect(jsonPath("$.gitHubNodeId").value(DEFAULT_GIT_HUB_NODE_ID));
     }

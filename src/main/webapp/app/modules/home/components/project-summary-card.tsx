@@ -3,13 +3,12 @@ import { Link } from 'react-router-dom';
 import { Badge, Card, CardBody, CardTitle } from 'reactstrap';
 import { Translate } from 'react-jhipster';
 
+import { isGitHubConnected } from 'app/modules/execution/execution.utils';
 import { IProject } from 'app/shared/model/project.model';
 
 export interface IProjectSummaryCardProps {
   project: IProject;
 }
-
-const isGitHubConnected = (project: IProject): boolean => Boolean(project.gitHubRepository?.trim());
 
 export const ProjectSummaryCard = ({ project }: IProjectSummaryCardProps) => {
   const connected = isGitHubConnected(project);

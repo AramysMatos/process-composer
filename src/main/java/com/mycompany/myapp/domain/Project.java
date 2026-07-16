@@ -1,6 +1,9 @@
 package com.mycompany.myapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.mycompany.myapp.security.EncryptedStringConverter;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,7 +30,9 @@ public class Project implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "git_hub_token")
+    @Convert(converter = EncryptedStringConverter.class)
+    @JsonProperty(access = Access.WRITE_ONLY)
+    @Column(name = "git_hub_token", length = 512)
     private String gitHubToken;
 
     @Column(name = "git_hub_repository")
@@ -96,6 +101,11 @@ public class Project implements Serializable {
 
     public void setGitHubToken(String gitHubToken) {
         this.gitHubToken = gitHubToken;
+    }
+
+    @JsonProperty("gitHubTokenConfigured")
+    public boolean isGitHubTokenConfigured() {
+        return gitHubToken != null && !gitHubToken.isBlank();
     }
 
     public String getGitHubRepository() {
@@ -194,7 +204,7 @@ public class Project implements Serializable {
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", description='" + getDescription() + "'" +
-            ", gitHubToken='" + getGitHubToken() + "'" +
+            ", gitHubToken='[protected]'" +
             ", gitHubRepository='" + getGitHubRepository() + "'" +
             ", gitHubNodeId='" + getGitHubNodeId() + "'" +
             "}";

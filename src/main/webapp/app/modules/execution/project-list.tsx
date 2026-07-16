@@ -29,6 +29,7 @@ import { deleteEntity as deleteProject, getEntities as getProjects } from 'app/e
 import { getEntities as getTasks } from 'app/entities/task/task.reducer';
 import { SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
+import { isGitHubConnected } from 'app/modules/execution/execution.utils';
 import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { IProject } from 'app/shared/model/project.model';
 
@@ -38,8 +39,6 @@ type ProjectDeleteTarget = {
   id: number;
   name: string;
 };
-
-const isGitHubConnected = (project: { gitHubRepository?: string | null }): boolean => Boolean(project.gitHubRepository?.trim());
 
 export const ProjectList = () => {
   const dispatch = useAppDispatch();

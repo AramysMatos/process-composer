@@ -82,7 +82,7 @@ export const Project = () => {
                   </td>
                   <td>{project.name}</td>
                   <td>{project.description}</td>
-                  <td>{project.gitHubToken}</td>
+                  <td>{project.gitHubTokenConfigured ? 'Configured' : '—'}</td>
                   <td>{project.gitHubRepository}</td>
                   <td>{project.gitHubNodeId}</td>
                   <td>{project.process ? <Link to={`/process/${project.process.id}`}>{project.process.processName}</Link> : ''}</td>

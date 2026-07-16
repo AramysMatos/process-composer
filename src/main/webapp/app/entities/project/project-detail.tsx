@@ -49,7 +49,7 @@ export const ProjectDetail = () => {
               <Translate contentKey="processComposerApp.project.gitHubToken">Git Hub Token</Translate>
             </span>
           </dt>
-          <dd>{projectEntity.gitHubToken}</dd>
+          <dd>{projectEntity.gitHubTokenConfigured ? 'Configured' : '—'}</dd>
           <dt>
             <span id="gitHubRepository">
               <Translate contentKey="processComposerApp.project.gitHubRepository">Git Hub Repository</Translate>

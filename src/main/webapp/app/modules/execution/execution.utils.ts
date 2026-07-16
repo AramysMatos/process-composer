@@ -1,6 +1,10 @@
 import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
+import { IProject } from 'app/shared/model/project.model';
 import { IEntityComboboxItem } from 'app/shared-ui/entity-combobox-creatable';
+
+export const isGitHubConnected = (project: Pick<IProject, 'gitHubRepository' | 'gitHubTokenConfigured'>): boolean =>
+  Boolean(project.gitHubRepository?.trim()) && Boolean(project.gitHubTokenConfigured);
 
 export const getActivityOptionsForProcess = (
   processId: number | undefined,

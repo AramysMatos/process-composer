@@ -211,3 +211,8 @@ jhipster:
 # ===================================================================
 
 # application:
+
+application:
+  github:
+    # Chave de criptografia da instância (NÃO é o token do usuário). Sobrescreva via GITHUB_TOKEN_ENCRYPTION_KEY.
+    token-encryption-key: ${GITHUB_TOKEN_ENCRYPTION_KEY:change-me-in-production-use-32-chars-min}
