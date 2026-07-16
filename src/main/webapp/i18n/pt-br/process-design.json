@@ -111,7 +111,12 @@
         "targetProcess": "Processo de destino",
         "createPhaseValidation": "Nome e processo são obrigatórios.",
         "createPhaseError": "Não foi possível criar a fase.",
-        "backToList": "Voltar para a visualização em lista"
+        "backToList": "Voltar para a visualização em lista",
+        "layoutMode": {
+          "label": "Organização",
+          "byPhase": "Por fase",
+          "horizontal": "Horizontal"
+        }
       },
       "drawer": {
         "title": "Detalhes da atividade",

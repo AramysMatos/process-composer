@@ -10,7 +10,6 @@ import {
   MiniMap,
   Node,
   NodeChange,
-  Position,
   ReactFlow,
   ReactFlowProvider,
   useEdgesState,
@@ -18,8 +17,7 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import dagre from 'dagre';
-import { Alert, Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
+import { Alert, Button, ButtonGroup, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 
@@ -36,13 +34,16 @@ import { mapIdList } from 'app/shared/util/entity-utils';
 import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
 import { ActivityNode, ActivityNodeData } from './activity-node';
 import { ActivityRelationEdge } from './activity-relation-edge';
+import {
+  annotateRelationEdges,
+  applyNodePositions,
+  CanvasLayoutMode,
+  loadCanvasLayoutMode,
+  saveCanvasLayoutMode,
+} from './activity-canvas-layout';
 
 const NODE_TYPE = 'activity';
 const EDGE_TYPE = 'activityRelation';
-const NODE_WIDTH = 220;
-const NODE_HEIGHT = 88;
-
-type NodePosition = { x: number; y: number };
 
 const PHASE_COLORS = ['#0d6efd', '#198754', '#fd7e14', '#6f42c1', '#dc3545', '#20c997', '#0dcaf0', '#d63384'];
 
@@ -84,76 +85,6 @@ const getPhaseColor = (phaseId: number | undefined, orderedPhaseIds: number[]): 
   }
   const index = orderedPhaseIds.indexOf(phaseId);
   return PHASE_COLORS[(index >= 0 ? index : 0) % PHASE_COLORS.length];
-};
-
-const layoutElements = (nodes: Node<ActivityNodeData>[], edges: Edge[]): { nodes: Node<ActivityNodeData>[]; edges: Edge[] } => {
-  const graph = new dagre.graphlib.Graph();
-  graph.setDefaultEdgeLabel(() => ({}));
-  graph.setGraph({ rankdir: 'LR', nodesep: 70, ranksep: 90 });
-
-  nodes.forEach(node => {
-    graph.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
-  });
-  edges.forEach(edge => {
-    graph.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(graph);
-
-  const layoutedNodes = nodes.map(node => {
-    const position = graph.node(node.id);
-    return {
-      ...node,
-      position: {
-        x: position.x - NODE_WIDTH / 2,
-        y: position.y - NODE_HEIGHT / 2,
-      },
-      targetPosition: Position.Left,
-      sourcePosition: Position.Right,
-    };
-  });
-
-  return { nodes: layoutedNodes, edges };
-};
-
-const getNewNodeOffset = (savedPositions: Map<string, NodePosition>): NodePosition => {
-  let maxY = 0;
-  savedPositions.forEach(pos => {
-    maxY = Math.max(maxY, pos.y + NODE_HEIGHT + 70);
-  });
-  return { x: 0, y: maxY };
-};
-
-const applyNodePositions = (
-  nodes: Node<ActivityNodeData>[],
-  edges: Edge[],
-  savedPositions: Map<string, NodePosition>
-): Node<ActivityNodeData>[] => {
-  const unknownNodes = nodes.filter(node => !savedPositions.has(node.id));
-
-  if (unknownNodes.length === nodes.length) {
-    const { nodes: layoutedNodes } = layoutElements(nodes, edges);
-    layoutedNodes.forEach(node => savedPositions.set(node.id, node.position));
-    return layoutedNodes;
-  }
-
-  if (unknownNodes.length > 0) {
-    const offset = getNewNodeOffset(savedPositions);
-    const { nodes: layoutedNewNodes } = layoutElements(unknownNodes, []);
-    layoutedNewNodes.forEach(node => {
-      savedPositions.set(node.id, {
-        x: node.position.x + offset.x,
-        y: node.position.y + offset.y,
-      });
-    });
-  }
-
-  return nodes.map(node => ({
-    ...node,
-    position: savedPositions.get(node.id) ?? { x: 0, y: 0 },
-    targetPosition: Position.Left,
-    sourcePosition: Position.Right,
-  }));
 };
 
 const buildGraphNodesAndEdges = (
@@ -239,13 +170,28 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }
   const [newActivityName, setNewActivityName] = useState('');
   const [newActivityPhaseId, setNewActivityPhaseId] = useState<number | ''>('');
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const nodePositionsRef = useRef<Map<string, NodePosition>>(new Map());
+  const [layoutMode, setLayoutMode] = useState<CanvasLayoutMode>(() => loadCanvasLayoutMode(processId));
+  const nodePositionsRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const shouldFitViewRef = useRef(true);
 
   useEffect(() => {
     nodePositionsRef.current = new Map();
     shouldFitViewRef.current = true;
+    setLayoutMode(loadCanvasLayoutMode(processId));
   }, [processId]);
+
+  const handleLayoutModeChange = useCallback(
+    (nextMode: CanvasLayoutMode) => {
+      if (nextMode === layoutMode) {
+        return;
+      }
+      nodePositionsRef.current.clear();
+      shouldFitViewRef.current = true;
+      saveCanvasLayoutMode(processId, nextMode);
+      setLayoutMode(nextMode);
+    },
+    [layoutMode, processId]
+  );
 
   useEffect(() => {
     dispatch(getPhaseEntities({}));
@@ -295,6 +241,16 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }
     return map;
   }, [processActivities]);
 
+  const phaseIdByActivityId = useMemo(() => {
+    const map = new Map<number, number>();
+    processActivities.forEach(activity => {
+      if (activity.id !== undefined && activity.phase?.id !== undefined) {
+        map.set(activity.id, activity.phase.id);
+      }
+    });
+    return map;
+  }, [processActivities]);
+
   const refreshActivities = useCallback(async () => {
     await dispatch(getActivityEntities({ eagerload: true })).unwrap();
   }, [dispatch]);
@@ -318,11 +274,12 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }
       }
     });
 
-    const nextNodes = applyNodePositions(baseNodes, nextEdges, nodePositionsRef.current);
+    const nextNodes = applyNodePositions(baseNodes, nextEdges, nodePositionsRef.current, layoutMode, orderedPhaseIds, phaseIdByActivityId);
+    const annotatedEdges = annotateRelationEdges(nextEdges, phaseIdByActivityId, layoutMode);
     const isInitialLayout = shouldFitViewRef.current;
 
     setNodes(nextNodes);
-    setEdges(nextEdges);
+    setEdges(annotatedEdges);
 
     if (isInitialLayout && nextNodes.length > 0) {
       shouldFitViewRef.current = false;
@@ -330,7 +287,19 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }
         void fitView({ padding: 0.2 });
       });
     }
-  }, [activityLoading, processActivities, phaseColorById, phaseNameById, selectedActivityId, setNodes, setEdges, fitView]);
+  }, [
+    activityLoading,
+    processActivities,
+    phaseColorById,
+    phaseNameById,
+    orderedPhaseIds,
+    phaseIdByActivityId,
+    layoutMode,
+    selectedActivityId,
+    setNodes,
+    setEdges,
+    fitView,
+  ]);
 
   const handleNodesChange = useCallback(
     (changes: NodeChange<Node<ActivityNodeData>>[]) => {
@@ -525,6 +494,37 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }
         </Alert>
       ) : (
         <>
+          <div
+            className="activity-canvas__layout-toggle"
+            role="group"
+            aria-label={translate('processComposerApp.processDesign.canvas.layoutMode.label', 'Layout')}
+          >
+            <ButtonGroup data-cy="canvas-layout-toggle">
+              <Button
+                type="button"
+                size="sm"
+                color="light"
+                active={layoutMode === 'byPhase'}
+                onClick={() => handleLayoutModeChange('byPhase')}
+                data-cy="canvas-layout-by-phase"
+              >
+                <FontAwesomeIcon icon="layer-group" className="me-1" />
+                <Translate contentKey="processComposerApp.processDesign.canvas.layoutMode.byPhase">By phase</Translate>
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                color="light"
+                active={layoutMode === 'horizontal'}
+                onClick={() => handleLayoutModeChange('horizontal')}
+                data-cy="canvas-layout-horizontal"
+              >
+                <FontAwesomeIcon icon="arrows-alt-h" className="me-1" />
+                <Translate contentKey="processComposerApp.processDesign.canvas.layoutMode.horizontal">Horizontal</Translate>
+              </Button>
+            </ButtonGroup>
+          </div>
+
           <ReactFlow
             className="activity-canvas__flow"
             nodes={nodes}

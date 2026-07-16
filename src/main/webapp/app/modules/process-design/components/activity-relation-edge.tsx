@@ -5,17 +5,59 @@ import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, useReactFlow, type Edge
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { translate } from 'react-jhipster';
 
+import { ActivityRelationEdgeData, getCrossPhaseEdgePath, getRowIndexFromY, pickChannelX } from './activity-canvas-layout';
+
 export const ActivityRelationEdge = memo(
-  ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, markerEnd, style, selected }: EdgeProps) => {
-    const { deleteElements } = useReactFlow();
-    const [edgePath, labelX, labelY] = getSmoothStepPath({
-      sourceX,
-      sourceY,
-      targetX,
-      targetY,
-      sourcePosition,
-      targetPosition,
-    });
+  ({
+    id,
+    source,
+    target,
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    sourcePosition,
+    targetPosition,
+    markerEnd,
+    style,
+    selected,
+    data,
+  }: EdgeProps) => {
+    const { deleteElements, getNode, getNodes } = useReactFlow();
+    const edgeData = data as ActivityRelationEdgeData | undefined;
+
+    let edgePath: string;
+    let labelX: number;
+    let labelY: number;
+
+    if (edgeData?.crossPhase) {
+      const sourceNode = getNode(source);
+      const targetNode = getNode(target);
+      const routeIndex = edgeData.routeIndex ?? 0;
+      const nodes = getNodes();
+      const sourceRowIndex = getRowIndexFromY(sourceNode?.position.y ?? 0);
+      const targetRowIndex = getRowIndexFromY(targetNode?.position.y ?? 0);
+      const channelX = pickChannelX(sourceX, targetX, nodes, routeIndex);
+      [edgePath, labelX, labelY] = getCrossPhaseEdgePath(
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+        sourceRowIndex,
+        targetRowIndex,
+        channelX,
+        routeIndex
+      );
+    } else {
+      [edgePath, labelX, labelY] = getSmoothStepPath({
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+        sourcePosition,
+        targetPosition,
+      });
+    }
 
     return (
       <>

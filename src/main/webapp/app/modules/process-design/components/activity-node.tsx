@@ -25,7 +25,8 @@ export const ActivityNode = memo(({ data, selected }: NodeProps) => {
       style={{ '--activity-node-phase-color': nodeData.phaseColor } as React.CSSProperties}
       data-cy={`activity-node-${nodeData.activityId}`}
     >
-      <ReactFlow.Handle type="target" position={Position.Left} />
+      <ReactFlow.Handle type="target" position={Position.Left} id="left" />
+      <ReactFlow.Handle type="target" position={Position.Top} id="top" />
       <div className="activity-node__name">{nodeData.name}</div>
       <div className="activity-node__phase">{nodeData.phaseName}</div>
       <div className="activity-node__badges">
@@ -38,7 +39,8 @@ export const ActivityNode = memo(({ data, selected }: NodeProps) => {
           {translate('processComposerApp.processDesign.canvas.artifactsBadge', { count: nodeData.artifactCount })}
         </span>
       </div>
-      <ReactFlow.Handle type="source" position={Position.Right} />
+      <ReactFlow.Handle type="source" position={Position.Right} id="right" />
+      <ReactFlow.Handle type="source" position={Position.Bottom} id="bottom" />
     </div>
   );
 });
