@@ -15,11 +15,11 @@ export interface IProcessSummaryCardProps {
 export const ProcessSummaryCard = ({ process, phaseCount, activityCount }: IProcessSummaryCardProps) => {
   return (
     <Card className="home-dashboard__summary-card shadow-sm" data-cy={`processSummaryCard-${process.id}`}>
-      <CardBody>
+      <CardBody className="home-dashboard__summary-card-body">
         <CardTitle tag="h3" className="h5 mb-2">
           {process.processName}
         </CardTitle>
-        <p className="text-muted small mb-3">
+        <p className="text-muted small mb-0">
           <Translate contentKey="home.dashboard.process.phaseCount" interpolate={{ count: phaseCount }}>
             {`${phaseCount} phases`}
           </Translate>
@@ -28,7 +28,7 @@ export const ProcessSummaryCard = ({ process, phaseCount, activityCount }: IProc
             {`${activityCount} activities`}
           </Translate>
         </p>
-        <div className="d-flex flex-wrap gap-2">
+        <div className="home-dashboard__summary-card-actions d-flex flex-wrap gap-2">
           <Button tag={Link} to={`/processos/${process.id}`} color="info" size="sm" data-cy="processOpenButton">
             <FontAwesomeIcon icon="eye" /> <Translate contentKey="home.dashboard.process.open">Open</Translate>
           </Button>

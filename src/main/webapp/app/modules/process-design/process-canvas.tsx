@@ -171,6 +171,8 @@ export const ProcessCanvas = () => {
         isOpen={drawerActivityId !== null}
         onClose={handleCloseDrawer}
         onSaved={handleActivitySaved}
+        onDelete={activity => requestDelete({ type: 'activity', id: activity.id, name: activity.name })}
+        deleting={deleting}
       />
 
       <CreateActivityModal

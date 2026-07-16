@@ -21,15 +21,15 @@ export const ProjectSummaryCard = ({ project }: IProjectSummaryCardProps) => {
       className="home-dashboard__summary-card home-dashboard__summary-card--clickable shadow-sm text-decoration-none"
       data-cy={`projectSummaryCard-${project.id}`}
     >
-      <CardBody>
+      <CardBody className="home-dashboard__summary-card-body">
         <CardTitle tag="h3" className="h5 mb-2 text-body">
           {project.name}
         </CardTitle>
-        <p className="text-muted small mb-2">
+        <p className="text-muted small mb-0">
           <Translate contentKey="home.dashboard.project.sourceProcess">Source process</Translate>:{' '}
           <span className="fw-semibold">{project.process?.processName ?? '—'}</span>
         </p>
-        <Badge color={connected ? 'success' : 'secondary'} pill>
+        <Badge color={connected ? 'success' : 'secondary'} pill className="home-dashboard__summary-card-badge">
           {connected ? (
             <Translate contentKey="home.dashboard.project.githubConnected">GitHub connected</Translate>
           ) : (

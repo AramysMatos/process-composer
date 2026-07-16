@@ -2,6 +2,7 @@ import './activity-detail-drawer.scss';
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, Nav, NavItem, NavLink, Offcanvas, OffcanvasBody, OffcanvasHeader, Spinner, TabContent, TabPane } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 import { toast } from 'react-toastify';
 
@@ -24,9 +25,11 @@ export interface ActivityDetailDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
+  onDelete?: (activity: { id: number; name: string }) => void;
+  deleting?: boolean;
 }
 
-export const ActivityDetailDrawer = ({ activityId, isOpen, onClose, onSaved }: ActivityDetailDrawerProps) => {
+export const ActivityDetailDrawer = ({ activityId, isOpen, onClose, onSaved, onDelete, deleting = false }: ActivityDetailDrawerProps) => {
   const dispatch = useAppDispatch();
 
   const activityEntity = useAppSelector(state => state.activity.entity);
@@ -79,6 +82,18 @@ export const ActivityDetailDrawer = ({ activityId, isOpen, onClose, onSaved }: A
 
   const isLoading = loading || (!draft && isOpen && activityId !== null);
   const drawerTitle = draft?.name ?? translate('processComposerApp.processDesign.drawer.title', 'Activity details');
+  const isBusy = updating || deleting;
+
+  const handleDelete = () => {
+    if (!draft?.id || !onDelete) {
+      return;
+    }
+
+    onDelete({
+      id: draft.id,
+      name: draft.name ?? '',
+    });
+  };
 
   return (
     <Offcanvas
@@ -148,16 +163,23 @@ export const ActivityDetailDrawer = ({ activityId, isOpen, onClose, onSaved }: A
             </TabContent>
 
             <div className="activity-detail-drawer__footer">
-              <Button color="secondary" outline onClick={handleClose} disabled={updating}>
-                <Translate contentKey="entity.action.cancel">Cancel</Translate>
-              </Button>
-              <Button color="primary" onClick={handleSave} disabled={updating} data-cy="activity-drawer-save">
-                {updating ? (
-                  <Translate contentKey="processComposerApp.processDesign.drawer.saving">Saving...</Translate>
-                ) : (
-                  <Translate contentKey="processComposerApp.processDesign.drawer.save">Save</Translate>
-                )}
-              </Button>
+              {onDelete && (
+                <Button color="danger" outline onClick={handleDelete} disabled={isBusy} data-cy="activity-drawer-delete">
+                  <FontAwesomeIcon icon="trash" /> <Translate contentKey="entity.action.delete">Delete</Translate>
+                </Button>
+              )}
+              <div className="activity-detail-drawer__footer-actions">
+                <Button color="secondary" outline onClick={handleClose} disabled={isBusy}>
+                  <Translate contentKey="entity.action.cancel">Cancel</Translate>
+                </Button>
+                <Button color="primary" onClick={handleSave} disabled={isBusy} data-cy="activity-drawer-save">
+                  {updating ? (
+                    <Translate contentKey="processComposerApp.processDesign.drawer.saving">Saving...</Translate>
+                  ) : (
+                    <Translate contentKey="processComposerApp.processDesign.drawer.save">Save</Translate>
+                  )}
+                </Button>
+              </div>
             </div>
           </>
         )}

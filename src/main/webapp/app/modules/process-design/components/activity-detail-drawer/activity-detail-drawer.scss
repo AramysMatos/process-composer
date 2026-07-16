@@ -37,17 +37,23 @@
 
   &__tabs {
     margin-bottom: 1rem;
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    flex-wrap: wrap;
   }
 
   &__footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     gap: 0.5rem;
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid #dee2e6;
+  }
+
+  &__footer-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
   }
 
   &__loading {

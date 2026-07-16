@@ -27,10 +27,12 @@
         "open": "Open",
         "instantiateProject": "Instantiate Project",
         "empty": "You have not created any process yet. Start by defining your first process template.",
-        "createFirst": "Create my first process"
+        "createFirst": "Create my first process",
+        "createNew": "New process"
       },
       "project": {
         "sourceProcess": "Source process",
+        "createNew": "New project",
         "githubConnected": "GitHub connected",
         "githubNotConnected": "GitHub not connected",
         "requiresProcess": "Projects are created from an existing process. Create at least one process before instantiating a project.",
