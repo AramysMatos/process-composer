@@ -7,6 +7,7 @@ import { faBook } from '@fortawesome/free-solid-svg-icons/faBook';
 import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
+import { faChevronUp } from '@fortawesome/free-solid-svg-icons/faChevronUp';
 import { faCircle } from '@fortawesome/free-solid-svg-icons/faCircle';
 import { faCloud } from '@fortawesome/free-solid-svg-icons/faCloud';
 import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
@@ -58,6 +59,7 @@ export const loadIcons = () => {
     faBox,
     faChevronDown,
     faChevronRight,
+    faChevronUp,
     faCircle,
     faCloud,
     faCopy,

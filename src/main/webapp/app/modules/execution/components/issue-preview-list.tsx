@@ -1,17 +1,18 @@
+import './issue-preview-list.scss';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Card, CardBody, Collapse, FormGroup, Input, Label, Spinner } from 'reactstrap';
+import { Alert, Button, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { updateEntity as updateTask } from 'app/entities/task/task.reducer';
+import { IssuePreviewCard, EditableIssuePreview } from 'app/modules/execution/components/issue-preview-card';
 import { GithubIssuePreview, publishGithubIssues } from 'app/modules/execution/execution.reducer';
 import { ITask } from 'app/shared/model/task.model';
 
-export interface EditableIssuePreview extends GithubIssuePreview {
-  included: boolean;
-}
+export type { EditableIssuePreview };
 
 export interface IssuePreviewListProps {
   previews: GithubIssuePreview[];
@@ -29,6 +30,7 @@ export const IssuePreviewList = ({ previews, projectId, tasks, onPublished }: Is
 
   const [items, setItems] = useState<EditableIssuePreview[]>([]);
   const [expandedTaskIds, setExpandedTaskIds] = useState<Set<number>>(new Set());
+  const [editingBodyTaskIds, setEditingBodyTaskIds] = useState<Set<number>>(new Set());
   const [publishError, setPublishError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,14 +44,46 @@ export const IssuePreviewList = ({ previews, projectId, tasks, onPublished }: Is
         };
       })
     );
-    setExpandedTaskIds(new Set(previews.map(preview => preview.taskId)));
+    setExpandedTaskIds(new Set());
+    setEditingBodyTaskIds(new Set());
     setPublishError(null);
   }, [previews, tasksById]);
 
+  const publishedTaskIds = useMemo(
+    () => new Set([...tasksById.values()].filter(task => Boolean(task.gitHubUrl?.trim())).map(task => task.id as number)),
+    [tasksById]
+  );
+
+  const selectableItems = useMemo(() => items.filter(item => !publishedTaskIds.has(item.taskId)), [items, publishedTaskIds]);
+
   const selectedItems = items.filter(item => item.included);
+
+  const allSelectableSelected = selectableItems.length > 0 && selectableItems.every(item => item.included);
+
+  const handleToggleSelectAll = useCallback(() => {
+    const targetIncluded = !allSelectableSelected;
+    setItems(current => current.map(item => (publishedTaskIds.has(item.taskId) ? item : { ...item, included: targetIncluded })));
+  }, [allSelectableSelected, publishedTaskIds]);
 
   const toggleExpanded = useCallback((taskId: number) => {
     setExpandedTaskIds(current => {
+      const next = new Set(current);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+        setEditingBodyTaskIds(editing => {
+          const nextEditing = new Set(editing);
+          nextEditing.delete(taskId);
+          return nextEditing;
+        });
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleEditingBody = useCallback((taskId: number) => {
+    setEditingBodyTaskIds(current => {
       const next = new Set(current);
       if (next.has(taskId)) {
         next.delete(taskId);
@@ -123,16 +157,28 @@ export const IssuePreviewList = ({ previews, projectId, tasks, onPublished }: Is
         <h2 className="h5 mb-0">
           <Translate contentKey="processComposerApp.execution.github.preview.title">Issue preview</Translate>
         </h2>
-        <Button color="primary" onClick={() => void handlePublish()} disabled={busy} data-cy="github-publish-button">
-          {busy ? (
-            <Spinner size="sm" />
-          ) : (
-            <>
-              <FontAwesomeIcon icon="upload" className="me-2" aria-hidden="true" />
-              <Translate contentKey="processComposerApp.execution.github.preview.publish">Publish on GitHub</Translate>
-            </>
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          {selectableItems.length > 0 && (
+            <Button color="secondary" outline onClick={handleToggleSelectAll} disabled={busy} data-cy="github-toggle-select-all-button">
+              <FontAwesomeIcon icon={allSelectableSelected ? 'square' : 'check-square'} className="me-2" aria-hidden="true" />
+              {allSelectableSelected ? (
+                <Translate contentKey="processComposerApp.execution.github.preview.deselectAll">Deselecionar todas</Translate>
+              ) : (
+                <Translate contentKey="processComposerApp.execution.github.preview.selectAll">Selecionar todas</Translate>
+              )}
+            </Button>
           )}
-        </Button>
+          <Button color="primary" onClick={() => void handlePublish()} disabled={busy} data-cy="github-publish-button">
+            {busy ? (
+              <Spinner size="sm" />
+            ) : (
+              <>
+                <FontAwesomeIcon icon="upload" className="me-2" aria-hidden="true" />
+                <Translate contentKey="processComposerApp.execution.github.preview.publish">Publish on GitHub</Translate>
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {publishError && (
@@ -144,70 +190,19 @@ export const IssuePreviewList = ({ previews, projectId, tasks, onPublished }: Is
       {items.map(item => {
         const task = tasksById.get(item.taskId);
         const alreadyPublished = Boolean(task?.gitHubUrl?.trim());
-        const expanded = expandedTaskIds.has(item.taskId);
 
         return (
-          <Card key={item.taskId} className="mb-3 shadow-sm" data-cy={`issue-preview-card-${item.taskId}`}>
-            <CardBody>
-              <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-2">
-                <div className="flex-grow-1">
-                  <FormGroup check className="mb-2">
-                    <Input
-                      id={`issue-include-${item.taskId}`}
-                      type="checkbox"
-                      checked={item.included}
-                      disabled={alreadyPublished}
-                      onChange={event => updateItem(item.taskId, { included: event.target.checked })}
-                      data-cy={`issue-preview-include-${item.taskId}`}
-                    />
-                    <Label check for={`issue-include-${item.taskId}`} className="ms-2">
-                      <Translate contentKey="processComposerApp.execution.github.preview.include">Include</Translate>
-                    </Label>
-                  </FormGroup>
-
-                  <Label for={`issue-title-${item.taskId}`} className="form-label">
-                    <Translate contentKey="processComposerApp.execution.github.preview.issueTitle">Title</Translate>
-                  </Label>
-                  <Input
-                    id={`issue-title-${item.taskId}`}
-                    type="text"
-                    value={item.title}
-                    disabled={alreadyPublished}
-                    onChange={event => updateItem(item.taskId, { title: event.target.value })}
-                    data-cy={`issue-preview-title-${item.taskId}`}
-                  />
-                </div>
-
-                <Button color="link" className="p-0" onClick={() => toggleExpanded(item.taskId)}>
-                  <FontAwesomeIcon icon={expanded ? 'chevron-up' : 'chevron-down'} aria-hidden="true" />
-                </Button>
-              </div>
-
-              {alreadyPublished && task?.gitHubUrl && (
-                <p className="text-muted small mb-2">
-                  <Translate contentKey="processComposerApp.execution.github.preview.alreadyPublished">Already published:</Translate>{' '}
-                  <a href={task.gitHubUrl} target="_blank" rel="noopener noreferrer">
-                    {task.gitHubUrl}
-                  </a>
-                </p>
-              )}
-
-              <Collapse isOpen={expanded}>
-                <Label for={`issue-body-${item.taskId}`} className="form-label">
-                  <Translate contentKey="processComposerApp.execution.github.preview.issueBody">Body</Translate>
-                </Label>
-                <Input
-                  id={`issue-body-${item.taskId}`}
-                  type="textarea"
-                  rows={8}
-                  value={item.body}
-                  disabled={alreadyPublished}
-                  onChange={event => updateItem(item.taskId, { body: event.target.value })}
-                  data-cy={`issue-preview-body-${item.taskId}`}
-                />
-              </Collapse>
-            </CardBody>
-          </Card>
+          <IssuePreviewCard
+            key={item.taskId}
+            item={item}
+            alreadyPublished={alreadyPublished}
+            gitHubUrl={task?.gitHubUrl}
+            expanded={expandedTaskIds.has(item.taskId)}
+            editingBody={editingBodyTaskIds.has(item.taskId)}
+            onToggleExpanded={() => toggleExpanded(item.taskId)}
+            onToggleEditingBody={() => toggleEditingBody(item.taskId)}
+            onUpdate={patch => updateItem(item.taskId, patch)}
+          />
         );
       })}
     </div>

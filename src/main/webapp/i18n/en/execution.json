@@ -91,6 +91,7 @@
         "viewActivity": "View activity {{name}}",
         "independentBadge": "Independent",
         "empty": "No tasks yet. Create the first one for this project.",
+        "notFound": "Task not found.",
         "deleteTask": "Delete task",
         "editTask": "Edit task",
         "delete": {
@@ -113,6 +114,27 @@
           "confirm": "Save changes",
           "saving": "Saving...",
           "submitError": "Could not save the task."
+        },
+        "selectTask": "Select a task from the list or create a new one",
+        "detailPanel": {
+          "edit": "Edit",
+          "publishGitHub": "Publish on GitHub",
+          "createTitle": "New task",
+          "noDescription": "No description",
+          "activities": {
+            "title": "Linked activities",
+            "expand": "Expand activity",
+            "collapse": "Collapse activity",
+            "loadError": "Could not load activity details.",
+            "none": "None",
+            "responsibleRoles": "Responsible roles",
+            "participantRoles": "Participant roles",
+            "tools": "Tools",
+            "guidelines": "Guidelines",
+            "templates": "Templates",
+            "requiredArtifacts": "Required artifacts",
+            "producedArtifacts": "Produced artifacts"
+          }
         }
       },
       "github": {
@@ -153,10 +175,21 @@
         "preview": {
           "title": "Issue preview",
           "include": "Include",
+          "includeAria": "Include in publish",
           "issueTitle": "Title",
+          "titlePlaceholder": "Issue title",
           "issueBody": "Body",
+          "viewBody": "View body",
+          "hideBody": "Hide body",
+          "editMarkdown": "Edit Markdown",
+          "viewPreview": "Preview",
+          "bodyPreview": "Preview",
+          "expandBody": "Expand body",
+          "collapseBody": "Collapse body",
           "alreadyPublished": "Already published:",
           "publish": "Publish on GitHub",
+          "selectAll": "Select all",
+          "deselectAll": "Deselect all",
           "noSelection": "Select at least one issue to publish.",
           "publishSuccess": "{{count}} issue(s) published on GitHub.",
           "publishError": "Failed to publish issues on GitHub."

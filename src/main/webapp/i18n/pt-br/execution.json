@@ -91,6 +91,7 @@
         "viewActivity": "Ver atividade {{name}}",
         "independentBadge": "Independente",
         "empty": "Nenhuma tarefa ainda. Crie a primeira para este projeto.",
+        "notFound": "Tarefa não encontrada.",
         "deleteTask": "Excluir tarefa",
         "editTask": "Editar tarefa",
         "delete": {
@@ -113,6 +114,27 @@
           "confirm": "Salvar alterações",
           "saving": "Salvando...",
           "submitError": "Não foi possível salvar a tarefa."
+        },
+        "selectTask": "Selecione uma tarefa da lista ou crie uma nova",
+        "detailPanel": {
+          "edit": "Editar",
+          "publishGitHub": "Publicar no GitHub",
+          "createTitle": "Nova tarefa",
+          "noDescription": "Sem descrição",
+          "activities": {
+            "title": "Atividades vinculadas",
+            "expand": "Expandir atividade",
+            "collapse": "Recolher atividade",
+            "loadError": "Não foi possível carregar os detalhes da atividade.",
+            "none": "Nenhum",
+            "responsibleRoles": "Papéis responsáveis",
+            "participantRoles": "Papéis participantes",
+            "tools": "Ferramentas",
+            "guidelines": "Orientações",
+            "templates": "Templates",
+            "requiredArtifacts": "Artefatos necessários",
+            "producedArtifacts": "Artefatos produzidos"
+          }
         }
       },
       "github": {
@@ -153,10 +175,21 @@
         "preview": {
           "title": "Preview das issues",
           "include": "Incluir",
+          "includeAria": "Incluir na publicação",
           "issueTitle": "Título",
+          "titlePlaceholder": "Título da issue",
           "issueBody": "Descrição",
+          "viewBody": "Ver descrição",
+          "hideBody": "Ocultar descrição",
+          "editMarkdown": "Editar Markdown",
+          "viewPreview": "Visualizar",
+          "bodyPreview": "Pré-visualização",
+          "expandBody": "Expandir descrição",
+          "collapseBody": "Recolher descrição",
           "alreadyPublished": "Já publicada:",
           "publish": "Publicar no GitHub",
+          "selectAll": "Selecionar todas",
+          "deselectAll": "Deselecionar todas",
           "noSelection": "Selecione pelo menos uma issue para publicar.",
           "publishSuccess": "{{count}} issue(s) publicada(s) no GitHub.",
           "publishError": "Falha ao publicar issues no GitHub."

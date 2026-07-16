@@ -95,6 +95,7 @@
     "react-hook-form": "7.30.0",
     "react-jhipster": "0.22.0",
     "react-loadable": "5.5.0",
+    "react-markdown": "^10.1.0",
     "react-redux": "8.0.2",
     "react-redux-loading-bar": "5.0.4",
     "react-router-dom": "6.3.0",
@@ -104,6 +105,7 @@
     "reactstrap": "9.1.4",
     "redux": "4.2.0",
     "redux-thunk": "2.4.1",
+    "remark-gfm": "^4.0.1",
     "tslib": "2.4.0",
     "uuid": "8.3.2",
     "zod": "3.23.8"

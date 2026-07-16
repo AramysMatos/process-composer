@@ -1,21 +1,95 @@
 import type { IActivity } from 'app/shared/model/activity.model';
 import type { ITask } from 'app/shared/model/task.model';
 
-export function buildIssueBody(task: ITask, hydratedActivities: IActivity[]): string {
-  if (hydratedActivities.length === 0) {
-    return task.description ?? '_tarefa sem atividade de processo vinculada_';
-  }
-  const requiredArtifacts = hydratedActivities.flatMap(a => a.requiredArtifacts ?? []).map(a => a.name);
-  const producedArtifacts = hydratedActivities.flatMap(a => a.producedArtifacts ?? []).map(a => a.name);
-  const responsibleRoles = hydratedActivities.flatMap(a => a.responsibleRoles ?? []).map(r => r.name);
-  const participantRoles = hydratedActivities.flatMap(a => a.participantRoles ?? []).map(r => r.name);
+interface NamedItem {
+  name?: string | null;
+  description?: string | null;
+}
 
-  return [
-    task.description ?? '',
+function normalizeInlineText(value: string | null | undefined): string {
+  if (!value?.trim()) {
+    return '';
+  }
+  return value.replace(/\r\n/g, '\n').replace(/\n+/g, ' ').trim();
+}
+
+function formatNamedItems(items: NamedItem[] | null | undefined, emptyLabel: string): string[] {
+  const named = (items ?? []).filter(item => item.name?.trim());
+  if (named.length === 0) {
+    return [`- _${emptyLabel}_`];
+  }
+  return named.map(item => {
+    const name = normalizeInlineText(item.name);
+    const description = normalizeInlineText(item.description);
+    return description ? `- **${name}**: ${description}` : `- **${name}**`;
+  });
+}
+
+function formatRoles(roles: NamedItem[] | null | undefined, emptyLabel: string): string {
+  const names = (roles ?? []).map(r => r.name?.trim()).filter((name): name is string => Boolean(name));
+  return names.length > 0 ? names.join(', ') : emptyLabel;
+}
+
+function formatOptionalSection(title: string, items: NamedItem[] | null | undefined): string[] {
+  const named = (items ?? []).filter(item => item.name?.trim());
+  if (named.length === 0) {
+    return [];
+  }
+  return [`#### ${title}`, ...formatNamedItems(named, 'nenhum'), ''];
+}
+
+function formatActivitySection(activity: IActivity, index: number): string[] {
+  const lines: string[] = [`### Atividade ${index + 1}: ${activity.name ?? 'sem nome'}`, ''];
+
+  const description = activity.description?.trim();
+  if (description) {
+    lines.push(description, '');
+  }
+
+  lines.push('#### Artefatos necessários', ...formatNamedItems(activity.requiredArtifacts, 'nenhum'), '');
+  lines.push('#### Artefatos produzidos', ...formatNamedItems(activity.producedArtifacts, 'nenhum'), '');
+  lines.push(
+    `**Responsável:** ${formatRoles(activity.responsibleRoles, 'não definido')} · **Participantes:** ${formatRoles(
+      activity.participantRoles,
+      'nenhum'
+    )}`,
+    ''
+  );
+
+  lines.push(...formatOptionalSection('Ferramentas', activity.tools));
+  lines.push(...formatOptionalSection('Orientações', activity.guidelines));
+  lines.push(...formatOptionalSection('Templates', activity.templates));
+
+  return lines;
+}
+
+export function buildIssueBody(task: ITask, hydratedActivities: IActivity[], taskUrl: string): string {
+  if (hydratedActivities.length === 0) {
+    const fallback = task.description?.trim() || '_tarefa sem atividade de processo vinculada_';
+    return ['## Descrição da tarefa', '', fallback, '', '---', '', `**Link para a tarefa:** [Abrir no Process Composer](${taskUrl})`].join(
+      '\n'
+    );
+  }
+
+  const sections: string[] = [
+    '## Descrição da tarefa',
     '',
-    `**atividades relacionadas:** ${hydratedActivities.map(a => a.name).join(', ')}`,
-    `**artefatos necessários:** ${requiredArtifacts.join(', ') || 'nenhum'}`,
-    `**artefatos produzidos:** ${producedArtifacts.join(', ') || 'nenhum'}`,
-    `**responsável:** ${responsibleRoles.join(', ') || 'não definido'} · **participantes:** ${participantRoles.join(', ') || 'nenhum'}`,
-  ].join('\n');
+    task.description?.trim() || '_sem descrição_',
+    '',
+    '---',
+    '',
+    '## Atividades relacionadas',
+    '',
+  ];
+
+  hydratedActivities.forEach((activity, index) => {
+    sections.push(...formatActivitySection(activity, index));
+  });
+
+  sections.push('---', '', `**Link para a tarefa:** [Abrir no Process Composer](${taskUrl})`);
+
+  return sections
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }

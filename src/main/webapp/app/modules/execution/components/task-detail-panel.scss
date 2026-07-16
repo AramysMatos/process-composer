@@ -1,0 +1,29 @@
+.task-detail-panel {
+  &__body {
+    padding: 1.25rem;
+  }
+
+  &__field {
+    margin-bottom: 0.75rem;
+  }
+
+  &__label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+  }
+
+  &__value {
+    color: #212529;
+    white-space: pre-wrap;
+  }
+
+  &__activities {
+    padding-top: 1.25rem;
+    border-top: 1px solid #dee2e6;
+  }
+}

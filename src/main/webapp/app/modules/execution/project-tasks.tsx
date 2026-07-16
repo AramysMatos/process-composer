@@ -1,33 +1,28 @@
 import './project-tasks.scss';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner, Table } from 'reactstrap';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Alert, Button, Input, InputGroup, InputGroupText, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Translate, translate } from 'react-jhipster';
+import { JhiItemCount, JhiPagination, Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getActivities } from 'app/entities/activity/activity.reducer';
 import { getEntities as getPhases } from 'app/entities/phase/phase.reducer';
 import { getEntity as getProject } from 'app/entities/project/project.reducer';
 import { deleteEntity as deleteTask, getEntities as getTasks } from 'app/entities/task/task.reducer';
-import { CreateTaskModal } from 'app/modules/execution/components/create-task-modal';
-import { TaskActivityChips } from 'app/modules/execution/components/task-activity-chips';
-import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
-import { ITask } from 'app/shared/model/task.model';
+import { TaskDetailPanel, TaskDetailPanelMode } from 'app/modules/execution/components/task-detail-panel';
+import { isGitHubConnected } from 'app/modules/execution/execution.utils';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
 
-const columnHelper = createColumnHelper<ITask>();
-
-type TaskDeleteTarget = {
-  id: number;
-  name: string;
-};
+const LIST_PAGE_SIZE = 20;
+const NEW_TASK_ID = 'new';
 
 export const ProjectTasks = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { id } = useParams<'id'>();
+  const [searchParams] = useSearchParams();
 
   const projectId = Number(id);
   const isValidProjectId = Number.isFinite(projectId) && projectId > 0;
@@ -36,13 +31,20 @@ export const ProjectTasks = () => {
   const projectLoading = useAppSelector(state => state.project.loading);
   const taskEntities = useAppSelector(state => state.task.entities);
   const tasksLoading = useAppSelector(state => state.task.loading);
+  const taskEntity = useAppSelector(state => state.task.entity);
+  const taskUpdating = useAppSelector(state => state.task.updating);
+  const updateSuccess = useAppSelector(state => state.task.updateSuccess);
 
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<ITask | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<TaskDeleteTarget | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activePage, setActivePage] = useState(1);
+  const [panelMode, setPanelMode] = useState<TaskDetailPanelMode>('view');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const taskUpdating = useAppSelector(state => state.task.updating);
+  const selectedTaskParam = searchParams.get('task');
+  const isCreating = selectedTaskParam === NEW_TASK_ID;
+  const selectedTaskId = selectedTaskParam && selectedTaskParam !== NEW_TASK_ID ? Number(selectedTaskParam) : undefined;
+  const hasValidSelection = isCreating || (selectedTaskId !== undefined && Number.isFinite(selectedTaskId) && selectedTaskId > 0);
 
   useEffect(() => {
     if (!isValidProjectId) {
@@ -58,6 +60,7 @@ export const ProjectTasks = () => {
   const projectMatches = project.id === projectId;
   const projectName = project.name ?? translate('processComposerApp.execution.overview.loadingProject', 'Loading...');
   const processId = project.process?.id;
+  const githubConnected = projectMatches && isGitHubConnected(project);
 
   const projectTasks = useMemo(
     () =>
@@ -67,111 +70,101 @@ export const ProjectTasks = () => {
     [isValidProjectId, projectId, taskEntities]
   );
 
-  const handleRequestEdit = useCallback((task: ITask) => {
-    setEditTarget(task);
-  }, []);
+  const trimmedSearch = searchQuery.trim().toLowerCase();
 
-  const handleCloseTaskModal = useCallback(() => {
-    setCreateModalOpen(false);
-    setEditTarget(null);
-  }, []);
+  const filteredTasks = useMemo(() => {
+    if (!trimmedSearch) {
+      return projectTasks;
+    }
 
-  const handleRequestDelete = useCallback((task: ITask) => {
-    if (!task.id) {
+    return projectTasks.filter(task => {
+      const name = task.name?.toLowerCase() ?? '';
+      const description = task.description?.toLowerCase() ?? '';
+      return name.includes(trimmedSearch) || description.includes(trimmedSearch);
+    });
+  }, [projectTasks, trimmedSearch]);
+
+  const displayedTasks = useMemo(() => {
+    const start = (activePage - 1) * LIST_PAGE_SIZE;
+    return filteredTasks.slice(start, start + LIST_PAGE_SIZE);
+  }, [activePage, filteredTasks]);
+
+  const selectedTask = useMemo(() => {
+    if (!selectedTaskId) {
+      return null;
+    }
+    return projectTasks.find(task => task.id === selectedTaskId) ?? null;
+  }, [projectTasks, selectedTaskId]);
+
+  const detailTask = isCreating ? null : selectedTask;
+
+  useEffect(() => {
+    setActivePage(1);
+  }, [trimmedSearch]);
+
+  useEffect(() => {
+    if (isCreating) {
+      setPanelMode('edit');
       return;
     }
-    setDeleteTarget({ id: task.id, name: task.name ?? '' });
+    setPanelMode('view');
+  }, [isCreating, selectedTaskId]);
+
+  useEffect(() => {
+    if (!updateSuccess) {
+      return;
+    }
+
+    if (deleteModalOpen) {
+      setDeleteModalOpen(false);
+      navigate(`/projetos/${projectId}/tarefas`);
+      dispatch(getTasks({ eagerload: true }));
+      return;
+    }
+
+    if (isCreating && taskEntity?.id) {
+      navigate(`/projetos/${projectId}/tarefas?task=${taskEntity.id}`);
+      dispatch(getTasks({ eagerload: true }));
+    } else if (!isCreating) {
+      dispatch(getTasks({ eagerload: true }));
+    }
+  }, [deleteModalOpen, dispatch, isCreating, navigate, projectId, taskEntity?.id, updateSuccess]);
+
+  const handleSelectTask = useCallback(
+    (taskId: number | typeof NEW_TASK_ID | undefined) => {
+      if (taskId === undefined) {
+        navigate(`/projetos/${projectId}/tarefas`);
+        return;
+      }
+      navigate(`/projetos/${projectId}/tarefas?task=${taskId}`);
+    },
+    [navigate, projectId]
+  );
+
+  const handleDelete = useCallback(() => {
+    setDeleteModalOpen(true);
   }, []);
 
   const handleCancelDelete = useCallback(() => {
     if (!deleting) {
-      setDeleteTarget(null);
+      setDeleteModalOpen(false);
     }
   }, [deleting]);
 
   const handleConfirmDelete = useCallback(async () => {
-    if (!deleteTarget) {
+    if (!selectedTask?.id) {
       return;
     }
 
     setDeleting(true);
     try {
-      await dispatch(deleteTask(deleteTarget.id)).unwrap();
-      dispatch(getTasks({ eagerload: true }));
-      setDeleteTarget(null);
+      await dispatch(deleteTask(selectedTask.id)).unwrap();
     } catch {
-      // Modal stays open so the user can retry or cancel.
+      setDeleteModalOpen(false);
     } finally {
       setDeleting(false);
     }
-  }, [deleteTarget, dispatch]);
-
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor('name', {
-        id: 'name',
-        header: () => translate('processComposerApp.task.name', 'Name'),
-        cell: info => info.getValue() ?? '—',
-      }),
-      columnHelper.accessor('description', {
-        id: 'description',
-        header: () => translate('processComposerApp.task.description', 'Description'),
-        cell: info => {
-          const value = info.getValue();
-          if (!value) {
-            return <span className="text-muted">—</span>;
-          }
-          return <p className="project-tasks__description mb-0">{value}</p>;
-        },
-      }),
-      columnHelper.display({
-        id: 'activities',
-        header: () => translate('processComposerApp.execution.tasks.linkedActivitiesColumn', 'Linked activities'),
-        cell: ({ row }) => <TaskActivityChips task={row.original} processId={processId} />,
-      }),
-      columnHelper.display({
-        id: 'actions',
-        header: () => '',
-        cell: ({ row }) => {
-          const task = row.original;
-          if (!task.id) {
-            return null;
-          }
-
-          return (
-            <div className="project-tasks__row-actions">
-              <button
-                type="button"
-                className="project-tasks__edit-button"
-                aria-label={translate('processComposerApp.execution.tasks.editTask', 'Edit task')}
-                disabled={deleting || taskUpdating}
-                data-cy={`edit-task-${task.id}`}
-                onClick={event => {
-                  event.stopPropagation();
-                  handleRequestEdit(task);
-                }}
-              >
-                <FontAwesomeIcon icon="pencil-alt" />
-              </button>
-              <EntityDeleteButton
-                label={translate('processComposerApp.execution.tasks.deleteTask', 'Delete task')}
-                onClick={() => handleRequestDelete(task)}
-                disabled={deleting || taskUpdating}
-                data-cy={`delete-task-${task.id}`}
-              />
-            </div>
-          );
-        },
-      }),
-    ],
-    [deleting, handleRequestDelete, handleRequestEdit, processId, taskUpdating]
-  );
-
-  const table = useReactTable({
-    data: projectTasks,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+  }, [dispatch, selectedTask?.id]);
 
   const loading = projectLoading || tasksLoading;
 
@@ -204,15 +197,9 @@ export const ProjectTasks = () => {
         />
       </header>
 
-      <div className="project-tasks__title-row">
-        <h1 className="h2 mb-0">
-          <Translate contentKey="processComposerApp.execution.tasks.title">Project tasks</Translate>
-        </h1>
-        <Button color="primary" onClick={() => setCreateModalOpen(true)} data-cy="createTaskButton">
-          <FontAwesomeIcon icon="plus" className="me-1" />
-          <Translate contentKey="processComposerApp.execution.tasks.createButton">New task</Translate>
-        </Button>
-      </div>
+      <h1 className="h2 mb-4">
+        <Translate contentKey="processComposerApp.execution.tasks.title">Project tasks</Translate>
+      </h1>
 
       {loading && (
         <div className="project-tasks__loading">
@@ -227,65 +214,125 @@ export const ProjectTasks = () => {
       )}
 
       {!loading && projectMatches && (
-        <div className="project-tasks__table-wrapper shadow-sm">
-          {projectTasks.length === 0 ? (
-            <div className="project-tasks__empty text-muted">
-              <Translate contentKey="processComposerApp.execution.tasks.empty">
-                No tasks yet. Create the first one for this project.
-              </Translate>
+        <div className="project-tasks__master-detail" data-cy="project-tasks-master-detail">
+          <section className="project-tasks__master" aria-label={translate('processComposerApp.library.masterList', 'Master list')}>
+            <div className="project-tasks__master-header">
+              <InputGroup>
+                <InputGroupText>
+                  <FontAwesomeIcon icon="search" />
+                </InputGroupText>
+                <Input
+                  type="search"
+                  value={searchQuery}
+                  onChange={event => setSearchQuery(event.target.value)}
+                  placeholder={translate('processComposerApp.library.searchPlaceholder', 'Search by name...')}
+                  aria-label={translate('processComposerApp.library.searchPlaceholder', 'Search by name...')}
+                  data-cy="project-tasks-search"
+                />
+              </InputGroup>
+              <Button color="primary" size="sm" onClick={() => handleSelectTask(NEW_TASK_ID)} data-cy="createTaskButton">
+                <FontAwesomeIcon icon="plus" /> <Translate contentKey="processComposerApp.execution.tasks.createButton">New task</Translate>
+              </Button>
             </div>
-          ) : (
-            <Table responsive hover className="project-tasks__table mb-0">
-              <thead>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map(header => (
-                      <th key={header.id} scope="col">
-                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map(row => (
-                  <tr key={row.id} data-cy={`project-task-row-${row.original.id}`}>
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id} className={cell.column.id === 'actions' ? 'project-tasks__actions' : undefined}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          )}
+
+            {projectTasks.length === 0 && (
+              <div className="alert alert-warning m-3 mb-0" data-cy="project-tasks-empty">
+                <Translate contentKey="processComposerApp.execution.tasks.empty">
+                  No tasks yet. Create the first one for this project.
+                </Translate>
+              </div>
+            )}
+
+            {projectTasks.length > 0 && filteredTasks.length === 0 && (
+              <div className="alert alert-warning m-3 mb-0" data-cy="project-tasks-not-found">
+                <Translate contentKey="processComposerApp.library.notFound">No items found</Translate>
+              </div>
+            )}
+
+            {displayedTasks.length > 0 && (
+              <div className="project-tasks__list" data-cy="project-tasks-list">
+                {displayedTasks.map(task => {
+                  const isSelected = task.id === selectedTaskId;
+                  return (
+                    <button
+                      key={task.id}
+                      type="button"
+                      className={`project-tasks__list-item${isSelected ? ' project-tasks__list-item--selected' : ''}`}
+                      onClick={() => task.id && handleSelectTask(task.id)}
+                      data-cy={`project-task-row-${task.id}`}
+                    >
+                      <span className="project-tasks__list-item-name">{task.name}</span>
+                      {task.description && <span className="project-tasks__list-item-description">{task.description}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {filteredTasks.length > LIST_PAGE_SIZE && (
+              <div className="p-3 border-top">
+                <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <JhiItemCount page={activePage} total={filteredTasks.length} itemsPerPage={LIST_PAGE_SIZE} i18nEnabled />
+                  <JhiPagination
+                    activePage={activePage}
+                    onSelect={setActivePage}
+                    maxButtons={5}
+                    itemsPerPage={LIST_PAGE_SIZE}
+                    totalItems={filteredTasks.length}
+                  />
+                </div>
+              </div>
+            )}
+          </section>
+
+          <section className="project-tasks__detail" aria-label={translate('processComposerApp.library.detailPanel', 'Detail panel')}>
+            {!hasValidSelection ? (
+              <div className="project-tasks__detail-empty" data-cy="project-tasks-detail-empty">
+                <Translate contentKey="processComposerApp.execution.tasks.selectTask">
+                  Select a task from the list or create a new one
+                </Translate>
+              </div>
+            ) : selectedTaskId && !isCreating && !selectedTask ? (
+              <div className="project-tasks__detail-empty" data-cy="project-tasks-not-found">
+                <Translate contentKey="processComposerApp.execution.tasks.notFound">Task not found</Translate>
+              </div>
+            ) : (
+              <TaskDetailPanel
+                task={detailTask}
+                isCreating={isCreating}
+                projectId={projectId}
+                processId={processId}
+                githubConnected={githubConnected}
+                mode={panelMode}
+                onModeChange={setPanelMode}
+                onDelete={handleDelete}
+                onCancelCreate={() => handleSelectTask(undefined)}
+                onTaskPublished={() => dispatch(getTasks({ eagerload: true }))}
+              />
+            )}
+          </section>
         </div>
       )}
 
-      <CreateTaskModal
-        isOpen={createModalOpen || editTarget !== null}
-        projectId={projectId}
-        processId={processId}
-        task={editTarget ?? undefined}
-        onClose={handleCloseTaskModal}
-        onSaved={() => dispatch(getTasks({ eagerload: true }))}
-      />
-
-      <Modal isOpen={deleteTarget !== null} toggle={handleCancelDelete}>
+      <Modal isOpen={deleteModalOpen} toggle={handleCancelDelete}>
         <ModalHeader toggle={handleCancelDelete} data-cy="project-task-delete-dialog-heading">
           <Translate contentKey="entity.delete.title">Confirm delete operation</Translate>
         </ModalHeader>
         <ModalBody>
-          <Translate contentKey="processComposerApp.execution.tasks.delete.confirm" interpolate={{ name: deleteTarget?.name ?? '' }}>
-            {`Are you sure you want to delete the task "${deleteTarget?.name ?? ''}"?`}
+          <Translate contentKey="processComposerApp.execution.tasks.delete.confirm" interpolate={{ name: selectedTask?.name ?? '' }}>
+            {`Are you sure you want to delete the task "${selectedTask?.name ?? ''}"?`}
           </Translate>
         </ModalBody>
         <ModalFooter>
-          <Button color="secondary" onClick={handleCancelDelete} disabled={deleting}>
+          <Button color="secondary" onClick={handleCancelDelete} disabled={deleting || taskUpdating}>
             <FontAwesomeIcon icon="ban" /> <Translate contentKey="entity.action.cancel">Cancel</Translate>
           </Button>
-          <Button color="danger" onClick={handleConfirmDelete} disabled={deleting} data-cy="project-task-confirm-delete-button">
+          <Button
+            color="danger"
+            onClick={() => void handleConfirmDelete()}
+            disabled={deleting || taskUpdating}
+            data-cy="project-task-confirm-delete-button"
+          >
             <FontAwesomeIcon icon="trash" /> <Translate contentKey="entity.action.delete">Delete</Translate>
           </Button>
         </ModalFooter>
