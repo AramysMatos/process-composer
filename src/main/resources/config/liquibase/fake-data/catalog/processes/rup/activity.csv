@@ -1,0 +1,13 @@
+id;name;description;input_criterion;phase_id
+4001;Capturar visão e escopo do negócio;Disciplina Business Modeling: documentar visão, escopo e restrições;Oportunidade de negócio e contexto organizacional identificados;401
+4002;Identificar atores e casos de uso essenciais;Disciplina Requirements: mapear 20% dos casos que entregam 80% do valor;Documento de Visão e escopo aprovados;401
+4003;Avaliar viabilidade e riscos do projeto;Disciplina Project Management: analisar viabilidade e plano preliminar;Casos de uso essenciais e restrições conhecidas;401
+4004;Detalhar requisitos e regras de negócio;Disciplina Requirements: especificar requisitos funcionais e não funcionais;Lifecycle Objectives aprovado e riscos iniciais mapeados;402
+4005;Definir arquitetura baseline;Disciplina Analysis and Design: estabelecer arquitetura estável para construção;Especificação de requisitos validada na elaboração;402
+4006;Construir protótipo de risco arquitetural;Disciplina Analysis and Design: provar conceito para mitigar risco técnico crítico;Riscos arquiteturais priorizados na elaboração;402
+4007;Implementar componentes da iteração;Disciplina Implementation: codificar componentes conforme arquitetura baseline;Lifecycle Architecture aprovada e baseline disponível;403
+4008;Executar testes de integração de componentes;Disciplina Test: validar integração entre componentes da iteração;Componentes da iteração implementados;403
+4009;Produzir build de iteração;Disciplina Configuration and Change Management: empacotar build validado;Testes de integração da iteração aprovados;403
+4010;Conduzir testes de aceitação com usuários;Disciplina Test: validar solução com usuários em ambiente beta ou UAT;Build de iteração disponível para validação;404
+4011;Implantar solução no ambiente alvo;Disciplina Deployment: publicar solução no ambiente de produção;Aceite dos usuários e critérios de release atendidos;404
+4012;Encerrar fase e transferir operação;Disciplinas Project Management e Environment: handover e lições aprendidas;Solução implantada e estável no ambiente alvo;404

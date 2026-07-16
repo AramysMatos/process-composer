@@ -1,0 +1,13 @@
+id;name;description;input_criterion;phase_id
+1001;Estabelecer Product Goal e visão;Definir Product Goal e alinhar visão de produto com stakeholders;Necessidade de negócio e contexto de mercado identificados;101
+1002;Ordenar Product Backlog por valor;Priorizar itens do Product Backlog por valor, risco e dependências;Product Goal e Documento de Visão aprovados;101
+1003;Refinar Product Backlog;Refinar itens até atender Definition of Ready para próxima sprint;Product Backlog priorizado disponível;101
+1004;Conduzir Sprint Planning;Definir Sprint Goal, selecionar PBIs e planejar entrega do Incremento;Product Backlog refinado e capacidade da equipe conhecidos;102
+1005;Conduzir Daily Scrum;Inspecionar progresso em direção ao Sprint Goal e adaptar o plano diário;Sprint em andamento com Sprint Backlog ativo;103
+1006;Desenvolver Incremento da Sprint;Transformar PBIs selecionados em entrega utilizável dentro da sprint;Sprint Backlog comprometido pela equipe;103
+1007;Integrar e verificar Incremento;Integrar trabalho da equipe e verificar que o Incremento atende ao DoD;Código desenvolvido e integrado na branch principal;103
+1008;Inspecionar qualidade técnica do Incremento;Revisar código e validar critérios técnicos da Definition of Done;Incremento integrado com testes automatizados verdes;103
+1009;Conduzir Sprint Review;Inspecionar Incremento com stakeholders e adaptar Product Backlog;Incremento Done e pronto para demonstração;104
+1010;Conduzir Sprint Retrospective;Inspecionar como foi a sprint e definir melhorias para a próxima;Sprint Review concluída e feedback registrado;104
+1011;Estabilizar candidato a release;Hardening do Incremento e preparação do pacote para produção;Incremento aprovado na Sprint Review;105
+1012;Implantar Incremento em produção;Publicar Incremento no ambiente produtivo com validação pós-deploy;Candidato a release estabilizado e notas publicadas;105

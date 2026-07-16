@@ -1,0 +1,14 @@
+id;name;description;input_criterion;phase_id
+3001;Conduzir Planning Game de release;Cliente e equipe definem escopo e prioridades do próximo release;Product Backlog com visão de release acordada;301
+3002;Estimar stories com planning poker;Estimar esforço das stories candidatas com consenso da equipe;Stories selecionadas no planning game de release;301
+3003;Selecionar stories da iteração;Escolher stories que a equipe compromete entregar na iteração;Stories estimadas e capacidade da iteração definida;301
+3004;Escrever testes de aceitação da story;Especificar critérios de aceitação executáveis antes da implementação;Story selecionada para a iteração com escopo claro;302
+3005;Aplicar ciclo TDD na story;Desenvolver com ciclo Red-Green-Refactor guiado por testes unitários;Testes de aceitação e unitários iniciais definidos;302
+3006;Desenvolver story em pair programming;Implementar story em par para reduzir defeitos e disseminar conhecimento;Story em desenvolvimento com testes guia;302
+3007;Integrar continuamente na mainline;Integrar alterações na linha principal várias vezes ao dia;Story implementada com testes automatizados verdes;302
+3008;Aplicar design simples;Manter o design mais simples que atenda aos requisitos atuais (YAGNI);Story em implementação com requisitos claros;303
+3009;Evoluir metáfora do sistema;Manter vocabulário compartilhado que orienta decisões de design;Visão de domínio e stories da iteração alinhadas;303
+3010;Aplicar padrões de codificação coletivos;Garantir código legível e ownership coletivo via padrões compartilhados;Código integrado na mainline da iteração;303
+3011;Validar stories com testes de aceitação;Cliente valida stories executando critérios de aceitação acordados;Build iterativo com stories integradas disponível;304
+3012;Publicar small release;Entregar release pequena, frequente e utilizável em produção ou homologação;Stories aceitas pelo cliente on-site;304
+3013;Incorporar feedback do cliente on-site;Adaptar Product Backlog com feedback direto do cliente on-site;Small release demonstrada ao cliente;304

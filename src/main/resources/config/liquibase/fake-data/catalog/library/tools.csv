@@ -1,0 +1,13 @@
+id;name;description
+1;Jira;Gestão ágil de backlog, sprints e issues
+2;GitHub;Versionamento, pull requests e CI/CD
+3;Figma;Design colaborativo e protótipos
+4;SonarQube;Análise estática de qualidade de código
+5;Docker;Containerização para dev e produção
+6;Postman;Testes e documentação de APIs REST
+7;Confluence;Documentação de requisitos e decisões
+8;Jenkins;Automação de build, teste e deploy
+9;Draw.io;Diagramas de arquitetura e fluxos
+10;Slack;Comunicação da equipe e integrações
+11;Trello;Boards visuais para fluxo Kanban
+12;Miro;Mapas de fluxo de valor e workshops

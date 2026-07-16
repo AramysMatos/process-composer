@@ -1,0 +1,5 @@
+id;name;description;process_id
+301;Release Planning;Planning game e seleção de escopo do release;3
+302;Ciclo da Story;Aceitação, TDD, pair programming e integração contínua;3
+303;Práticas de Design Contínuo;Design simples, metáfora e padrões coletivos;3
+304;Feedback e Release;Aceitação, small release e feedback do cliente on-site;3

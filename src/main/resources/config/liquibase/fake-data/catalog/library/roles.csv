@@ -1,0 +1,21 @@
+id;name;description
+1;Product Owner;Prioriza backlog e define valor de negócio do produto
+2;Scrum Master;Facilita cerimônias ágeis e remove impedimentos
+3;Desenvolvedor Backend;Implementa APIs, regras de negócio e integrações
+4;Desenvolvedor Frontend;Desenvolve interfaces e integra com APIs REST
+5;Arquiteto de Software;Define padrões arquiteturais e decisões técnicas
+6;Analista de Requisitos;Levanta, documenta e valida requisitos
+7;QA / Testador;Planeja e executa testes manuais e automatizados
+8;DevOps Engineer;Configura pipelines CI/CD e infraestrutura
+9;UX Designer;Cria wireframes, protótipos e pesquisas de usabilidade
+10;Tech Lead;Coordena decisões técnicas e revisa código
+11;Flow Manager;Gerencia fluxo de trabalho e políticas Kanban
+12;Service Request Manager;Prioriza demandas e classes de serviço
+13;XP Coach;Orienta práticas de Extreme Programming na equipe
+14;Cliente On-site;Representa stakeholders e valida entregas
+15;Gerente de Projeto;Coordena escopo, cronograma e riscos do projeto
+16;Desenvolvedor Full Stack;Atua em frontend e backend do produto
+17;Especialista de Domínio;Fornece conhecimento de negócio à equipe
+18;Facilitador de Cerimônias;Conduz reuniões e dinâmicas de melhoria
+19;Analista de Negócios;Traduz necessidades de negócio em requisitos
+20;Líder Técnico;Governa qualidade técnica e padrões de engenharia

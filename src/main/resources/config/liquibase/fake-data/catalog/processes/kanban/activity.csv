@@ -1,0 +1,12 @@
+id;name;description;input_criterion;phase_id
+2001;Conduzir análise de demanda;Analisar tipos de demanda, padrões e fontes de variabilidade;Contexto de serviço e tipos de trabalho identificados;201
+2002;Mapear fluxo de trabalho atual;Mapear knowledge discovery workflow desde a ideia até a entrega;Análise de demanda concluída;201
+2003;Definir classes de serviço;Classificar demandas em Expedite, Fixed Date, Standard e Intangible;Fluxo de trabalho mapeado e validado;201
+2004;Estabelecer limites de WIP;Definir limites de trabalho em progresso por coluna e swimlane;Classes de serviço e capacidade do sistema conhecidas;202
+2005;Formalizar políticas explícitas de fluxo;Documentar políticas de pull, DoR e DoD por etapa do fluxo;Limites de WIP acordados pela equipe;202
+2006;Conduzir reunião de replenishment;Reabastecer o ponto de compromisso com itens prontos para pull;Políticas de fluxo publicadas e capacidade disponível;203
+2007;Puxar item conforme capacidade disponível;Puxar próximo item respeitando WIP e políticas de classe de serviço;Slot de WIP disponível no ponto de compromisso;203
+2008;Executar e validar item de trabalho;Desenvolver, revisar e validar item até critérios de saída da coluna;Item puxado para coluna de execução;203
+2009;Registrar métricas de fluxo;Coletar lead time, throughput e aging de itens em progresso;Itens entregues no período de medição;203
+2010;Conduzir Service Delivery Review;Avaliar desempenho do serviço entregue ao cliente e ao negócio;Métricas de fluxo consolidadas do período;204
+2011;Conduzir Risk Review e evoluir o sistema;Revisar riscos do fluxo e ajustar design e políticas do sistema Kanban;Service Delivery Review concluída com ações identificadas;204

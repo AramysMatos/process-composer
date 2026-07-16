@@ -1,0 +1,5 @@
+id;name;description;process_id
+201;Design do Sistema de Fluxo (STATIK);Análise de demanda e mapeamento do workflow;2
+202;Políticas Explícitas e WIP;Limites de WIP e regras de pull do sistema;2
+203;Fluxo de Entrega;Replenishment, pull e execução contínua de itens;2
+204;Cadências de Melhoria;Service Delivery Review e Risk Review;2

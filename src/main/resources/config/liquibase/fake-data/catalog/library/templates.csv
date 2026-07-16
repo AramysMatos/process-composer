@@ -1,0 +1,13 @@
+id;name;description
+1;Template de História de Usuário;Como [persona], quero [ação], para [benefício]
+2;Template de Caso de Teste;Pré-condições, passos e resultado esperado
+3;Template de ADR;Contexto, opções e consequências da decisão
+4;Template de Sprint Planning;Agenda com metas e capacidade da equipe
+5;Template de Retrospectiva;Formato Start/Stop/Continue
+6;Template de Pull Request;Checklist de revisão e breaking changes
+7;Template de Especificação de API;Contrato OpenAPI com endpoints e schemas
+8;Template de Bug Report;Passos de reprodução e severidade
+9;Template de Release Notes;Novidades, correções e breaking changes
+10;Template de Diagrama C4;Contexto, containers, componentes e código
+11;Template de Caso de Uso;Ator, fluxo principal e alternativos
+12;Template de Política de Fluxo;Regras explícitas de entrada e saída de colunas

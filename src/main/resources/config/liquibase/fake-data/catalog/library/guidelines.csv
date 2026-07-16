@@ -1,0 +1,13 @@
+id;name;description
+1;Definition of Ready;História só entra na sprint com critérios de prontidão
+2;Definition of Done;Critérios mínimos para considerar entrega concluída
+3;Code Review obrigatório;Pull request revisado por pelo menos um sênior
+4;Cobertura mínima de testes;Novas funcionalidades mantêm cobertura acima de 80%
+5;Conventional Commits;Mensagens de commit no padrão Conventional Commits
+6;Pair Programming;Atividades críticas desenvolvidas em par
+7;Trunk-Based Development;Integrações frequentes na branch principal
+8;Documentar ADRs;Decisões arquiteturais registradas formalmente
+9;Segurança por padrão;Validar autenticação e autorização em novas APIs
+10;Retrospectiva contínua;Registrar lições aprendidas ao final de cada ciclo
+11;Limites de WIP;Respeitar limites de trabalho em progresso por coluna
+12;Desenvolvimento Orientado a Testes;Escrever testes antes ou junto ao código

@@ -1,0 +1,5 @@
+id;process_name;process_description
+1;Scrum (Catalog);Framework ágil iterativo com sprints, papéis definidos e entregas incrementais
+2;Kanban (Catalog);Fluxo contínuo de trabalho com limitação de WIP e visualização do pipeline
+3;Extreme Programming (XP) (Catalog);Práticas de engenharia como TDD, pair programming e integração contínua
+4;RUP Simplificado (Catalog);Processo iterativo com fases de iniciação, elaboração, construção e transição

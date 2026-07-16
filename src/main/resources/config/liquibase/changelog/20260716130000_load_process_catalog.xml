@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20260716130000-1" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/library/roles.csv"
+                  separator=";"
+                  tableName="roles"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-2" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/library/artifacts.csv"
+                  separator=";"
+                  tableName="artifacts"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+            <column name="optional" type="boolean"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-3" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/library/tools.csv"
+                  separator=";"
+                  tableName="tools"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-4" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/library/guidelines.csv"
+                  separator=";"
+                  tableName="guidelines"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-5" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/library/templates.csv"
+                  separator=";"
+                  tableName="templates"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-6" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/library/rel_artifacts__templates.csv"
+                  separator=";"
+                  tableName="rel_artifacts__templates"
+                  usePreparedStatements="true">
+            <column name="artifacts_id" type="numeric"/>
+            <column name="templates_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-7" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/process.csv"
+                  separator=";"
+                  tableName="process"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="process_name" type="string"/>
+            <column name="process_description" type="string"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-8" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/scrum/phase.csv"
+                  separator=";"
+                  tableName="phase"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+            <column name="process_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-9" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/scrum/activity.csv"
+                  separator=";"
+                  tableName="activity"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+            <column name="input_criterion" type="string"/>
+            <column name="phase_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-10" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__responsible_roles.csv"
+                  separator=";"
+                  tableName="rel_activity__responsible_roles"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="responsible_roles_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-11" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__participant_roles.csv"
+                  separator=";"
+                  tableName="rel_activity__participant_roles"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="participant_roles_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-12" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__required_artifacts.csv"
+                  separator=";"
+                  tableName="rel_activity__required_artifacts"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="required_artifacts_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-13" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__produced_artifacts.csv"
+                  separator=";"
+                  tableName="rel_activity__produced_artifacts"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="produced_artifacts_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-14" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__sub_activities.csv"
+                  separator=";"
+                  tableName="rel_activity__sub_activities"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="sub_activities_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-15" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__tools.csv"
+                  separator=";"
+                  tableName="rel_activity__tools"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="tools_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-16" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__guidelines.csv"
+                  separator=";"
+                  tableName="rel_activity__guidelines"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="guidelines_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-17" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__templates.csv"
+                  separator=";"
+                  tableName="rel_activity__templates"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="templates_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-18" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/kanban/phase.csv"
+                  separator=";"
+                  tableName="phase"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+            <column name="process_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-19" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/kanban/activity.csv"
+                  separator=";"
+                  tableName="activity"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+            <column name="input_criterion" type="string"/>
+            <column name="phase_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-20" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/kanban/rel_activity__responsible_roles.csv"
+                  separator=";"
+                  tableName="rel_activity__responsible_roles"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="responsible_roles_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-21" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/kanban/rel_activity__participant_roles.csv"
+                  separator=";"
+                  tableName="rel_activity__participant_roles"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="participant_roles_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-22" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/kanban/rel_activity__required_artifacts.csv"
+                  separator=";"
+                  tableName="rel_activity__required_artifacts"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="required_artifacts_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-23" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/kanban/rel_activity__produced_artifacts.csv"
+                  separator=";"
+                  tableName="rel_activity__produced_artifacts"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="produced_artifacts_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-24" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/kanban/rel_activity__sub_activities.csv"
+                  separator=";"
+                  tableName="rel_activity__sub_activities"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="sub_activities_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-25" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/kanban/rel_activity__tools.csv"
+                  separator=";"
+                  tableName="rel_activity__tools"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="tools_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-26" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/kanban/rel_activity__guidelines.csv"
+                  separator=";"
+                  tableName="rel_activity__guidelines"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="guidelines_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-27" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/kanban/rel_activity__templates.csv"
+                  separator=";"
+                  tableName="rel_activity__templates"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="templates_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-28" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/xp/phase.csv"
+                  separator=";"
+                  tableName="phase"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+            <column name="process_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-29" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/xp/activity.csv"
+                  separator=";"
+                  tableName="activity"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+            <column name="input_criterion" type="string"/>
+            <column name="phase_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-30" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__responsible_roles.csv"
+                  separator=";"
+                  tableName="rel_activity__responsible_roles"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="responsible_roles_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-31" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__participant_roles.csv"
+                  separator=";"
+                  tableName="rel_activity__participant_roles"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="participant_roles_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-32" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__required_artifacts.csv"
+                  separator=";"
+                  tableName="rel_activity__required_artifacts"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="required_artifacts_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-33" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__produced_artifacts.csv"
+                  separator=";"
+                  tableName="rel_activity__produced_artifacts"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="produced_artifacts_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-34" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__sub_activities.csv"
+                  separator=";"
+                  tableName="rel_activity__sub_activities"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="sub_activities_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-35" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__tools.csv"
+                  separator=";"
+                  tableName="rel_activity__tools"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="tools_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-36" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__guidelines.csv"
+                  separator=";"
+                  tableName="rel_activity__guidelines"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="guidelines_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-37" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__templates.csv"
+                  separator=";"
+                  tableName="rel_activity__templates"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="templates_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-38" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/rup/phase.csv"
+                  separator=";"
+                  tableName="phase"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+            <column name="process_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-39" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/rup/activity.csv"
+                  separator=";"
+                  tableName="activity"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="description" type="string"/>
+            <column name="input_criterion" type="string"/>
+            <column name="phase_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-40" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__responsible_roles.csv"
+                  separator=";"
+                  tableName="rel_activity__responsible_roles"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="responsible_roles_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-41" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__participant_roles.csv"
+                  separator=";"
+                  tableName="rel_activity__participant_roles"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="participant_roles_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-42" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__required_artifacts.csv"
+                  separator=";"
+                  tableName="rel_activity__required_artifacts"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="required_artifacts_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-43" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__produced_artifacts.csv"
+                  separator=";"
+                  tableName="rel_activity__produced_artifacts"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="produced_artifacts_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-44" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__sub_activities.csv"
+                  separator=";"
+                  tableName="rel_activity__sub_activities"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="sub_activities_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-45" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__tools.csv"
+                  separator=";"
+                  tableName="rel_activity__tools"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="tools_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-46" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__guidelines.csv"
+                  separator=";"
+                  tableName="rel_activity__guidelines"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="guidelines_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="20260716130000-47" author="catalog" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__templates.csv"
+                  separator=";"
+                  tableName="rel_activity__templates"
+                  usePreparedStatements="true">
+            <column name="activity_id" type="numeric"/>
+            <column name="templates_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+
+</databaseChangeLog>

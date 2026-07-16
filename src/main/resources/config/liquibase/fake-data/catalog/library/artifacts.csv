@@ -1,0 +1,21 @@
+id;name;description;optional
+1;Documento de Visão;Problema, stakeholders e objetivos do produto;false
+2;Backlog do Produto;Lista priorizada de histórias e épicos;false
+3;Especificação de Requisitos;Requisitos funcionais e não funcionais detalhados;false
+4;Diagrama de Arquitetura;Componentes, integrações e fluxos do sistema;true
+5;Protótipo de Interface;Mockups ou wireframes das telas principais;true
+6;Plano de Testes;Casos de teste e critérios de aceitação;false
+7;Código-fonte;Implementação versionada no repositório Git;false
+8;Relatório de Cobertura;Métricas de cobertura de testes;true
+9;Notas de Release;Changelog com funcionalidades e correções;false
+10;Manual de Deploy;Instruções de build e publicação;true
+11;Board Kanban;Visualização do fluxo de trabalho em colunas;false
+12;Políticas de Fluxo Explícitas;Regras de pull, WIP e classes de serviço;false
+13;Métricas de Lead e Cycle Time;Indicadores de desempenho do fluxo;true
+14;User Story;História de usuário com critérios de aceitação;false
+15;Incremento de Produto;Versão utilizável entregue ao final da iteração;false
+16;Arquitetura Baseline;Arquitetura de referência validada;false
+17;Modelo de Casos de Uso;Atores e casos de uso principais;false
+18;Build Iterativo;Pacote de software pronto para validação;false
+19;Protótipo de Risco;Prova de conceito para mitigar risco técnico;true
+20;Sprint Backlog;Itens selecionados e plano da sprint atual;false

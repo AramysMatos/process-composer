@@ -1,0 +1,6 @@
+id;name;description;process_id
+101;Product Backlog;Gestão contínua do Product Goal e itens priorizados;1
+102;Planejamento da Sprint;Evento de planejamento: meta, seleção e plano de entrega;1
+103;Execução da Sprint;Daily Scrum e trabalho de desenvolvimento do Incremento;1
+104;Encerramento da Sprint;Sprint Review e Sprint Retrospective;1
+105;Release;Estabilização e implantação do Incremento em produção;1

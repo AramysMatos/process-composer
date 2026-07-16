@@ -1,0 +1,5 @@
+id;name;description;process_id
+401;Iniciação;Marco Lifecycle Objectives: visão, escopo e viabilidade;4
+402;Elaboração;Marco Lifecycle Architecture: requisitos e arquitetura baseline;4
+403;Construção;Marco Operational Capability: implementação e integração iterativa;4
+404;Transição;Marco Product Release: aceitação, deploy e encerramento;4
