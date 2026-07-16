@@ -1,0 +1,37 @@
+{
+  "processComposerApp": {
+    "library": {
+      "title": "Library",
+      "subtitle": "Manage reusable catalog items and see where they are used",
+      "masterList": "Master list",
+      "detailPanel": "Detail panel",
+      "searchPlaceholder": "Search by name...",
+      "createLabel": "New item",
+      "createTitle": "New item",
+      "notFound": "No items found",
+      "selectItem": "Select an item from the list or create a new one",
+      "tabs": {
+        "roles": "Roles",
+        "tools": "Tools",
+        "guidelines": "Guidelines",
+        "artifacts": "Artifacts",
+        "templates": "Templates"
+      },
+      "usedIn": {
+        "title": "Used in activities",
+        "empty": "Not used in any activity yet",
+        "participant": "Participant",
+        "responsible": "Responsible",
+        "tool": "Tool",
+        "guideline": "Guideline",
+        "template": "Template",
+        "required": "Required input",
+        "produced": "Produced output"
+      },
+      "delete": {
+        "confirm": "Are you sure you want to delete {{name}}?",
+        "usedWarning": "Used in {{count}} activities — remove anyway?"
+      }
+    }
+  }
+}
