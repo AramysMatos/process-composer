@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Activity;
 import com.mycompany.myapp.repository.ActivityRepository;
+import com.mycompany.myapp.service.ActivityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,9 +34,11 @@ public class ActivityResource {
     private String applicationName;
 
     private final ActivityRepository activityRepository;
+    private final ActivityDeletionService activityDeletionService;
 
-    public ActivityResource(ActivityRepository activityRepository) {
+    public ActivityResource(ActivityRepository activityRepository, ActivityDeletionService activityDeletionService) {
         this.activityRepository = activityRepository;
+        this.activityDeletionService = activityDeletionService;
     }
 
     /**
@@ -181,7 +184,7 @@ public class ActivityResource {
     @DeleteMapping("/activities/{id}")
     public ResponseEntity<Void> deleteActivity(@PathVariable Long id) {
         log.debug("REST request to delete Activity : {}", id);
-        activityRepository.deleteById(id);
+        activityDeletionService.deleteActivity(id);
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

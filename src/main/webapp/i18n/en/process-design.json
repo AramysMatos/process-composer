@@ -68,6 +68,13 @@
         "rolesCount": "{{count}} roles",
         "artifactsCount": "{{count}} artifacts"
       },
+      "delete": {
+        "confirmPhase": "Are you sure you want to delete the phase \"{{name}}\"?",
+        "confirmActivity": "Are you sure you want to delete the activity \"{{name}}\"?",
+        "phaseWithActivitiesWarning": "This phase has {{count}} activities that will also be removed.",
+        "deletePhase": "Delete phase",
+        "deleteActivity": "Delete activity"
+      },
       "canvas": {
         "contentAriaLabel": "Activity canvas",
         "untitledActivity": "Untitled activity",

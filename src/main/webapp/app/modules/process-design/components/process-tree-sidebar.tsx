@@ -11,12 +11,15 @@ import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reduce
 import { getEntities as getActivityEntities } from 'app/entities/activity/activity.reducer';
 import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
+import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
 
 export interface ProcessTreeSidebarProps {
   processId: number;
   onSelectActivity: (activityId: number) => void;
   onCreateActivity: (phaseId: number) => void;
   onCreatePhase: () => void;
+  onDeletePhase?: (phaseId: number, name: string, activityCount: number) => void;
+  onDeleteActivity?: (activityId: number, name: string) => void;
   selectedActivityId?: number;
 }
 
@@ -36,6 +39,8 @@ export const ProcessTreeSidebar = ({
   onSelectActivity,
   onCreateActivity,
   onCreatePhase,
+  onDeletePhase,
+  onDeleteActivity,
   selectedActivityId,
 }: ProcessTreeSidebarProps) => {
   const dispatch = useAppDispatch();
@@ -154,6 +159,15 @@ export const ProcessTreeSidebar = ({
             <FontAwesomeIcon icon="layer-group" className="process-tree-sidebar__icon" />
             <span className="process-tree-sidebar__label-text">{phase.name}</span>
           </button>
+          {onDeletePhase && (
+            <div className="process-tree-sidebar__row-actions">
+              <EntityDeleteButton
+                label={translate('processComposerApp.processDesign.delete.deletePhase', 'Delete phase')}
+                onClick={() => onDeletePhase(phase.id as number, phase.name ?? '', phaseActivities.length)}
+                data-cy={`sidebar-delete-phase-${phase.id}`}
+              />
+            </div>
+          )}
         </div>
 
         {phaseExpanded && (
@@ -183,6 +197,15 @@ export const ProcessTreeSidebar = ({
                       <FontAwesomeIcon icon="circle" className="process-tree-sidebar__icon" />
                       <span className="process-tree-sidebar__label-text">{activity.name}</span>
                     </button>
+                    {onDeleteActivity && (
+                      <div className="process-tree-sidebar__row-actions">
+                        <EntityDeleteButton
+                          label={translate('processComposerApp.processDesign.delete.deleteActivity', 'Delete activity')}
+                          onClick={() => onDeleteActivity(activity.id as number, activity.name ?? '')}
+                          data-cy={`sidebar-delete-activity-${activity.id}`}
+                        />
+                      </div>
+                    )}
                   </div>
                 </li>
               );

@@ -1,9 +1,9 @@
 import './project-tasks.scss';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { Alert, Button, Spinner, Table } from 'reactstrap';
+import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner, Table } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 
@@ -11,13 +11,19 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getActivities } from 'app/entities/activity/activity.reducer';
 import { getEntities as getPhases } from 'app/entities/phase/phase.reducer';
 import { getEntity as getProject } from 'app/entities/project/project.reducer';
-import { getEntities as getTasks } from 'app/entities/task/task.reducer';
+import { deleteEntity as deleteTask, getEntities as getTasks } from 'app/entities/task/task.reducer';
 import { CreateTaskModal } from 'app/modules/execution/components/create-task-modal';
 import { TaskActivityChips } from 'app/modules/execution/components/task-activity-chips';
+import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
 import { ITask } from 'app/shared/model/task.model';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
 
 const columnHelper = createColumnHelper<ITask>();
+
+type TaskDeleteTarget = {
+  id: number;
+  name: string;
+};
 
 export const ProjectTasks = () => {
   const dispatch = useAppDispatch();
@@ -32,6 +38,10 @@ export const ProjectTasks = () => {
   const tasksLoading = useAppSelector(state => state.task.loading);
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<TaskDeleteTarget | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const taskUpdating = useAppSelector(state => state.task.updating);
 
   useEffect(() => {
     if (!isValidProjectId) {
@@ -56,6 +66,36 @@ export const ProjectTasks = () => {
     [isValidProjectId, projectId, taskEntities]
   );
 
+  const handleRequestDelete = useCallback((task: ITask) => {
+    if (!task.id) {
+      return;
+    }
+    setDeleteTarget({ id: task.id, name: task.name ?? '' });
+  }, []);
+
+  const handleCancelDelete = useCallback(() => {
+    if (!deleting) {
+      setDeleteTarget(null);
+    }
+  }, [deleting]);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deleteTarget) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await dispatch(deleteTask(deleteTarget.id)).unwrap();
+      dispatch(getTasks({ eagerload: true }));
+      setDeleteTarget(null);
+    } catch {
+      // Modal stays open so the user can retry or cancel.
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, dispatch]);
+
   const columns = useMemo(
     () => [
       columnHelper.accessor('name', {
@@ -79,8 +119,27 @@ export const ProjectTasks = () => {
         header: () => translate('processComposerApp.execution.tasks.linkedActivitiesColumn', 'Linked activities'),
         cell: ({ row }) => <TaskActivityChips task={row.original} />,
       }),
+      columnHelper.display({
+        id: 'actions',
+        header: () => '',
+        cell: ({ row }) => {
+          const task = row.original;
+          if (!task.id) {
+            return null;
+          }
+
+          return (
+            <EntityDeleteButton
+              label={translate('processComposerApp.execution.tasks.deleteTask', 'Delete task')}
+              onClick={() => handleRequestDelete(task)}
+              disabled={deleting || taskUpdating}
+              data-cy={`delete-task-${task.id}`}
+            />
+          );
+        },
+      }),
     ],
-    []
+    [deleting, handleRequestDelete, taskUpdating]
   );
 
   const table = useReactTable({
@@ -167,7 +226,9 @@ export const ProjectTasks = () => {
                 {table.getRowModel().rows.map(row => (
                   <tr key={row.id} data-cy={`project-task-row-${row.original.id}`}>
                     {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                      <td key={cell.id} className={cell.column.id === 'actions' ? 'project-tasks__actions' : undefined}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
                     ))}
                   </tr>
                 ))}
@@ -184,6 +245,25 @@ export const ProjectTasks = () => {
         onClose={() => setCreateModalOpen(false)}
         onCreated={() => dispatch(getTasks({ eagerload: true }))}
       />
+
+      <Modal isOpen={deleteTarget !== null} toggle={handleCancelDelete}>
+        <ModalHeader toggle={handleCancelDelete} data-cy="project-task-delete-dialog-heading">
+          <Translate contentKey="entity.delete.title">Confirm delete operation</Translate>
+        </ModalHeader>
+        <ModalBody>
+          <Translate contentKey="processComposerApp.execution.tasks.delete.confirm" interpolate={{ name: deleteTarget?.name ?? '' }}>
+            {`Are you sure you want to delete the task "${deleteTarget?.name ?? ''}"?`}
+          </Translate>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={handleCancelDelete} disabled={deleting}>
+            <FontAwesomeIcon icon="ban" /> <Translate contentKey="entity.action.cancel">Cancel</Translate>
+          </Button>
+          <Button color="danger" onClick={handleConfirmDelete} disabled={deleting} data-cy="project-task-confirm-delete-button">
+            <FontAwesomeIcon icon="trash" /> <Translate contentKey="entity.action.delete">Delete</Translate>
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 };

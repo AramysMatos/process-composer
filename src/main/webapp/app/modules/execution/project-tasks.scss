@@ -35,6 +35,16 @@
     td {
       vertical-align: middle;
     }
+
+    tr:hover .entity-delete-button {
+      opacity: 1;
+    }
+  }
+
+  &__actions {
+    width: 3rem;
+    text-align: right;
+    white-space: nowrap;
   }
 
   &__description {

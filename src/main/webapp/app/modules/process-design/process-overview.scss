@@ -104,13 +104,28 @@
     }
   }
 
+  &__activity-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding-right: 0.5rem;
+  }
+
+  &__phase-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
   &__activity-button {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    width: 100%;
-    padding: 0.75rem 1rem;
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem 0.75rem 0.75rem 1rem;
     border: none;
     background: transparent;
     text-align: left;

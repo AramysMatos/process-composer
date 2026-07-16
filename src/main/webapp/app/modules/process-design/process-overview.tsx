@@ -14,9 +14,12 @@ import { IPhase } from 'app/shared/model/phase.model';
 import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
 import { ActivityDetailDrawer } from 'app/modules/process-design/components/activity-detail-drawer/activity-detail-drawer';
+import { ConfirmDeleteModal } from 'app/modules/process-design/components/confirm-delete-modal';
 import { CreateActivityModal } from 'app/modules/process-design/components/create-activity-modal';
 import { CreatePhaseModal } from 'app/modules/process-design/components/create-phase-modal';
+import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
+import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 
 /** Rota `/processos/:id/canvas` registrada em `routes.tsx`. */
 export const PROCESS_CANVAS_ROUTE_ENABLED = true;
@@ -145,6 +148,31 @@ export const ProcessOverview = () => {
     [dispatch]
   );
 
+  const handleActivityDeleted = useCallback(
+    (activityId: number) => {
+      if (selectedActivityId === activityId) {
+        setSelectedActivityId(undefined);
+      }
+      if (drawerActivityId === activityId) {
+        setDrawerActivityId(null);
+      }
+    },
+    [drawerActivityId, selectedActivityId]
+  );
+
+  const handlePhaseDeleted = useCallback((phaseId: number) => {
+    setOpenPhaseIds(current => {
+      const next = new Set(current);
+      next.delete(phaseId);
+      return next;
+    });
+  }, []);
+
+  const { deleteTarget, requestDelete, cancelDelete, confirmDelete, deleting } = useProcessEntityDelete({
+    onActivityDeleted: handleActivityDeleted,
+    onPhaseDeleted: handlePhaseDeleted,
+  });
+
   const togglePhasePanel = (phaseId: number) => {
     setOpenPhaseIds(current => {
       const next = new Set(current);
@@ -168,25 +196,38 @@ export const ProcessOverview = () => {
 
     return (
       <li key={activity.id} className="process-overview__activity-item">
-        <button
-          type="button"
-          className={`process-overview__activity-button${isSelected ? ' process-overview__activity-button--selected' : ''}`}
-          onClick={() => handleSelectActivity(activity.id as number)}
-        >
-          <span className="process-overview__activity-name">{activity.name}</span>
-          <span className="process-overview__activity-meta">
-            <span>
-              <Translate contentKey="processComposerApp.processDesign.overview.rolesCount" interpolate={{ count: roleCount }}>
-                {`${roleCount} roles`}
-              </Translate>
+        <div className="process-overview__activity-row">
+          <button
+            type="button"
+            className={`process-overview__activity-button${isSelected ? ' process-overview__activity-button--selected' : ''}`}
+            onClick={() => handleSelectActivity(activity.id as number)}
+          >
+            <span className="process-overview__activity-name">{activity.name}</span>
+            <span className="process-overview__activity-meta">
+              <span>
+                <Translate contentKey="processComposerApp.processDesign.overview.rolesCount" interpolate={{ count: roleCount }}>
+                  {`${roleCount} roles`}
+                </Translate>
+              </span>
+              <span>
+                <Translate contentKey="processComposerApp.processDesign.overview.artifactsCount" interpolate={{ count: artifactCount }}>
+                  {`${artifactCount} artifacts`}
+                </Translate>
+              </span>
             </span>
-            <span>
-              <Translate contentKey="processComposerApp.processDesign.overview.artifactsCount" interpolate={{ count: artifactCount }}>
-                {`${artifactCount} artifacts`}
-              </Translate>
-            </span>
-          </span>
-        </button>
+          </button>
+          <EntityDeleteButton
+            label={translate('processComposerApp.processDesign.delete.deleteActivity', 'Delete activity')}
+            onClick={() =>
+              requestDelete({
+                type: 'activity',
+                id: activity.id as number,
+                name: activity.name ?? '',
+              })
+            }
+            data-cy={`delete-activity-${activity.id}`}
+          />
+        </div>
       </li>
     );
   };
@@ -221,14 +262,28 @@ export const ProcessOverview = () => {
               <FontAwesomeIcon icon={isOpen ? 'chevron-down' : 'chevron-right'} className="me-2 text-muted" />
               {phase.name}
             </span>
-            <span className="process-overview__phase-count">
-              <Translate
-                contentKey="processComposerApp.processDesign.overview.activityCount"
-                interpolate={{ count: phaseActivities.length }}
-              >
-                {`${phaseActivities.length} activities`}
-              </Translate>
-            </span>
+            <div className="process-overview__phase-actions">
+              <span className="process-overview__phase-count">
+                <Translate
+                  contentKey="processComposerApp.processDesign.overview.activityCount"
+                  interpolate={{ count: phaseActivities.length }}
+                >
+                  {`${phaseActivities.length} activities`}
+                </Translate>
+              </span>
+              <EntityDeleteButton
+                label={translate('processComposerApp.processDesign.delete.deletePhase', 'Delete phase')}
+                onClick={() =>
+                  requestDelete({
+                    type: 'phase',
+                    id: phase.id as number,
+                    name: phase.name ?? '',
+                    activityCount: phaseActivities.length,
+                  })
+                }
+                data-cy={`delete-phase-${phase.id}`}
+              />
+            </div>
           </div>
         </CardHeader>
         <Collapse isOpen={isOpen}>
@@ -279,6 +334,8 @@ export const ProcessOverview = () => {
             onSelectActivity={handleSelectActivity}
             onCreateActivity={handleCreateActivity}
             onCreatePhase={handleCreatePhase}
+            onDeletePhase={(phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })}
+            onDeleteActivity={(activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
           />
         </aside>
 
@@ -361,6 +418,8 @@ export const ProcessOverview = () => {
         onClose={handleCloseCreatePhaseModal}
         onCreated={handlePhaseCreated}
       />
+
+      <ConfirmDeleteModal target={deleteTarget} deleting={deleting} onCancel={cancelDelete} onConfirm={confirmDelete} />
     </div>
   );
 };

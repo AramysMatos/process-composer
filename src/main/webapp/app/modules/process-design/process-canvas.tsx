@@ -12,9 +12,11 @@ import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reduce
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
 import { ActivityCanvas } from 'app/modules/process-design/components/activity-canvas';
 import { ActivityDetailDrawer } from 'app/modules/process-design/components/activity-detail-drawer/activity-detail-drawer';
+import { ConfirmDeleteModal } from 'app/modules/process-design/components/confirm-delete-modal';
 import { CreateActivityModal } from 'app/modules/process-design/components/create-activity-modal';
 import { CreatePhaseModal } from 'app/modules/process-design/components/create-phase-modal';
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
+import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 
 export const ProcessCanvas = () => {
   const dispatch = useAppDispatch();
@@ -79,6 +81,22 @@ export const ProcessCanvas = () => {
     [dispatch]
   );
 
+  const handleActivityDeleted = useCallback(
+    (activityId: number) => {
+      if (selectedActivityId === activityId) {
+        setSelectedActivityId(undefined);
+      }
+      if (drawerActivityId === activityId) {
+        setDrawerActivityId(null);
+      }
+    },
+    [drawerActivityId, selectedActivityId]
+  );
+
+  const { deleteTarget, requestDelete, cancelDelete, confirmDelete, deleting } = useProcessEntityDelete({
+    onActivityDeleted: handleActivityDeleted,
+  });
+
   if (!isValidProcessId) {
     return (
       <div className="process-canvas" data-cy="process-canvas">
@@ -116,6 +134,8 @@ export const ProcessCanvas = () => {
             onSelectActivity={handleSelectActivity}
             onCreateActivity={handleCreateActivity}
             onCreatePhase={handleCreatePhase}
+            onDeletePhase={(phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })}
+            onDeleteActivity={(activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
           />
         </aside>
 
@@ -166,6 +186,8 @@ export const ProcessCanvas = () => {
         onClose={handleCloseCreatePhaseModal}
         onCreated={handlePhaseCreated}
       />
+
+      <ConfirmDeleteModal target={deleteTarget} deleting={deleting} onCancel={cancelDelete} onConfirm={confirmDelete} />
     </div>
   );
 };

@@ -71,6 +71,10 @@
         "linkedActivitiesColumn": "Linked activities",
         "independentBadge": "Independent",
         "empty": "No tasks yet. Create the first one for this project.",
+        "deleteTask": "Delete task",
+        "delete": {
+          "confirm": "Are you sure you want to delete the task \"{{name}}\"?"
+        },
         "createModal": {
           "title": "New task",
           "activitiesLabel": "Linked activities",

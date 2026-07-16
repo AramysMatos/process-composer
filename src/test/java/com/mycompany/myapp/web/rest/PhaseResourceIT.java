@@ -7,7 +7,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.mycompany.myapp.IntegrationTest;
+import com.mycompany.myapp.domain.Activity;
 import com.mycompany.myapp.domain.Phase;
+import com.mycompany.myapp.repository.ActivityRepository;
 import com.mycompany.myapp.repository.PhaseRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +54,9 @@ class PhaseResourceIT {
 
     @Autowired
     private PhaseRepository phaseRepository;
+
+    @Autowired
+    private ActivityRepository activityRepository;
 
     @Mock
     private PhaseRepository phaseRepositoryMock;
@@ -400,5 +405,24 @@ class PhaseResourceIT {
         // Validate the database contains one less item
         List<Phase> phaseList = phaseRepository.findAll();
         assertThat(phaseList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    void deletePhaseWithActivities() throws Exception {
+        phaseRepository.saveAndFlush(phase);
+
+        Activity activity = new Activity().name("Activity in phase").phase(phase);
+        activityRepository.saveAndFlush(activity);
+
+        int databaseSizeBeforeDelete = phaseRepository.findAll().size();
+        int activityCountBeforeDelete = activityRepository.findAll().size();
+
+        restPhaseMockMvc
+            .perform(delete(ENTITY_API_URL_ID, phase.getId()).accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        assertThat(phaseRepository.findAll()).hasSize(databaseSizeBeforeDelete - 1);
+        assertThat(activityRepository.findAll()).hasSize(activityCountBeforeDelete - 1);
     }
 }

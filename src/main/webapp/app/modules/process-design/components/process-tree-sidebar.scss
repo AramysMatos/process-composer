@@ -34,7 +34,7 @@
     align-items: center;
     gap: 0.25rem;
     min-height: 2rem;
-    padding: 0.125rem 0.25rem;
+    padding: 0.125rem 0.25rem 0.125rem 0;
     border-radius: 0.25rem;
 
     &:hover {
@@ -132,5 +132,12 @@
     margin: 0.25rem 0 0.5rem 1.75rem;
     font-size: 0.875rem;
     color: #6c757d;
+  }
+
+  &__row-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding-right: 0.25rem;
   }
 }

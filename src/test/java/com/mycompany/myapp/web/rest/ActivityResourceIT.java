@@ -410,4 +410,46 @@ class ActivityResourceIT {
         List<Activity> activityList = activityRepository.findAll();
         assertThat(activityList).hasSize(databaseSizeBeforeDelete - 1);
     }
+
+    @Test
+    @Transactional
+    void deleteParentActivityKeepsChild() throws Exception {
+        Activity parent = activityRepository.saveAndFlush(new Activity().name("Parent activity"));
+        Activity child = activityRepository.saveAndFlush(new Activity().name("Child activity"));
+
+        parent.addSubActivities(child);
+        activityRepository.saveAndFlush(parent);
+
+        restActivityMockMvc
+            .perform(delete(ENTITY_API_URL_ID, parent.getId()).accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        em.flush();
+        em.clear();
+
+        assertThat(activityRepository.findById(parent.getId())).isEmpty();
+        Activity persistedChild = activityRepository.findById(child.getId()).orElseThrow();
+        assertThat(persistedChild.getPredecessorActivities()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    void deleteChildActivityKeepsParent() throws Exception {
+        Activity parent = activityRepository.saveAndFlush(new Activity().name("Parent activity"));
+        Activity child = activityRepository.saveAndFlush(new Activity().name("Child activity"));
+
+        parent.addSubActivities(child);
+        activityRepository.saveAndFlush(parent);
+
+        restActivityMockMvc
+            .perform(delete(ENTITY_API_URL_ID, child.getId()).accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        em.flush();
+        em.clear();
+
+        assertThat(activityRepository.findById(child.getId())).isEmpty();
+        Activity persistedParent = activityRepository.findOneWithEagerRelationships(parent.getId()).orElseThrow();
+        assertThat(persistedParent.getSubActivities()).isEmpty();
+    }
 }

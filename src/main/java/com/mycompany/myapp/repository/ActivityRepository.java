@@ -1,6 +1,7 @@
 package com.mycompany.myapp.repository;
 
 import com.mycompany.myapp.domain.Activity;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -40,4 +41,10 @@ public interface ActivityRepository extends ActivityRepositoryWithBagRelationshi
 
     @Query("select activity from Activity activity left join fetch activity.phase where activity.id =:id")
     Optional<Activity> findOneWithToOneRelationships(@Param("id") Long id);
+
+    List<Activity> findByPhase_Id(Long phaseId);
+
+    List<Activity> findBySubActivities_IdIn(Collection<Long> subActivityIds);
+
+    List<Activity> findByPredecessorActivities_IdIn(Collection<Long> predecessorActivityIds);
 }

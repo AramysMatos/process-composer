@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Phase;
 import com.mycompany.myapp.repository.PhaseRepository;
+import com.mycompany.myapp.service.ActivityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,9 +34,11 @@ public class PhaseResource {
     private String applicationName;
 
     private final PhaseRepository phaseRepository;
+    private final ActivityDeletionService activityDeletionService;
 
-    public PhaseResource(PhaseRepository phaseRepository) {
+    public PhaseResource(PhaseRepository phaseRepository, ActivityDeletionService activityDeletionService) {
         this.phaseRepository = phaseRepository;
+        this.activityDeletionService = activityDeletionService;
     }
 
     /**
@@ -174,6 +177,7 @@ public class PhaseResource {
     @DeleteMapping("/phases/{id}")
     public ResponseEntity<Void> deletePhase(@PathVariable Long id) {
         log.debug("REST request to delete Phase : {}", id);
+        activityDeletionService.deleteActivitiesByPhaseId(id);
         phaseRepository.deleteById(id);
         return ResponseEntity
             .noContent()
