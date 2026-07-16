@@ -19,7 +19,7 @@ const apiUrl = 'api/projects';
 // Actions
 
 export const getEntities = createAsyncThunk('project/fetch_entity_list', async ({ page, size, sort }: IQueryParams) => {
-  const requestUrl = `${apiUrl}?cacheBuster=${new Date().getTime()}`;
+  const requestUrl = `${apiUrl}${sort ? `?page=${page}&size=${size}&sort=${sort}&` : '?'}cacheBuster=${new Date().getTime()}`;
   return axios.get<IProject[]>(requestUrl);
 });
 

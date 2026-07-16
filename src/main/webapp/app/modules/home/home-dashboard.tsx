@@ -15,7 +15,7 @@ import { countActivitiesForProcess, countPhasesForProcess } from 'app/shared/uti
 import { ProcessSummaryCard } from './components/process-summary-card';
 import { ProjectSummaryCard } from './components/project-summary-card';
 
-const RECENT_ITEMS_LIMIT = 6;
+const RECENT_ITEMS_LIMIT = 3;
 
 const sortByIdDesc = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
 
@@ -35,11 +35,11 @@ export const HomeDashboard = () => {
       dispatch(getProcesses({ page: 0, size: RECENT_ITEMS_LIMIT, sort: 'id,desc' }));
       dispatch(getPhases({}));
       dispatch(getActivities({}));
-      dispatch(getProjects({}));
+      dispatch(getProjects({ page: 0, size: RECENT_ITEMS_LIMIT, sort: 'id,desc' }));
     }
   }, [dispatch, isAuthenticated]);
 
-  const recentProcesses = useMemo(() => processes, [processes]);
+  const recentProcesses = useMemo(() => sortByIdDesc(processes).slice(0, RECENT_ITEMS_LIMIT), [processes]);
   const recentProjects = useMemo(() => sortByIdDesc(projects).slice(0, RECENT_ITEMS_LIMIT), [projects]);
 
   const hasProcesses = processes.length > 0;
