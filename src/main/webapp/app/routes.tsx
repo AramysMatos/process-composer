@@ -11,6 +11,7 @@ import Logout from 'app/modules/login/logout';
 import HomeDashboard from 'app/modules/home/home-dashboard';
 import ProcessDesignRoutes from 'app/modules/process-design/routes';
 import LibraryRoutes from 'app/modules/library/routes';
+import ExecutionRoutes from 'app/modules/execution/routes';
 import EntitiesRoutes from 'app/entities/routes';
 import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
@@ -66,6 +67,7 @@ const AppRoutes = () => {
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>
               <ErrorBoundaryRoutes>
                 <Route path="processos/*" element={<ProcessDesignRoutes />} />
+                <Route path="projetos/*" element={<ExecutionRoutes />} />
                 <Route path="biblioteca/*" element={<LibraryRoutes />} />
                 <Route path="*" element={<EntitiesRoutes />} />
               </ErrorBoundaryRoutes>

@@ -1,0 +1,89 @@
+{
+  "processComposerApp": {
+    "execution": {
+      "wizard": {
+        "title": "New Project",
+        "subtitle": "Create an empty project linked to a process definition. Tasks are added later on the tasks screen.",
+        "steps": {
+          "process": "Source process",
+          "confirm": "Project & confirm"
+        },
+        "processStep": {
+          "title": "Choose the source process",
+          "hint": "The project will reference this process. You can create tasks from its activities individually later.",
+          "selectLabel": "Process",
+          "selectPlaceholder": "Select a process...",
+          "loadingProcesses": "Loading processes...",
+          "noProcesses": "No processes available. Create a process first."
+        },
+        "confirmStep": {
+          "title": "Project details",
+          "summaryTitle": "Review and confirm",
+          "process": "Source process",
+          "project": "Project"
+        },
+        "actions": {
+          "previous": "Previous",
+          "next": "Next",
+          "confirm": "Create project",
+          "creating": "Creating..."
+        },
+        "submitError": "Could not create the project. Please try again.",
+        "validation": {
+          "processRequired": "Select a source process.",
+          "projectNameRequired": "Project name is required."
+        }
+      },
+      "list": {
+        "title": "Projects",
+        "subtitle": "Browse and manage all running projects",
+        "searchPlaceholder": "Search by name...",
+        "createLabel": "New Project",
+        "notFound": "No projects found",
+        "taskCount": "{{count}} tasks"
+      },
+      "overview": {
+        "breadcrumbProjects": "Projects",
+        "loadingProject": "Loading...",
+        "invalidProjectId": "Invalid project id",
+        "projectNotFound": "Project not found",
+        "instantiatedFrom": "Instantiated from",
+        "taskStatsAria": "Task summary",
+        "totalTasks": "Total tasks",
+        "linkedTasks": "Linked to activities",
+        "independentTasks": "Independent tasks",
+        "navigationAria": "Project sections",
+        "nav": {
+          "tasks": {
+            "title": "Tasks",
+            "description": "Manage project tasks and link them to process activities."
+          },
+          "github": {
+            "title": "GitHub",
+            "description": "Connect the repository and generate issues from tasks."
+          }
+        }
+      },
+      "tasks": {
+        "title": "Project tasks",
+        "breadcrumbTasks": "Tasks",
+        "createButton": "New task",
+        "linkedActivitiesColumn": "Linked activities",
+        "independentBadge": "Independent",
+        "empty": "No tasks yet. Create the first one for this project.",
+        "createModal": {
+          "title": "New task",
+          "activitiesLabel": "Linked activities",
+          "activitiesHint": "Optional. Select zero or more activities from the source process.",
+          "activitiesPlaceholder": "Search activities from the process...",
+          "confirm": "Create task",
+          "creating": "Creating...",
+          "submitError": "Could not create the task.",
+          "validation": {
+            "nameRequired": "Task name is required."
+          }
+        }
+      }
+    }
+  }
+}

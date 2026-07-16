@@ -1,0 +1,75 @@
+.project-instantiation-wizard {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__stepper-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__step {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 999px;
+    color: #6c757d;
+    background-color: #fff;
+    font-size: 0.875rem;
+  }
+
+  &__step--active {
+    border-color: #0d6efd;
+    color: #0d6efd;
+    font-weight: 600;
+  }
+
+  &__step--done {
+    border-color: #198754;
+    color: #198754;
+  }
+
+  &__step-index {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  &__step--active &__step-index {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+
+  &__step--done &__step-index {
+    background-color: #198754;
+    color: #fff;
+  }
+
+  &__actions {
+    gap: 1rem;
+  }
+
+  &__summary-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+  }
+}

@@ -1,0 +1,52 @@
+.project-tasks {
+  &__header {
+    margin-bottom: 1.5rem;
+  }
+
+  &__title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__table-wrapper {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow-x: auto;
+    background-color: #fff;
+  }
+
+  &__table {
+    width: 100%;
+    margin-bottom: 0;
+
+    th {
+      white-space: nowrap;
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #6c757d;
+      background-color: #f8f9fa;
+    }
+
+    td {
+      vertical-align: middle;
+    }
+  }
+
+  &__description {
+    max-width: 24rem;
+    color: #6c757d;
+    margin: 0;
+  }
+
+  &__loading,
+  &__empty {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+}
