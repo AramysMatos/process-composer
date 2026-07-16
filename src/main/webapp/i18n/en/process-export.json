@@ -2,7 +2,9 @@
   "processComposerApp": {
     "processExport": {
       "title": "Export YAML",
-      "placeholder": "YAML export preview — generated process definition will appear here."
+      "subtitle": "Read-only preview of the process definition generated as YAML",
+      "download": "Download .yaml file",
+      "artifactsLoadWarning": "Artifact templates could not be loaded. The YAML may be incomplete."
     }
   }
 }

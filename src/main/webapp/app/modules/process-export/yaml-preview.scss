@@ -1,0 +1,21 @@
+.yaml-preview {
+  &__header {
+    margin-bottom: 1.5rem;
+  }
+
+  &__title {
+    margin-bottom: 0.25rem;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+}

@@ -1,18 +1,34 @@
 import './process-overview.scss';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { Alert, Button, ButtonGroup, Card, CardBody, CardHeader, Collapse, Spinner, UncontrolledTooltip } from 'reactstrap';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Alert,
+  Button,
+  ButtonGroup,
+  Card,
+  CardBody,
+  CardHeader,
+  Collapse,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Spinner,
+  UncontrolledTooltip,
+} from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getActivityEntities } from 'app/entities/activity/activity.reducer';
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
+import { deleteEntity as deleteProcess } from 'app/entities/process/process.reducer';
+import { duplicateProcess } from 'app/modules/process-design/duplicate-process';
 import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
-import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
+import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { ActivityDetailDrawer } from 'app/modules/process-design/components/activity-detail-drawer/activity-detail-drawer';
 import { ConfirmDeleteModal } from 'app/modules/process-design/components/confirm-delete-modal';
 import { CreateActivityModal } from 'app/modules/process-design/components/create-activity-modal';
@@ -20,6 +36,7 @@ import { CreatePhaseModal } from 'app/modules/process-design/components/create-p
 import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
+import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
 
 /** Rota `/processos/:id/canvas` registrada em `routes.tsx`. */
 export const PROCESS_CANVAS_ROUTE_ENABLED = true;
@@ -39,6 +56,7 @@ const sortActivities = (activities: IActivity[]): IActivity[] =>
 
 export const ProcessOverview = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { id } = useParams<'id'>();
 
   const processId = Number(id);
@@ -57,6 +75,9 @@ export const ProcessOverview = () => {
   const [createModalPhaseId, setCreateModalPhaseId] = useState<number | null>(null);
   const [createPhaseModalOpen, setCreatePhaseModalOpen] = useState(false);
   const [openPhaseIds, setOpenPhaseIds] = useState<Set<number>>(() => new Set());
+  const [deleteProcessTarget, setDeleteProcessTarget] = useState(false);
+  const [deletingProcess, setDeletingProcess] = useState(false);
+  const [duplicatingProcess, setDuplicatingProcess] = useState(false);
   const accordionInitializedRef = React.useRef(false);
 
   const phases = useMemo(
@@ -172,6 +193,49 @@ export const ProcessOverview = () => {
     onActivityDeleted: handleActivityDeleted,
     onPhaseDeleted: handlePhaseDeleted,
   });
+
+  const handleRequestDeleteProcess = useCallback(() => {
+    setDeleteProcessTarget(true);
+  }, []);
+
+  const handleCancelDeleteProcess = useCallback(() => {
+    if (!deletingProcess) {
+      setDeleteProcessTarget(false);
+    }
+  }, [deletingProcess]);
+
+  const handleConfirmDeleteProcess = useCallback(async () => {
+    if (!processId) {
+      return;
+    }
+
+    setDeletingProcess(true);
+    try {
+      await dispatch(deleteProcess(processId)).unwrap();
+      setDeleteProcessTarget(false);
+      navigate('/processos');
+    } catch {
+      // Modal stays open so the user can retry or cancel.
+    } finally {
+      setDeletingProcess(false);
+    }
+  }, [dispatch, navigate, processId]);
+
+  const handleDuplicateProcess = useCallback(async () => {
+    if (!processId || duplicatingProcess) {
+      return;
+    }
+
+    setDuplicatingProcess(true);
+    try {
+      const newProcessId = await duplicateProcess(dispatch, processId);
+      navigate(`/processos/${newProcessId}`);
+    } catch {
+      // Error notification is handled by middleware.
+    } finally {
+      setDuplicatingProcess(false);
+    }
+  }, [dispatch, duplicatingProcess, navigate, processId]);
 
   const togglePhasePanel = (phaseId: number) => {
     setOpenPhaseIds(current => {
@@ -314,16 +378,63 @@ export const ProcessOverview = () => {
   return (
     <div className="process-overview" data-cy="process-overview">
       <header className="process-overview__header">
-        <Breadcrumb
-          items={[
-            {
-              label: translate('processComposerApp.processDesign.overview.breadcrumbProcesses', 'Processes'),
-              path: '/processos',
-            },
-            { label: processMatches ? processName : translate('processComposerApp.processDesign.overview.loadingProcess', 'Loading...') },
-          ]}
-          data-cy="process-overview-breadcrumb"
-        />
+        <div className="process-overview__header-main">
+          <Breadcrumb
+            items={[
+              {
+                label: translate('processComposerApp.processDesign.overview.breadcrumbProcesses', 'Processes'),
+                path: '/processos',
+              },
+              { label: processMatches ? processName : translate('processComposerApp.processDesign.overview.loadingProcess', 'Loading...') },
+            ]}
+            data-cy="process-overview-breadcrumb"
+          />
+        </div>
+        {processMatches && (
+          <CardActionsMenu
+            data-cy={`processOverviewMenu-${processId}`}
+            items={[
+              {
+                key: 'duplicate',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="copy" className="me-2" />
+                    <Translate contentKey="processComposerApp.processDesign.list.actions.duplicate">Duplicate process</Translate>
+                  </>
+                ),
+                onClick() {
+                  void handleDuplicateProcess();
+                },
+                disabled: duplicatingProcess,
+                'data-cy': `processDuplicate-${processId}`,
+              },
+              {
+                key: 'export',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="file-code" className="me-2" />
+                    <Translate contentKey="processComposerApp.processDesign.list.actions.exportYaml">Export YAML</Translate>
+                  </>
+                ),
+                to: `/processos/${processId}/exportar`,
+                'data-cy': `processExportYaml-${processId}`,
+              },
+              {
+                key: 'delete',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="trash" className="me-2" />
+                    <Translate contentKey="entity.action.delete">Delete</Translate>
+                  </>
+                ),
+                onClick: handleRequestDeleteProcess,
+                danger: true,
+                disabled: deletingProcess,
+                'data-cy': `processDelete-${processId}`,
+              },
+            ]}
+          />
+        )}
       </header>
 
       <div className="process-overview__layout">
@@ -422,6 +533,32 @@ export const ProcessOverview = () => {
       />
 
       <ConfirmDeleteModal target={deleteTarget} deleting={deleting} onCancel={cancelDelete} onConfirm={confirmDelete} />
+
+      <Modal isOpen={deleteProcessTarget} toggle={handleCancelDeleteProcess}>
+        <ModalHeader toggle={handleCancelDeleteProcess} data-cy="processOverviewDeleteDialogHeading">
+          <Translate contentKey="entity.delete.title">Confirm delete operation</Translate>
+        </ModalHeader>
+        <ModalBody>
+          <Translate contentKey="processComposerApp.processDesign.list.delete.confirm" interpolate={{ name: processName }}>
+            {`Are you sure you want to delete the process "${processName}"?`}
+          </Translate>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={handleCancelDeleteProcess} disabled={deletingProcess}>
+            <FontAwesomeIcon icon="ban" /> <Translate contentKey="entity.action.cancel">Cancel</Translate>
+          </Button>
+          <Button
+            color="danger"
+            onClick={() => {
+              void handleConfirmDeleteProcess();
+            }}
+            disabled={deletingProcess}
+            data-cy="processOverviewConfirmDeleteButton"
+          >
+            <FontAwesomeIcon icon="trash" /> <Translate contentKey="entity.action.delete">Delete</Translate>
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 };

@@ -14,6 +14,7 @@ import { faEllipsisV } from '@fortawesome/free-solid-svg-icons/faEllipsisV';
 import { faFileCode } from '@fortawesome/free-solid-svg-icons/faFileCode';
 import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs';
 import { faDatabase } from '@fortawesome/free-solid-svg-icons/faDatabase';
+import { faDownload } from '@fortawesome/free-solid-svg-icons/faDownload';
 import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
 import { faFlag } from '@fortawesome/free-solid-svg-icons/faFlag';
 import { faHeart } from '@fortawesome/free-solid-svg-icons/faHeart';
@@ -62,6 +63,7 @@ export const loadIcons = () => {
     faCopy,
     faCogs,
     faDatabase,
+    faDownload,
     faEllipsisV,
     faEye,
     faFileCode,

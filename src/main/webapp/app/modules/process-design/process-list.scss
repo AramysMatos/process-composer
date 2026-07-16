@@ -57,6 +57,12 @@
   &__card-actions {
     margin-top: auto;
     padding-top: 0.75rem;
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
   }
 
   &__description {
