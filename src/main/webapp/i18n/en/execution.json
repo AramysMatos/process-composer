@@ -3,24 +3,36 @@
     "execution": {
       "wizard": {
         "title": "New Project",
-        "subtitle": "Create an empty project linked to a process definition. Tasks are added later on the tasks screen.",
+        "subtitle": "Instantiate a project from a process definition and optionally generate tasks from its activities.",
         "steps": {
           "process": "Source process",
+          "activities": "Activities",
           "confirm": "Project & confirm"
         },
         "processStep": {
           "title": "Choose the source process",
-          "hint": "The project will reference this process. You can create tasks from its activities individually later.",
+          "hint": "The project will reference this process. In the next step you can select which activities to turn into tasks.",
           "selectLabel": "Process",
           "selectPlaceholder": "Select a process...",
           "loadingProcesses": "Loading processes...",
           "noProcesses": "No processes available. Create a process first."
         },
+        "activitiesStep": {
+          "title": "Select activities to instantiate",
+          "hint": "Uncheck activities that do not apply to this project. All activities are selected by default.",
+          "bulkWarning": "One task will be created for each selected activity, using the activity name as the task title.",
+          "selectedCount": "{{count}} activities selected",
+          "loading": "Loading activities...",
+          "noActivities": "This process has no phases or activities to select.",
+          "emptyPhase": "No activities in this phase."
+        },
         "confirmStep": {
           "title": "Project details",
           "summaryTitle": "Review and confirm",
           "process": "Source process",
-          "project": "Project"
+          "project": "Project",
+          "activities": "Activities to instantiate",
+          "tasksToCreate": "{{count}} tasks will be created (one per selected activity)"
         },
         "actions": {
           "previous": "Previous",
@@ -31,7 +43,8 @@
         "submitError": "Could not create the project. Please try again.",
         "validation": {
           "processRequired": "Select a source process.",
-          "projectNameRequired": "Project name is required."
+          "projectNameRequired": "Project name is required.",
+          "atLeastOneActivity": "Select at least one activity to continue."
         }
       },
       "list": {
@@ -78,6 +91,7 @@
         "independentBadge": "Independent",
         "empty": "No tasks yet. Create the first one for this project.",
         "deleteTask": "Delete task",
+        "editTask": "Edit task",
         "delete": {
           "confirm": "Are you sure you want to delete the task \"{{name}}\"?"
         },
@@ -92,6 +106,12 @@
           "validation": {
             "nameRequired": "Task name is required."
           }
+        },
+        "editModal": {
+          "title": "Edit task",
+          "confirm": "Save changes",
+          "saving": "Saving...",
+          "submitError": "Could not save the task."
         }
       },
       "github": {

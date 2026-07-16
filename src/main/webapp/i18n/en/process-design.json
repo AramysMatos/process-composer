@@ -115,6 +115,9 @@
       },
       "drawer": {
         "title": "Activity details",
+        "duplicate": "Duplicate activity",
+        "duplicateSuccess": "Activity duplicated successfully.",
+        "duplicateError": "Could not duplicate the activity.",
         "save": "Save",
         "saving": "Saving...",
         "saveSuccess": "Activity saved successfully.",

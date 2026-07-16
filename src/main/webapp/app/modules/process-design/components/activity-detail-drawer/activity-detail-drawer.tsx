@@ -8,7 +8,9 @@ import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntity, updateEntity } from 'app/entities/activity/activity.reducer';
+import { duplicateActivity } from 'app/modules/process-design/duplicate-activity';
 import { IActivity } from 'app/shared/model/activity.model';
+import { CardActionsMenu, CardActionItem } from 'app/shared-ui/card-actions-menu';
 import { ArtifactsTab } from './artifacts-tab';
 import { cloneActivityDraft, toActivityUpdatePayload } from './activity-drawer.utils';
 import { DependenciesTab } from './dependencies-tab';
@@ -26,10 +28,19 @@ export interface ActivityDetailDrawerProps {
   onClose: () => void;
   onSaved?: () => void;
   onDelete?: (activity: { id: number; name: string }) => void;
+  onDuplicated?: (activityId: number) => void;
   deleting?: boolean;
 }
 
-export const ActivityDetailDrawer = ({ activityId, isOpen, onClose, onSaved, onDelete, deleting = false }: ActivityDetailDrawerProps) => {
+export const ActivityDetailDrawer = ({
+  activityId,
+  isOpen,
+  onClose,
+  onSaved,
+  onDelete,
+  onDuplicated,
+  deleting = false,
+}: ActivityDetailDrawerProps) => {
   const dispatch = useAppDispatch();
 
   const activityEntity = useAppSelector(state => state.activity.entity);
@@ -39,12 +50,14 @@ export const ActivityDetailDrawer = ({ activityId, isOpen, onClose, onSaved, onD
   const [activeTab, setActiveTab] = useState<DrawerTab>('general');
   const [draft, setDraft] = useState<IActivity | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [duplicating, setDuplicating] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
       setDraft(null);
       setActiveTab('general');
       setSaveError(null);
+      setDuplicating(false);
       return;
     }
 
@@ -82,7 +95,7 @@ export const ActivityDetailDrawer = ({ activityId, isOpen, onClose, onSaved, onD
 
   const isLoading = loading || (!draft && isOpen && activityId !== null);
   const drawerTitle = draft?.name ?? translate('processComposerApp.processDesign.drawer.title', 'Activity details');
-  const isBusy = updating || deleting;
+  const isBusy = updating || deleting || duplicating;
 
   const handleDelete = () => {
     if (!draft?.id || !onDelete) {
@@ -95,6 +108,56 @@ export const ActivityDetailDrawer = ({ activityId, isOpen, onClose, onSaved, onD
     });
   };
 
+  const handleDuplicate = async () => {
+    if (!draft?.id || duplicating) {
+      return;
+    }
+
+    setDuplicating(true);
+    try {
+      const newActivityId = await duplicateActivity(dispatch, draft.id);
+      toast.success(translate('processComposerApp.processDesign.drawer.duplicateSuccess', 'Activity duplicated successfully.'));
+      onDuplicated?.(newActivityId);
+    } catch {
+      toast.error(translate('processComposerApp.processDesign.drawer.duplicateError', 'Could not duplicate the activity.'));
+    } finally {
+      setDuplicating(false);
+    }
+  };
+
+  const menuItems: CardActionItem[] = [];
+  if (draft?.id) {
+    menuItems.push({
+      key: 'duplicate',
+      label: (
+        <>
+          <FontAwesomeIcon icon="copy" className="me-2" />
+          <Translate contentKey="processComposerApp.processDesign.drawer.duplicate">Duplicate activity</Translate>
+        </>
+      ),
+      onClick() {
+        void handleDuplicate();
+      },
+      disabled: isBusy,
+      'data-cy': `activityDuplicate-${draft.id}`,
+    });
+    if (onDelete) {
+      menuItems.push({
+        key: 'delete',
+        label: (
+          <>
+            <FontAwesomeIcon icon="trash" className="me-2" />
+            <Translate contentKey="processComposerApp.processDesign.delete.deleteActivity">Delete activity</Translate>
+          </>
+        ),
+        onClick: handleDelete,
+        danger: true,
+        disabled: isBusy,
+        'data-cy': `activityDelete-${draft.id}`,
+      });
+    }
+  }
+
   return (
     <Offcanvas
       isOpen={isOpen}
@@ -105,9 +168,12 @@ export const ActivityDetailDrawer = ({ activityId, isOpen, onClose, onSaved, onD
       data-cy="activity-detail-drawer"
     >
       <OffcanvasHeader toggle={handleClose} className="activity-detail-drawer__header">
-        <div className="activity-detail-drawer__title-block">
-          <span className="activity-detail-drawer__title">{drawerTitle}</span>
-          {draft?.phase?.name && <p className="activity-detail-drawer__subtitle">{draft.phase.name}</p>}
+        <div className="activity-detail-drawer__header-content">
+          <div className="activity-detail-drawer__title-block">
+            <span className="activity-detail-drawer__title">{drawerTitle}</span>
+            {draft?.phase?.name && <p className="activity-detail-drawer__subtitle">{draft.phase.name}</p>}
+          </div>
+          {menuItems.length > 0 && <CardActionsMenu data-cy={`activityDrawerMenu-${draft?.id}`} items={menuItems} />}
         </div>
       </OffcanvasHeader>
 
@@ -163,11 +229,6 @@ export const ActivityDetailDrawer = ({ activityId, isOpen, onClose, onSaved, onD
             </TabContent>
 
             <div className="activity-detail-drawer__footer">
-              {onDelete && (
-                <Button color="danger" outline onClick={handleDelete} disabled={isBusy} data-cy="activity-drawer-delete">
-                  <FontAwesomeIcon icon="trash" /> <Translate contentKey="entity.action.delete">Delete</Translate>
-                </Button>
-              )}
               <div className="activity-detail-drawer__footer-actions">
                 <Button color="secondary" outline onClick={handleClose} disabled={isBusy}>
                   <Translate contentKey="entity.action.cancel">Cancel</Translate>

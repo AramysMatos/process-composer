@@ -74,6 +74,15 @@ export const ProcessCanvas = () => {
     [dispatch]
   );
 
+  const handleActivityDuplicated = useCallback(
+    (activityId: number) => {
+      dispatch(getActivityEntities({ eagerload: true }));
+      setSelectedActivityId(activityId);
+      setDrawerActivityId(activityId);
+    },
+    [dispatch]
+  );
+
   const handlePhaseCreated = useCallback(
     (_phaseId: number) => {
       dispatch(getPhaseEntities({}));
@@ -172,6 +181,7 @@ export const ProcessCanvas = () => {
         onClose={handleCloseDrawer}
         onSaved={handleActivitySaved}
         onDelete={activity => requestDelete({ type: 'activity', id: activity.id, name: activity.name })}
+        onDuplicated={handleActivityDuplicated}
         deleting={deleting}
       />
 

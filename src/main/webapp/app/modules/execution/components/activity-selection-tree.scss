@@ -1,0 +1,67 @@
+.activity-selection-tree {
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__phase {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    background-color: #fff;
+  }
+
+  &__phase-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  &__phase-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    cursor: pointer;
+  }
+
+  &__phase-label {
+    flex: 1;
+    font-weight: 600;
+    margin-bottom: 0;
+    cursor: pointer;
+  }
+
+  &__activities {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0;
+  }
+
+  &__activity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem 0.375rem 2.75rem;
+  }
+
+  &__activity-label {
+    margin-bottom: 0;
+    cursor: pointer;
+  }
+
+  &__empty {
+    padding: 1rem;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.875rem;
+  }
+}

@@ -38,6 +38,7 @@ export const ProjectTasks = () => {
   const tasksLoading = useAppSelector(state => state.task.loading);
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<ITask | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<TaskDeleteTarget | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -65,6 +66,15 @@ export const ProjectTasks = () => {
         : [],
     [isValidProjectId, projectId, taskEntities]
   );
+
+  const handleRequestEdit = useCallback((task: ITask) => {
+    setEditTarget(task);
+  }, []);
+
+  const handleCloseTaskModal = useCallback(() => {
+    setCreateModalOpen(false);
+    setEditTarget(null);
+  }, []);
 
   const handleRequestDelete = useCallback((task: ITask) => {
     if (!task.id) {
@@ -129,17 +139,32 @@ export const ProjectTasks = () => {
           }
 
           return (
-            <EntityDeleteButton
-              label={translate('processComposerApp.execution.tasks.deleteTask', 'Delete task')}
-              onClick={() => handleRequestDelete(task)}
-              disabled={deleting || taskUpdating}
-              data-cy={`delete-task-${task.id}`}
-            />
+            <div className="project-tasks__row-actions">
+              <button
+                type="button"
+                className="project-tasks__edit-button"
+                aria-label={translate('processComposerApp.execution.tasks.editTask', 'Edit task')}
+                disabled={deleting || taskUpdating}
+                data-cy={`edit-task-${task.id}`}
+                onClick={event => {
+                  event.stopPropagation();
+                  handleRequestEdit(task);
+                }}
+              >
+                <FontAwesomeIcon icon="pencil-alt" />
+              </button>
+              <EntityDeleteButton
+                label={translate('processComposerApp.execution.tasks.deleteTask', 'Delete task')}
+                onClick={() => handleRequestDelete(task)}
+                disabled={deleting || taskUpdating}
+                data-cy={`delete-task-${task.id}`}
+              />
+            </div>
           );
         },
       }),
     ],
-    [deleting, handleRequestDelete, taskUpdating]
+    [deleting, handleRequestDelete, handleRequestEdit, taskUpdating]
   );
 
   const table = useReactTable({
@@ -239,11 +264,12 @@ export const ProjectTasks = () => {
       )}
 
       <CreateTaskModal
-        isOpen={createModalOpen}
+        isOpen={createModalOpen || editTarget !== null}
         projectId={projectId}
         processId={processId}
-        onClose={() => setCreateModalOpen(false)}
-        onCreated={() => dispatch(getTasks({ eagerload: true }))}
+        task={editTarget ?? undefined}
+        onClose={handleCloseTaskModal}
+        onSaved={() => dispatch(getTasks({ eagerload: true }))}
       />
 
       <Modal isOpen={deleteTarget !== null} toggle={handleCancelDelete}>

@@ -1,20 +1,27 @@
 import './project-instantiation-wizard.scss';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { FieldError, useForm } from 'react-hook-form';
 import { Alert, Button, Card, CardBody, Form, FormFeedback, Input, Label, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { getEntities as getActivities } from 'app/entities/activity/activity.reducer';
+import { getEntities as getPhases } from 'app/entities/phase/phase.reducer';
 import { getEntities as getProcesses } from 'app/entities/process/process.reducer';
 import { createEntity as createProject } from 'app/entities/project/project.reducer';
+import { createEntity as createTask } from 'app/entities/task/task.reducer';
+import { ActivitySelectionTree } from 'app/modules/execution/components/activity-selection-tree';
+import { buildActivitySelectionTree, getAllActivityIdsFromTree } from 'app/modules/execution/components/activity-selection-tree.utils';
 import { IProject } from 'app/shared/model/project.model';
-import { ProjectWizardFormValues, projectWizardSchema, projectWizardStep1Schema } from './dto';
+import { ITask } from 'app/shared/model/task.model';
+import { ProjectWizardFormValues, projectWizardSchema, projectWizardStep1Schema, projectWizardStep2Schema } from './dto';
 
 const WIZARD_STEPS = [
   { key: 'process', labelKey: 'processComposerApp.execution.wizard.steps.process' },
+  { key: 'activities', labelKey: 'processComposerApp.execution.wizard.steps.activities' },
   { key: 'confirm', labelKey: 'processComposerApp.execution.wizard.steps.confirm' },
 ] as const;
 
@@ -24,7 +31,12 @@ const applyZodErrors = (
 ) => {
   error.issues.forEach(issue => {
     const fieldPath = issue.path[0];
-    if (fieldPath === 'processId' || fieldPath === 'projectName' || fieldPath === 'projectDescription') {
+    if (
+      fieldPath === 'processId' ||
+      fieldPath === 'projectName' ||
+      fieldPath === 'projectDescription' ||
+      fieldPath === 'selectedActivityIds'
+    ) {
       setError(fieldPath, { type: 'manual', message: issue.message });
     }
   });
@@ -40,10 +52,15 @@ export const ProjectInstantiationWizard = () => {
 
   const processes = useAppSelector(state => state.process.entities);
   const processesLoading = useAppSelector(state => state.process.loading);
+  const phaseEntities = useAppSelector(state => state.phase.entities);
+  const phaseLoading = useAppSelector(state => state.phase.loading);
+  const activityEntities = useAppSelector(state => state.activity.entities);
+  const activityLoading = useAppSelector(state => state.activity.loading);
 
   const [activeStep, setActiveStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const initializedActivitySelectionRef = useRef<number | undefined>();
 
   const {
     register,
@@ -60,6 +77,7 @@ export const ProjectInstantiationWizard = () => {
       processId: Number.isFinite(parsedPreselectedProcessId) ? parsedPreselectedProcessId : undefined,
       projectName: '',
       projectDescription: '',
+      selectedActivityIds: [],
     },
   });
 
@@ -68,8 +86,26 @@ export const ProjectInstantiationWizard = () => {
   const projectDescriptionField = register('projectDescription');
 
   const selectedProcessId = watch('processId');
+  const selectedActivityIds = watch('selectedActivityIds');
 
   const selectedProcess = useMemo(() => processes.find(process => process.id === selectedProcessId), [processes, selectedProcessId]);
+
+  const activityTree = useMemo(
+    () => buildActivitySelectionTree(selectedProcessId, phaseEntities, activityEntities),
+    [activityEntities, phaseEntities, selectedProcessId]
+  );
+
+  const activityNameById = useMemo(() => {
+    const map = new Map<number, string>();
+    activityTree.forEach(phase => {
+      phase.activities.forEach(activity => {
+        map.set(activity.id, activity.name);
+      });
+    });
+    return map;
+  }, [activityTree]);
+
+  const treeLoading = phaseLoading || activityLoading;
 
   useEffect(() => {
     dispatch(getProcesses({}));
@@ -80,6 +116,33 @@ export const ProjectInstantiationWizard = () => {
       setValue('processId', parsedPreselectedProcessId);
     }
   }, [parsedPreselectedProcessId, processes, setValue]);
+
+  useEffect(() => {
+    if (!Number.isFinite(selectedProcessId) || selectedProcessId <= 0) {
+      return;
+    }
+
+    dispatch(getPhases({}));
+    dispatch(getActivities({ eagerload: true }));
+  }, [dispatch, selectedProcessId]);
+
+  useEffect(() => {
+    if (activeStep !== 1 || treeLoading || activityTree.length === 0) {
+      return;
+    }
+
+    if (initializedActivitySelectionRef.current === selectedProcessId) {
+      return;
+    }
+
+    setValue('selectedActivityIds', getAllActivityIdsFromTree(activityTree));
+    initializedActivitySelectionRef.current = selectedProcessId;
+  }, [activeStep, activityTree, selectedProcessId, setValue, treeLoading]);
+
+  useEffect(() => {
+    initializedActivitySelectionRef.current = undefined;
+    setValue('selectedActivityIds', []);
+  }, [selectedProcessId, setValue]);
 
   const goToNextStep = () => {
     clearErrors();
@@ -92,6 +155,16 @@ export const ProjectInstantiationWizard = () => {
         return;
       }
       setActiveStep(1);
+      return;
+    }
+
+    if (activeStep === 1) {
+      const result = projectWizardStep2Schema.safeParse(values);
+      if (!result.success) {
+        applyZodErrors(setError, result.error);
+        return;
+      }
+      setActiveStep(2);
     }
   };
 
@@ -101,6 +174,7 @@ export const ProjectInstantiationWizard = () => {
   };
 
   const values = getValues();
+  const selectedActivityIdsError = errors.selectedActivityIds as unknown as FieldError | undefined;
 
   const onSubmit = async (data: ProjectWizardFormValues) => {
     const validation = projectWizardSchema.safeParse(data);
@@ -126,7 +200,18 @@ export const ProjectInstantiationWizard = () => {
         throw new Error('Created project has no id');
       }
 
-      navigate(`/projetos/${createdProjectId}`);
+      for (const activityId of validation.data.selectedActivityIds) {
+        const activityName = activityNameById.get(activityId) ?? `Activity ${activityId}`;
+        const taskPayload: ITask = {
+          name: activityName,
+          description: null,
+          project: { id: createdProjectId },
+          activities: [{ id: activityId, name: activityName }],
+        };
+        await dispatch(createTask(taskPayload)).unwrap();
+      }
+
+      navigate(`/projetos/${createdProjectId}/tarefas`);
     } catch {
       setSubmitError(translate('processComposerApp.execution.wizard.submitError', 'Could not create the project. Please try again.'));
     } finally {
@@ -143,7 +228,7 @@ export const ProjectInstantiationWizard = () => {
           </h1>
           <p className="text-muted mb-0">
             <Translate contentKey="processComposerApp.execution.wizard.subtitle">
-              Create an empty project linked to a process definition. Tasks are added later on the tasks screen.
+              Instantiate a project from a process definition and optionally generate tasks from its activities.
             </Translate>
           </p>
         </div>
@@ -242,6 +327,56 @@ export const ProjectInstantiationWizard = () => {
         )}
 
         {activeStep === 1 && (
+          <Card className="shadow-sm">
+            <CardBody>
+              <h2 className="h5 mb-2">
+                <Translate contentKey="processComposerApp.execution.wizard.activitiesStep.title">
+                  Select activities to instantiate
+                </Translate>
+              </h2>
+              <p className="text-muted small mb-3">
+                <Translate contentKey="processComposerApp.execution.wizard.activitiesStep.hint">
+                  Uncheck activities that do not apply to this project. All activities are selected by default.
+                </Translate>
+              </p>
+
+              <Alert color="info" className="py-2 mb-3" data-cy="projectWizardBulkTasksWarning">
+                <Translate contentKey="processComposerApp.execution.wizard.activitiesStep.bulkWarning">
+                  One task will be created for each selected activity, using the activity name as the task title.
+                </Translate>
+              </Alert>
+
+              {selectedActivityIdsError?.message && (
+                <Alert color="danger" className="py-2">
+                  <Translate contentKey={selectedActivityIdsError.message}>{selectedActivityIdsError.message}</Translate>
+                </Alert>
+              )}
+
+              <ActivitySelectionTree
+                phases={activityTree}
+                selectedActivityIds={selectedActivityIds}
+                onChange={ids => {
+                  setValue('selectedActivityIds', ids, { shouldDirty: true });
+                  if (errors.selectedActivityIds) {
+                    clearErrors('selectedActivityIds');
+                  }
+                }}
+                loading={treeLoading}
+              />
+
+              <p className="text-muted small mb-0 mt-3">
+                <Translate
+                  contentKey="processComposerApp.execution.wizard.activitiesStep.selectedCount"
+                  interpolate={{ count: String(selectedActivityIds.length) }}
+                >
+                  {`${selectedActivityIds.length} activities selected`}
+                </Translate>
+              </p>
+            </CardBody>
+          </Card>
+        )}
+
+        {activeStep === 2 && (
           <>
             <Card className="shadow-sm mb-3">
               <CardBody>
@@ -313,12 +448,31 @@ export const ProjectInstantiationWizard = () => {
                   {selectedProcess?.processDescription && <p className="text-muted small mb-0">{selectedProcess.processDescription}</p>}
                 </div>
 
-                <div>
+                <div className="mb-3">
                   <div className="project-instantiation-wizard__summary-label">
                     <Translate contentKey="processComposerApp.execution.wizard.confirmStep.project">Project</Translate>
                   </div>
                   <p className="mb-0 fw-semibold">{values.projectName || '—'}</p>
                   <p className="text-muted small mb-0">{values.projectDescription || '—'}</p>
+                </div>
+
+                <div>
+                  <div className="project-instantiation-wizard__summary-label">
+                    <Translate contentKey="processComposerApp.execution.wizard.confirmStep.activities">Activities to instantiate</Translate>
+                  </div>
+                  <p className="mb-1 fw-semibold">
+                    <Translate
+                      contentKey="processComposerApp.execution.wizard.confirmStep.tasksToCreate"
+                      interpolate={{ count: String(values.selectedActivityIds.length) }}
+                    >
+                      {`${values.selectedActivityIds.length} tasks will be created (one per selected activity)`}
+                    </Translate>
+                  </p>
+                  <ul className="text-muted small mb-0 ps-3">
+                    {values.selectedActivityIds.map(activityId => (
+                      <li key={activityId}>{activityNameById.get(activityId) ?? `Activity ${activityId}`}</li>
+                    ))}
+                  </ul>
                 </div>
               </CardBody>
             </Card>

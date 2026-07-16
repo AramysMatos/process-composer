@@ -36,13 +36,48 @@
       vertical-align: middle;
     }
 
-    tr:hover .entity-delete-button {
+    tr:hover .entity-delete-button,
+    tr:hover .project-tasks__edit-button {
       opacity: 1;
     }
   }
 
+  &__row-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+  }
+
+  &__edit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: none;
+    border-radius: 0.25rem;
+    background: transparent;
+    color: #6c757d;
+    flex-shrink: 0;
+    font-size: 0.8125rem;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      color: #0d6efd;
+      background-color: rgba(13, 110, 253, 0.1);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+  }
+
   &__actions {
-    width: 3rem;
+    width: 5rem;
     text-align: right;
     white-space: nowrap;
   }
