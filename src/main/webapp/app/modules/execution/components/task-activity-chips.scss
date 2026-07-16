@@ -3,4 +3,16 @@
   flex-wrap: wrap;
   gap: 0.35rem;
   align-items: center;
+
+  &__chip--link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+      filter: brightness(0.92);
+      text-decoration: none;
+    }
+  }
 }

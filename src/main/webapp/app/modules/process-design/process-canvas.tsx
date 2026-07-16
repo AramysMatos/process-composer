@@ -1,6 +1,6 @@
 import './process-canvas.scss';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Alert, Button, ButtonGroup, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,6 +20,7 @@ import { CreateActivityModal } from 'app/modules/process-design/components/creat
 import { CreatePhaseModal } from 'app/modules/process-design/components/create-phase-modal';
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
+import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
 
 export const ProcessCanvas = () => {
   const dispatch = useAppDispatch();
@@ -30,8 +31,23 @@ export const ProcessCanvas = () => {
   const isValidProcessId = Number.isFinite(processId) && processId > 0;
 
   const process = useAppSelector(state => state.process.entity);
+  const processLoading = useAppSelector(state => state.process.loading);
+  const phaseEntities = useAppSelector(state => state.phase.entities);
+  const phaseLoading = useAppSelector(state => state.phase.loading);
+  const activityEntities = useAppSelector(state => state.activity.entities);
+  const activityLoading = useAppSelector(state => state.activity.loading);
   const processMatches = process.id === processId;
   const processName = process.processName ?? translate('processComposerApp.processDesign.tree.untitledProcess', 'Untitled process');
+
+  const phases = useMemo(
+    () => phaseEntities.filter(phase => phase.process?.id === processId).sort((left, right) => (left.id ?? 0) - (right.id ?? 0)),
+    [phaseEntities, processId]
+  );
+  const phaseIds = useMemo((): ReadonlySet<number> => {
+    const ids = phases.flatMap(phase => (phase.id !== undefined ? [phase.id] : []));
+    return new Set(ids);
+  }, [phases]);
+  const loading = processLoading || phaseLoading || activityLoading;
 
   const [selectedActivityId, setSelectedActivityId] = useState<number | undefined>();
   const [drawerActivityId, setDrawerActivityId] = useState<number | null>(null);
@@ -46,9 +62,28 @@ export const ProcessCanvas = () => {
     setDrawerActivityId(activityId);
   }, []);
 
+  const handleOpenActivityFromDeepLink = useCallback((activityId: number, _phaseId: number) => {
+    setSelectedActivityId(activityId);
+    setDrawerActivityId(activityId);
+  }, []);
+
   const handleCloseDrawer = useCallback(() => {
     setDrawerActivityId(null);
   }, []);
+
+  const { clearActivityFromUrl } = useProcessActivityDeepLink({
+    processId,
+    loading,
+    processMatches,
+    activities: activityEntities,
+    phaseIds,
+    onOpenActivity: handleOpenActivityFromDeepLink,
+  });
+
+  const handleCloseActivityDrawer = useCallback(() => {
+    handleCloseDrawer();
+    clearActivityFromUrl();
+  }, [clearActivityFromUrl, handleCloseDrawer]);
 
   const handleActivitySaved = useCallback(() => {
     dispatch(getActivityEntities({ eagerload: true }));
@@ -274,7 +309,7 @@ export const ProcessCanvas = () => {
       <ActivityDetailDrawer
         activityId={drawerActivityId}
         isOpen={drawerActivityId !== null}
-        onClose={handleCloseDrawer}
+        onClose={handleCloseActivityDrawer}
         onSaved={handleActivitySaved}
         onDelete={activity => requestDelete({ type: 'activity', id: activity.id, name: activity.name })}
         onDuplicated={handleActivityDuplicated}

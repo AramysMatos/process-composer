@@ -36,6 +36,7 @@ import { CreatePhaseModal } from 'app/modules/process-design/components/create-p
 import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
+import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
 import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
 
 /** Rota `/processos/:id/canvas` registrada em `routes.tsx`. */
@@ -99,6 +100,11 @@ export const ProcessOverview = () => {
     return grouped;
   }, [activityEntities, phases]);
 
+  const phaseIds = useMemo((): ReadonlySet<number> => {
+    const ids = phases.flatMap(phase => (phase.id !== undefined ? [phase.id] : []));
+    return new Set(ids);
+  }, [phases]);
+
   useEffect(() => {
     accordionInitializedRef.current = false;
     setOpenPhaseIds(new Set());
@@ -127,9 +133,29 @@ export const ProcessOverview = () => {
     setDrawerActivityId(activityId);
   }, []);
 
+  const handleOpenActivityFromDeepLink = useCallback((activityId: number, phaseId: number) => {
+    setSelectedActivityId(activityId);
+    setDrawerActivityId(activityId);
+    setOpenPhaseIds(current => new Set([...current, phaseId]));
+  }, []);
+
   const handleCloseDrawer = useCallback(() => {
     setDrawerActivityId(null);
   }, []);
+
+  const { clearActivityFromUrl } = useProcessActivityDeepLink({
+    processId,
+    loading,
+    processMatches,
+    activities: activityEntities,
+    phaseIds,
+    onOpenActivity: handleOpenActivityFromDeepLink,
+  });
+
+  const handleCloseActivityDrawer = useCallback(() => {
+    handleCloseDrawer();
+    clearActivityFromUrl();
+  }, [clearActivityFromUrl, handleCloseDrawer]);
 
   const handleActivitySaved = useCallback(() => {
     dispatch(getActivityEntities({ eagerload: true }));
@@ -521,7 +547,7 @@ export const ProcessOverview = () => {
       <ActivityDetailDrawer
         activityId={drawerActivityId}
         isOpen={drawerActivityId !== null}
-        onClose={handleCloseDrawer}
+        onClose={handleCloseActivityDrawer}
         onSaved={handleActivitySaved}
         onDelete={activity => requestDelete({ type: 'activity', id: activity.id, name: activity.name })}
         onDuplicated={handleActivityDuplicated}

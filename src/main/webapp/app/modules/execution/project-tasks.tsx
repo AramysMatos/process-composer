@@ -127,7 +127,7 @@ export const ProjectTasks = () => {
       columnHelper.display({
         id: 'activities',
         header: () => translate('processComposerApp.execution.tasks.linkedActivitiesColumn', 'Linked activities'),
-        cell: ({ row }) => <TaskActivityChips task={row.original} />,
+        cell: ({ row }) => <TaskActivityChips task={row.original} processId={processId} />,
       }),
       columnHelper.display({
         id: 'actions',
@@ -164,7 +164,7 @@ export const ProjectTasks = () => {
         },
       }),
     ],
-    [deleting, handleRequestDelete, handleRequestEdit, taskUpdating]
+    [deleting, handleRequestDelete, handleRequestEdit, processId, taskUpdating]
   );
 
   const table = useReactTable({

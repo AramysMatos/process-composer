@@ -88,6 +88,7 @@
         "breadcrumbTasks": "Tasks",
         "createButton": "New task",
         "linkedActivitiesColumn": "Linked activities",
+        "viewActivity": "View activity {{name}}",
         "independentBadge": "Independent",
         "empty": "No tasks yet. Create the first one for this project.",
         "deleteTask": "Delete task",
