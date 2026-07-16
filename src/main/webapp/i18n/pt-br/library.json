@@ -1,0 +1,37 @@
+{
+  "processComposerApp": {
+    "library": {
+      "title": "Biblioteca",
+      "subtitle": "Gerencie itens reutilizáveis do catálogo e veja onde são utilizados",
+      "masterList": "Lista principal",
+      "detailPanel": "Painel de detalhes",
+      "searchPlaceholder": "Buscar por nome...",
+      "createLabel": "Novo item",
+      "createTitle": "Novo item",
+      "notFound": "Nenhum item encontrado",
+      "selectItem": "Selecione um item da lista ou crie um novo",
+      "tabs": {
+        "roles": "Papéis",
+        "tools": "Ferramentas",
+        "guidelines": "Diretrizes",
+        "artifacts": "Artefatos",
+        "templates": "Modelos"
+      },
+      "usedIn": {
+        "title": "Usado em atividades",
+        "empty": "Ainda não é usado em nenhuma atividade",
+        "participant": "Participante",
+        "responsible": "Responsável",
+        "tool": "Ferramenta",
+        "guideline": "Diretriz",
+        "template": "Modelo",
+        "required": "Entrada obrigatória",
+        "produced": "Saída produzida"
+      },
+      "delete": {
+        "confirm": "Tem certeza de que deseja excluir {{name}}?",
+        "usedWarning": "Usado em {{count}} atividades — remover mesmo assim?"
+      }
+    }
+  }
+}

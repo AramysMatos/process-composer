@@ -24,7 +24,7 @@
     "jhiPrefix": "jhi",
     "jhipsterVersion": "7.9.4",
     "jwtSecretKey": "OTY0M2ZmMzQ0NDYyMWZlMmJjYjNkMzUzNTk5MjdkYWJiYTZmODk3NTE1NDYzYjRjZTljY2QxY2I1NzFmODZkOGEwMmE2ZDI5ZDQ4MDVhNjY5OGVmOGE2NTNkYmUyNTE1MmNjNGI4NWZhODdhMjE4ODAzMTkyZTA4ZjViOTM1NTc=",
-    "languages": ["en"],
+    "languages": ["en", "pt-br"],
     "lastLiquibaseTimestamp": 1783516231000,
     "messageBroker": false,
     "microfrontend": false,

@@ -1,0 +1,26 @@
+{
+  "processComposerApp": {
+    "tools": {
+      "home": {
+        "title": "Ferramentas",
+        "refreshListLabel": "Atualizar lista",
+        "createLabel": "Criar nova Ferramenta",
+        "createOrEditLabel": "Criar ou editar Ferramenta",
+        "notFound": "Nenhuma Ferramenta encontrada"
+      },
+      "created": "Uma nova Ferramenta foi criada com o identificador {{ param }}",
+      "updated": "Uma Ferramenta foi atualizada com o identificador {{ param }}",
+      "deleted": "Uma Ferramenta foi excluída com o identificador {{ param }}",
+      "delete": {
+        "question": "Tem certeza de que deseja excluir a Ferramenta {{ id }}?"
+      },
+      "detail": {
+        "title": "Ferramenta"
+      },
+      "id": "ID",
+      "name": "Nome",
+      "description": "Descrição",
+      "activities": "Atividades"
+    }
+  }
+}

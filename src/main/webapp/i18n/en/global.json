@@ -3,10 +3,10 @@
     "title": "Process_composer",
     "browsehappy": "You are using an <strong>outdated</strong> browser. Please <a href=\"http://browsehappy.com/?locale=en\">upgrade your browser</a> to improve your experience.",
     "menu": {
-      "home": "Início",
-      "processes": "Processos",
-      "library": "Biblioteca",
-      "projects": "Projetos",
+      "home": "Home",
+      "processes": "Processes",
+      "library": "Library",
+      "projects": "Projects",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Entities",
@@ -23,7 +23,7 @@
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "advanced": {
-        "main": "Administração/Avançado"
+        "main": "Administration / Advanced"
       },
       "account": {
         "main": "Account",

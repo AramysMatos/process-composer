@@ -1,0 +1,122 @@
+{
+  "processComposerApp": {
+    "execution": {
+      "wizard": {
+        "title": "Novo Projeto",
+        "subtitle": "Instancie um projeto a partir de uma definição de processo e, opcionalmente, gere tarefas a partir das atividades.",
+        "steps": {
+          "process": "Processo de origem",
+          "activities": "Atividades",
+          "confirm": "Projeto e confirmação"
+        },
+        "processStep": {
+          "title": "Escolha o processo de origem",
+          "hint": "O projeto fará referência a este processo. Na próxima etapa você pode selecionar quais atividades virarão tarefas.",
+          "selectLabel": "Processo",
+          "selectPlaceholder": "Selecione um processo...",
+          "loadingProcesses": "Carregando processos...",
+          "noProcesses": "Nenhum processo disponível. Crie um processo primeiro."
+        },
+        "activitiesStep": {
+          "title": "Selecione as atividades para instanciar",
+          "hint": "Desmarque as atividades que não se aplicam a este projeto. Todas as atividades vêm selecionadas por padrão.",
+          "bulkWarning": "Uma tarefa será criada para cada atividade selecionada, usando o nome da atividade como título da tarefa.",
+          "selectedCount": "{{count}} atividades selecionadas",
+          "loading": "Carregando atividades...",
+          "noActivities": "Este processo não possui fases ou atividades para selecionar.",
+          "emptyPhase": "Nenhuma atividade nesta fase."
+        },
+        "confirmStep": {
+          "title": "Detalhes do projeto",
+          "summaryTitle": "Revisar e confirmar",
+          "process": "Processo de origem",
+          "project": "Projeto",
+          "activities": "Atividades a instanciar",
+          "tasksToCreate": "{{count}} tarefas serão criadas (uma por atividade selecionada)"
+        },
+        "actions": {
+          "previous": "Anterior",
+          "next": "Próximo",
+          "confirm": "Criar projeto",
+          "creating": "Criando..."
+        },
+        "submitError": "Não foi possível criar o projeto. Tente novamente.",
+        "validation": {
+          "processRequired": "Selecione um processo de origem.",
+          "projectNameRequired": "O nome do projeto é obrigatório.",
+          "atLeastOneActivity": "Selecione pelo menos uma atividade para continuar."
+        }
+      },
+      "list": {
+        "title": "Projetos",
+        "subtitle": "Navegue e gerencie todos os projetos em execução",
+        "searchPlaceholder": "Buscar por nome...",
+        "createLabel": "Novo Projeto",
+        "notFound": "Nenhum projeto encontrado",
+        "taskCount": "{{count}} tarefas",
+        "actions": {
+          "deleteProject": "Excluir projeto"
+        },
+        "delete": {
+          "confirm": "Tem certeza de que deseja excluir o projeto \"{{name}}\"?"
+        }
+      },
+      "overview": {
+        "breadcrumbProjects": "Projetos",
+        "loadingProject": "Carregando...",
+        "invalidProjectId": "ID de projeto inválido",
+        "projectNotFound": "Projeto não encontrado",
+        "instantiatedFrom": "Instanciado a partir de",
+        "taskStatsAria": "Resumo de tarefas",
+        "totalTasks": "Total de tarefas",
+        "linkedTasks": "Vinculadas a atividades",
+        "independentTasks": "Tarefas independentes",
+        "navigationAria": "Seções do projeto",
+        "nav": {
+          "tasks": {
+            "title": "Tarefas",
+            "description": "Gerencie as tarefas do projeto e vincule-as às atividades do processo."
+          },
+          "github": {
+            "title": "GitHub",
+            "description": "Conecte o repositório e gere issues a partir das tarefas."
+          }
+        }
+      },
+      "tasks": {
+        "title": "Tarefas do projeto",
+        "breadcrumbTasks": "Tarefas",
+        "createButton": "Nova tarefa",
+        "linkedActivitiesColumn": "Atividades vinculadas",
+        "independentBadge": "Independente",
+        "empty": "Nenhuma tarefa ainda. Crie a primeira para este projeto.",
+        "deleteTask": "Excluir tarefa",
+        "editTask": "Editar tarefa",
+        "delete": {
+          "confirm": "Tem certeza de que deseja excluir a tarefa \"{{name}}\"?"
+        },
+        "createModal": {
+          "title": "Nova tarefa",
+          "activitiesLabel": "Atividades vinculadas",
+          "activitiesHint": "Opcional. Selecione zero ou mais atividades do processo de origem.",
+          "activitiesPlaceholder": "Buscar atividades do processo...",
+          "confirm": "Criar tarefa",
+          "creating": "Criando...",
+          "submitError": "Não foi possível criar a tarefa.",
+          "validation": {
+            "nameRequired": "O nome da tarefa é obrigatório."
+          }
+        },
+        "editModal": {
+          "title": "Editar tarefa",
+          "confirm": "Salvar alterações",
+          "saving": "Salvando...",
+          "submitError": "Não foi possível salvar a tarefa."
+        }
+      },
+      "github": {
+        "placeholder": "Painel de integração GitHub — conecte o repositório e gere issues a partir das tarefas."
+      }
+    }
+  }
+}

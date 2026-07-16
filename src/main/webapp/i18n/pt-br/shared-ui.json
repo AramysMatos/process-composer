@@ -1,0 +1,15 @@
+{
+  "processComposerApp": {
+    "sharedUi": {
+      "cardActionsMenu": {
+        "label": "Mais ações"
+      },
+      "entityCombobox": {
+        "placeholder": "Buscar ou selecionar...",
+        "create": "+ Criar '{{ name }}'",
+        "removeItem": "Remover {{ name }}",
+        "noResults": "Nenhuma opção encontrada"
+      }
+    }
+  }
+}

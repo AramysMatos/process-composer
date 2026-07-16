@@ -1,0 +1,27 @@
+{
+  "processComposerApp": {
+    "roles": {
+      "home": {
+        "title": "Papéis",
+        "refreshListLabel": "Atualizar lista",
+        "createLabel": "Criar novo Papel",
+        "createOrEditLabel": "Criar ou editar Papel",
+        "notFound": "Nenhum Papel encontrado"
+      },
+      "created": "Um novo Papel foi criado com o identificador {{ param }}",
+      "updated": "Um Papel foi atualizado com o identificador {{ param }}",
+      "deleted": "Um Papel foi excluído com o identificador {{ param }}",
+      "delete": {
+        "question": "Tem certeza de que deseja excluir o Papel {{ id }}?"
+      },
+      "detail": {
+        "title": "Papel"
+      },
+      "id": "ID",
+      "name": "Nome",
+      "description": "Descrição",
+      "participantActivities": "Atividades como Participante",
+      "responsibleActivities": "Atividades como Responsável"
+    }
+  }
+}

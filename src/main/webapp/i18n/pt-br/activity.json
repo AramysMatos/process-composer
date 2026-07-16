@@ -1,0 +1,37 @@
+{
+  "processComposerApp": {
+    "activity": {
+      "home": {
+        "title": "Atividades",
+        "refreshListLabel": "Atualizar lista",
+        "createLabel": "Criar nova Atividade",
+        "createOrEditLabel": "Criar ou editar Atividade",
+        "notFound": "Nenhuma Atividade encontrada"
+      },
+      "created": "Uma nova Atividade foi criada com o identificador {{ param }}",
+      "updated": "Uma Atividade foi atualizada com o identificador {{ param }}",
+      "deleted": "Uma Atividade foi excluída com o identificador {{ param }}",
+      "delete": {
+        "question": "Tem certeza de que deseja excluir a Atividade {{ id }}?"
+      },
+      "detail": {
+        "title": "Atividade"
+      },
+      "id": "ID",
+      "name": "Nome",
+      "description": "Descrição",
+      "inputCriterion": "Critério de Entrada",
+      "subActivities": "Subatividades",
+      "templates": "Modelos",
+      "guidelines": "Diretrizes",
+      "participantRoles": "Papéis Participantes",
+      "responsibleRoles": "Papéis Responsáveis",
+      "tools": "Ferramentas",
+      "requiredArtifacts": "Artefatos Obrigatórios",
+      "producedArtifacts": "Artefatos Produzidos",
+      "phase": "Fase",
+      "tasks": "Tarefas",
+      "predecessorActivities": "Atividades Predecessoras"
+    }
+  }
+}

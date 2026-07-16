@@ -1,0 +1,27 @@
+{
+  "processComposerApp": {
+    "templates": {
+      "home": {
+        "title": "Modelos",
+        "refreshListLabel": "Atualizar lista",
+        "createLabel": "Criar novo Modelo",
+        "createOrEditLabel": "Criar ou editar Modelo",
+        "notFound": "Nenhum Modelo encontrado"
+      },
+      "created": "Um novo Modelo foi criado com o identificador {{ param }}",
+      "updated": "Um Modelo foi atualizado com o identificador {{ param }}",
+      "deleted": "Um Modelo foi excluído com o identificador {{ param }}",
+      "delete": {
+        "question": "Tem certeza de que deseja excluir o Modelo {{ id }}?"
+      },
+      "detail": {
+        "title": "Modelo"
+      },
+      "id": "ID",
+      "name": "Nome",
+      "description": "Descrição",
+      "artifacts": "Artefatos",
+      "activities": "Atividades"
+    }
+  }
+}

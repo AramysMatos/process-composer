@@ -1,0 +1,43 @@
+{
+  "home": {
+    "title": "Bem-vindo, Java Hipster!",
+    "subtitle": "Esta é a página principal",
+    "logged": {
+      "message": "Você está logado como \"{{username}}\"."
+    },
+    "question": "Em caso de dúvida sobre o JHipster:",
+    "link": {
+      "homepage": "Página principal JHipster",
+      "stackoverflow": "JHipster no Stack Overflow",
+      "bugtracker": "Rastreador de bugs JHipster",
+      "chat": "Sala de bate-papo pública JHipster",
+      "follow": "siga @jhipster no Twitter"
+    },
+    "like": "Se você gosta do JHipster, não se esqueça de avaliar no",
+    "github": "GitHub",
+    "dashboard": {
+      "title": "Início",
+      "subtitle": "Visão geral das suas definições de processo e projetos em execução",
+      "myProcesses": "Meus Processos",
+      "myProjects": "Meus Projetos",
+      "viewAll": "Ver todos",
+      "process": {
+        "phaseCount": "{{count}} fases",
+        "activityCount": "{{count}} atividades",
+        "open": "Abrir",
+        "instantiateProject": "Instanciar Projeto",
+        "empty": "Você ainda não criou nenhum processo. Comece definindo seu primeiro modelo de processo.",
+        "createFirst": "Criar meu primeiro processo",
+        "createNew": "Novo processo"
+      },
+      "project": {
+        "sourceProcess": "Processo de origem",
+        "createNew": "Novo projeto",
+        "githubConnected": "GitHub conectado",
+        "githubNotConnected": "GitHub não conectado",
+        "requiresProcess": "Projetos são criados a partir de um processo existente. Crie pelo menos um processo antes de instanciar um projeto.",
+        "empty": "Nenhum projeto ainda. Use \"Instanciar Projeto\" em um card de processo para criar o primeiro."
+      }
+    }
+  }
+}

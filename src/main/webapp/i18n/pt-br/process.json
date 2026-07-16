@@ -1,0 +1,27 @@
+{
+  "processComposerApp": {
+    "process": {
+      "home": {
+        "title": "Processos",
+        "refreshListLabel": "Atualizar lista",
+        "createLabel": "Criar novo Processo",
+        "createOrEditLabel": "Criar ou editar Processo",
+        "notFound": "Nenhum Processo encontrado"
+      },
+      "created": "Um novo Processo foi criado com o identificador {{ param }}",
+      "updated": "Um Processo foi atualizado com o identificador {{ param }}",
+      "deleted": "Um Processo foi excluído com o identificador {{ param }}",
+      "delete": {
+        "question": "Tem certeza de que deseja excluir o Processo {{ id }}?"
+      },
+      "detail": {
+        "title": "Processo"
+      },
+      "id": "ID",
+      "processName": "Nome do Processo",
+      "processDescription": "Descrição do Processo",
+      "phase": "Fase",
+      "project": "Projeto"
+    }
+  }
+}

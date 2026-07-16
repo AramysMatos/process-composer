@@ -1,0 +1,10 @@
+{
+  "processComposerApp": {
+    "processExport": {
+      "title": "Exportar YAML",
+      "subtitle": "Pré-visualização somente leitura da definição do processo gerada em YAML",
+      "download": "Baixar arquivo .yaml",
+      "artifactsLoadWarning": "Não foi possível carregar os modelos de artefatos. O YAML pode estar incompleto."
+    }
+  }
+}

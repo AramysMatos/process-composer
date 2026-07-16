@@ -1,0 +1,162 @@
+{
+  "processComposerApp": {
+    "processDesign": {
+      "list": {
+        "title": "Processos",
+        "subtitle": "Navegue e gerencie todas as definições de processo",
+        "searchPlaceholder": "Buscar por nome...",
+        "createLabel": "Novo Processo",
+        "notFound": "Nenhum processo encontrado",
+        "sort": {
+          "label": "Ordenar por",
+          "recent": "Mais recentes",
+          "name": "Nome (A-Z)",
+          "phases": "Mais fases"
+        },
+        "actions": {
+          "duplicate": "Duplicar processo",
+          "exportYaml": "Exportar YAML"
+        },
+        "delete": {
+          "confirm": "Tem certeza de que deseja excluir o processo \"{{name}}\"?"
+        }
+      },
+      "wizard": {
+        "title": "Novo Processo",
+        "subtitle": "Defina a estrutura do processo antes de modelar as atividades no canvas",
+        "steps": {
+          "process": "Processo",
+          "phases": "Fases",
+          "confirm": "Confirmar"
+        },
+        "processStep": {
+          "title": "Detalhes do processo"
+        },
+        "phasesStep": {
+          "title": "Fases",
+          "addPhase": "Adicionar fase",
+          "moveUp": "Mover para cima",
+          "moveDown": "Mover para baixo"
+        },
+        "confirmStep": {
+          "title": "Revisar e confirmar",
+          "process": "Processo",
+          "phases": "Fases"
+        },
+        "actions": {
+          "previous": "Anterior",
+          "next": "Próximo",
+          "confirm": "Criar processo",
+          "creating": "Criando..."
+        },
+        "submitError": "Não foi possível criar o processo. Tente novamente.",
+        "validation": {
+          "processNameRequired": "O nome do processo é obrigatório.",
+          "phaseNameRequired": "O nome da fase é obrigatório.",
+          "atLeastOnePhase": "Adicione pelo menos uma fase antes de continuar."
+        }
+      },
+      "tree": {
+        "ariaLabel": "Estrutura do processo",
+        "untitledProcess": "Processo sem título",
+        "expandProcess": "Expandir processo",
+        "collapseProcess": "Recolher processo",
+        "expandPhase": "Expandir fase",
+        "collapsePhase": "Recolher fase",
+        "newActivity": "Nova atividade",
+        "newPhase": "Nova fase",
+        "noPhases": "Nenhuma fase definida ainda",
+        "noActivities": "Nenhuma atividade ainda",
+        "processNotFound": "Processo não encontrado"
+      },
+      "overview": {
+        "breadcrumbProcesses": "Processos",
+        "loadingProcess": "Carregando...",
+        "invalidProcessId": "ID de processo inválido",
+        "contentAriaLabel": "Conteúdo do processo",
+        "viewList": "Lista",
+        "viewCanvas": "Canvas",
+        "canvasUnavailable": "A visualização em canvas estará disponível em breve",
+        "activityCount": "{{count}} atividades",
+        "rolesCount": "{{count}} papéis",
+        "artifactsCount": "{{count}} artefatos"
+      },
+      "delete": {
+        "confirmPhase": "Tem certeza de que deseja excluir a fase \"{{name}}\"?",
+        "confirmActivity": "Tem certeza de que deseja excluir a atividade \"{{name}}\"?",
+        "phaseWithActivitiesWarning": "Esta fase possui {{count}} atividades que também serão removidas.",
+        "deletePhase": "Excluir fase",
+        "deleteActivity": "Excluir atividade"
+      },
+      "canvas": {
+        "contentAriaLabel": "Canvas de atividades",
+        "untitledActivity": "Atividade sem título",
+        "rolesBadge": "{{count}} papéis",
+        "artifactsBadge": "{{count}} artefatos",
+        "edgePredecessor": "Predecessor",
+        "edgeSubActivity": "Subatividade",
+        "relationTitle": "Tipo de relacionamento",
+        "relationQuestion": "Predecessor ou subatividade?",
+        "relationPredecessor": "Predecessor",
+        "relationSubActivity": "Subatividade",
+        "relationError": "Não foi possível salvar o relacionamento.",
+        "newActivity": "Nova atividade",
+        "createTitle": "Nova atividade",
+        "activityName": "Nome da atividade",
+        "targetPhase": "Fase de destino",
+        "createValidation": "Nome e fase são obrigatórios.",
+        "createError": "Não foi possível criar a atividade.",
+        "createPhaseTitle": "Nova fase",
+        "phaseName": "Nome da fase",
+        "targetProcess": "Processo de destino",
+        "createPhaseValidation": "Nome e processo são obrigatórios.",
+        "createPhaseError": "Não foi possível criar a fase.",
+        "backToList": "Voltar para a visualização em lista"
+      },
+      "drawer": {
+        "title": "Detalhes da atividade",
+        "duplicate": "Duplicar atividade",
+        "duplicateSuccess": "Atividade duplicada com sucesso.",
+        "duplicateError": "Não foi possível duplicar a atividade.",
+        "save": "Salvar",
+        "saving": "Salvando...",
+        "saveSuccess": "Atividade salva com sucesso.",
+        "saveError": "Não foi possível salvar a atividade.",
+        "tabs": {
+          "general": "Geral",
+          "roles": "Papéis",
+          "resources": "Recursos",
+          "artifacts": "Artefatos",
+          "dependencies": "Dependências"
+        },
+        "general": {
+          "name": "Nome",
+          "description": "Descrição",
+          "inputCriterion": "Critério de entrada"
+        },
+        "roles": {
+          "participantRoles": "Papéis participantes",
+          "responsibleRoles": "Papel(is) responsável(is)"
+        },
+        "resources": {
+          "tools": "Ferramentas",
+          "guidelines": "Diretrizes",
+          "templates": "Modelos"
+        },
+        "artifacts": {
+          "input": "Entrada",
+          "output": "Saída",
+          "requiredArtifacts": "Artefatos obrigatórios",
+          "producedArtifacts": "Artefatos produzidos"
+        },
+        "dependencies": {
+          "predecessors": "Atividades predecessoras",
+          "subActivities": "Subatividades",
+          "noPredecessors": "Nenhuma atividade predecessora definida",
+          "noSubActivities": "Nenhuma subatividade definida",
+          "canvasHint": "Edite as dependências conectando os nós no canvas."
+        }
+      }
+    }
+  }
+}

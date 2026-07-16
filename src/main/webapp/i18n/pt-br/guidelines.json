@@ -1,0 +1,26 @@
+{
+  "processComposerApp": {
+    "guidelines": {
+      "home": {
+        "title": "Diretrizes",
+        "refreshListLabel": "Atualizar lista",
+        "createLabel": "Criar nova Diretriz",
+        "createOrEditLabel": "Criar ou editar Diretriz",
+        "notFound": "Nenhuma Diretriz encontrada"
+      },
+      "created": "Uma nova Diretriz foi criada com o identificador {{ param }}",
+      "updated": "Uma Diretriz foi atualizada com o identificador {{ param }}",
+      "deleted": "Uma Diretriz foi excluída com o identificador {{ param }}",
+      "delete": {
+        "question": "Tem certeza de que deseja excluir a Diretriz {{ id }}?"
+      },
+      "detail": {
+        "title": "Diretriz"
+      },
+      "id": "ID",
+      "name": "Nome",
+      "description": "Descrição",
+      "activities": "Atividades"
+    }
+  }
+}

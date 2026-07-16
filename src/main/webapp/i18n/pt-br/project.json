@@ -1,0 +1,30 @@
+{
+  "processComposerApp": {
+    "project": {
+      "home": {
+        "title": "Projetos",
+        "refreshListLabel": "Atualizar lista",
+        "createLabel": "Criar novo Projeto",
+        "createOrEditLabel": "Criar ou editar Projeto",
+        "notFound": "Nenhum Projeto encontrado"
+      },
+      "created": "Um novo Projeto foi criado com o identificador {{ param }}",
+      "updated": "Um Projeto foi atualizado com o identificador {{ param }}",
+      "deleted": "Um Projeto foi excluído com o identificador {{ param }}",
+      "delete": {
+        "question": "Tem certeza de que deseja excluir o Projeto {{ id }}?"
+      },
+      "detail": {
+        "title": "Projeto"
+      },
+      "id": "ID",
+      "name": "Nome",
+      "description": "Descrição",
+      "gitHubToken": "Token do GitHub",
+      "gitHubRepository": "Repositório GitHub",
+      "gitHubNodeId": "ID do Nó GitHub",
+      "task": "Tarefa",
+      "process": "Processo"
+    }
+  }
+}

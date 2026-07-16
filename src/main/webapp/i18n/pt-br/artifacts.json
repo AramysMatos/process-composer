@@ -1,0 +1,29 @@
+{
+  "processComposerApp": {
+    "artifacts": {
+      "home": {
+        "title": "Artefatos",
+        "refreshListLabel": "Atualizar lista",
+        "createLabel": "Criar novo Artefato",
+        "createOrEditLabel": "Criar ou editar Artefato",
+        "notFound": "Nenhum Artefato encontrado"
+      },
+      "created": "Um novo Artefato foi criado com o identificador {{ param }}",
+      "updated": "Um Artefato foi atualizado com o identificador {{ param }}",
+      "deleted": "Um Artefato foi excluído com o identificador {{ param }}",
+      "delete": {
+        "question": "Tem certeza de que deseja excluir o Artefato {{ id }}?"
+      },
+      "detail": {
+        "title": "Artefato"
+      },
+      "id": "ID",
+      "name": "Nome",
+      "description": "Descrição",
+      "optional": "Opcional",
+      "templates": "Modelos",
+      "dependentActivities": "Atividades Dependentes",
+      "producingActivities": "Atividades Produtoras"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "processComposerApp": {
+    "phase": {
+      "home": {
+        "title": "Fases",
+        "refreshListLabel": "Atualizar lista",
+        "createLabel": "Criar nova Fase",
+        "createOrEditLabel": "Criar ou editar Fase",
+        "notFound": "Nenhuma Fase encontrada"
+      },
+      "created": "Uma nova Fase foi criada com o identificador {{ param }}",
+      "updated": "Uma Fase foi atualizada com o identificador {{ param }}",
+      "deleted": "Uma Fase foi excluída com o identificador {{ param }}",
+      "delete": {
+        "question": "Tem certeza de que deseja excluir a Fase {{ id }}?"
+      },
+      "detail": {
+        "title": "Fase"
+      },
+      "id": "ID",
+      "name": "Nome",
+      "description": "Descrição",
+      "activity": "Atividade",
+      "process": "Processo"
+    }
+  }
+}
