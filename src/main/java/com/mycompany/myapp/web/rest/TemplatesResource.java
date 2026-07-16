@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Templates;
 import com.mycompany.myapp.repository.TemplatesRepository;
+import com.mycompany.myapp.service.LibraryEntityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,8 +35,11 @@ public class TemplatesResource {
 
     private final TemplatesRepository templatesRepository;
 
-    public TemplatesResource(TemplatesRepository templatesRepository) {
+    private final LibraryEntityDeletionService libraryEntityDeletionService;
+
+    public TemplatesResource(TemplatesRepository templatesRepository, LibraryEntityDeletionService libraryEntityDeletionService) {
         this.templatesRepository = templatesRepository;
+        this.libraryEntityDeletionService = libraryEntityDeletionService;
     }
 
     /**
@@ -160,7 +164,7 @@ public class TemplatesResource {
     @GetMapping("/templates/{id}")
     public ResponseEntity<Templates> getTemplates(@PathVariable Long id) {
         log.debug("REST request to get Templates : {}", id);
-        Optional<Templates> templates = templatesRepository.findById(id);
+        Optional<Templates> templates = templatesRepository.findOneWithEagerRelationships(id);
         return ResponseUtil.wrapOrNotFound(templates);
     }
 
@@ -173,7 +177,7 @@ public class TemplatesResource {
     @DeleteMapping("/templates/{id}")
     public ResponseEntity<Void> deleteTemplates(@PathVariable Long id) {
         log.debug("REST request to delete Templates : {}", id);
-        templatesRepository.deleteById(id);
+        libraryEntityDeletionService.deleteTemplate(id);
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

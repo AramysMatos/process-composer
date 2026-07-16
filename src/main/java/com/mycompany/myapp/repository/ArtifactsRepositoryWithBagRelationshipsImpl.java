@@ -22,7 +22,7 @@ public class ArtifactsRepositoryWithBagRelationshipsImpl implements ArtifactsRep
 
     @Override
     public Optional<Artifacts> fetchBagRelationships(Optional<Artifacts> artifacts) {
-        return artifacts.map(this::fetchTemplates);
+        return artifacts.map(this::fetchTemplates).map(this::fetchDependentActivities).map(this::fetchProducingActivities);
     }
 
     @Override
@@ -32,7 +32,12 @@ public class ArtifactsRepositoryWithBagRelationshipsImpl implements ArtifactsRep
 
     @Override
     public List<Artifacts> fetchBagRelationships(List<Artifacts> artifacts) {
-        return Optional.of(artifacts).map(this::fetchTemplates).orElse(Collections.emptyList());
+        return Optional
+            .of(artifacts)
+            .map(this::fetchTemplates)
+            .map(this::fetchDependentActivities)
+            .map(this::fetchProducingActivities)
+            .orElse(Collections.emptyList());
     }
 
     Artifacts fetchTemplates(Artifacts result) {
@@ -52,6 +57,58 @@ public class ArtifactsRepositoryWithBagRelationshipsImpl implements ArtifactsRep
         List<Artifacts> result = entityManager
             .createQuery(
                 "select distinct artifacts from Artifacts artifacts left join fetch artifacts.templates where artifacts in :artifacts",
+                Artifacts.class
+            )
+            .setParameter("artifacts", artifacts)
+            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+            .getResultList();
+        Collections.sort(result, (o1, o2) -> Integer.compare(order.get(o1.getId()), order.get(o2.getId())));
+        return result;
+    }
+
+    Artifacts fetchDependentActivities(Artifacts result) {
+        return entityManager
+            .createQuery(
+                "select artifacts from Artifacts artifacts left join fetch artifacts.dependentActivities where artifacts is :artifacts",
+                Artifacts.class
+            )
+            .setParameter("artifacts", result)
+            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+            .getSingleResult();
+    }
+
+    List<Artifacts> fetchDependentActivities(List<Artifacts> artifacts) {
+        HashMap<Object, Integer> order = new HashMap<>();
+        IntStream.range(0, artifacts.size()).forEach(index -> order.put(artifacts.get(index).getId(), index));
+        List<Artifacts> result = entityManager
+            .createQuery(
+                "select distinct artifacts from Artifacts artifacts left join fetch artifacts.dependentActivities where artifacts in :artifacts",
+                Artifacts.class
+            )
+            .setParameter("artifacts", artifacts)
+            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+            .getResultList();
+        Collections.sort(result, (o1, o2) -> Integer.compare(order.get(o1.getId()), order.get(o2.getId())));
+        return result;
+    }
+
+    Artifacts fetchProducingActivities(Artifacts result) {
+        return entityManager
+            .createQuery(
+                "select artifacts from Artifacts artifacts left join fetch artifacts.producingActivities where artifacts is :artifacts",
+                Artifacts.class
+            )
+            .setParameter("artifacts", result)
+            .setHint(QueryHints.PASS_DISTINCT_THROUGH, false)
+            .getSingleResult();
+    }
+
+    List<Artifacts> fetchProducingActivities(List<Artifacts> artifacts) {
+        HashMap<Object, Integer> order = new HashMap<>();
+        IntStream.range(0, artifacts.size()).forEach(index -> order.put(artifacts.get(index).getId(), index));
+        List<Artifacts> result = entityManager
+            .createQuery(
+                "select distinct artifacts from Artifacts artifacts left join fetch artifacts.producingActivities where artifacts in :artifacts",
                 Artifacts.class
             )
             .setParameter("artifacts", artifacts)

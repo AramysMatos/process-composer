@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Roles;
 import com.mycompany.myapp.repository.RolesRepository;
+import com.mycompany.myapp.service.LibraryEntityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,8 +35,11 @@ public class RolesResource {
 
     private final RolesRepository rolesRepository;
 
-    public RolesResource(RolesRepository rolesRepository) {
+    private final LibraryEntityDeletionService libraryEntityDeletionService;
+
+    public RolesResource(RolesRepository rolesRepository, LibraryEntityDeletionService libraryEntityDeletionService) {
         this.rolesRepository = rolesRepository;
+        this.libraryEntityDeletionService = libraryEntityDeletionService;
     }
 
     /**
@@ -156,7 +160,7 @@ public class RolesResource {
     @GetMapping("/roles/{id}")
     public ResponseEntity<Roles> getRoles(@PathVariable Long id) {
         log.debug("REST request to get Roles : {}", id);
-        Optional<Roles> roles = rolesRepository.findById(id);
+        Optional<Roles> roles = rolesRepository.findOneWithEagerRelationships(id);
         return ResponseUtil.wrapOrNotFound(roles);
     }
 
@@ -169,7 +173,7 @@ public class RolesResource {
     @DeleteMapping("/roles/{id}")
     public ResponseEntity<Void> deleteRoles(@PathVariable Long id) {
         log.debug("REST request to delete Roles : {}", id);
-        rolesRepository.deleteById(id);
+        libraryEntityDeletionService.deleteRole(id);
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

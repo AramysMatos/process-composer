@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Tools;
 import com.mycompany.myapp.repository.ToolsRepository;
+import com.mycompany.myapp.service.LibraryEntityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,8 +35,11 @@ public class ToolsResource {
 
     private final ToolsRepository toolsRepository;
 
-    public ToolsResource(ToolsRepository toolsRepository) {
+    private final LibraryEntityDeletionService libraryEntityDeletionService;
+
+    public ToolsResource(ToolsRepository toolsRepository, LibraryEntityDeletionService libraryEntityDeletionService) {
         this.toolsRepository = toolsRepository;
+        this.libraryEntityDeletionService = libraryEntityDeletionService;
     }
 
     /**
@@ -156,7 +160,7 @@ public class ToolsResource {
     @GetMapping("/tools/{id}")
     public ResponseEntity<Tools> getTools(@PathVariable Long id) {
         log.debug("REST request to get Tools : {}", id);
-        Optional<Tools> tools = toolsRepository.findById(id);
+        Optional<Tools> tools = toolsRepository.findOneWithEagerRelationships(id);
         return ResponseUtil.wrapOrNotFound(tools);
     }
 
@@ -169,7 +173,7 @@ public class ToolsResource {
     @DeleteMapping("/tools/{id}")
     public ResponseEntity<Void> deleteTools(@PathVariable Long id) {
         log.debug("REST request to delete Tools : {}", id);
-        toolsRepository.deleteById(id);
+        libraryEntityDeletionService.deleteTool(id);
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

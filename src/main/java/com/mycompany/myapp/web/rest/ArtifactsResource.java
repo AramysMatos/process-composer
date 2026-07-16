@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Artifacts;
 import com.mycompany.myapp.repository.ArtifactsRepository;
+import com.mycompany.myapp.service.LibraryEntityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,8 +35,11 @@ public class ArtifactsResource {
 
     private final ArtifactsRepository artifactsRepository;
 
-    public ArtifactsResource(ArtifactsRepository artifactsRepository) {
+    private final LibraryEntityDeletionService libraryEntityDeletionService;
+
+    public ArtifactsResource(ArtifactsRepository artifactsRepository, LibraryEntityDeletionService libraryEntityDeletionService) {
         this.artifactsRepository = artifactsRepository;
+        this.libraryEntityDeletionService = libraryEntityDeletionService;
     }
 
     /**
@@ -181,7 +185,7 @@ public class ArtifactsResource {
     @DeleteMapping("/artifacts/{id}")
     public ResponseEntity<Void> deleteArtifacts(@PathVariable Long id) {
         log.debug("REST request to delete Artifacts : {}", id);
-        artifactsRepository.deleteById(id);
+        libraryEntityDeletionService.deleteArtifact(id);
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

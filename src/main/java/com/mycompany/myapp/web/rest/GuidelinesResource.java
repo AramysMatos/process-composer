@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Guidelines;
 import com.mycompany.myapp.repository.GuidelinesRepository;
+import com.mycompany.myapp.service.LibraryEntityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,8 +35,11 @@ public class GuidelinesResource {
 
     private final GuidelinesRepository guidelinesRepository;
 
-    public GuidelinesResource(GuidelinesRepository guidelinesRepository) {
+    private final LibraryEntityDeletionService libraryEntityDeletionService;
+
+    public GuidelinesResource(GuidelinesRepository guidelinesRepository, LibraryEntityDeletionService libraryEntityDeletionService) {
         this.guidelinesRepository = guidelinesRepository;
+        this.libraryEntityDeletionService = libraryEntityDeletionService;
     }
 
     /**
@@ -160,7 +164,7 @@ public class GuidelinesResource {
     @GetMapping("/guidelines/{id}")
     public ResponseEntity<Guidelines> getGuidelines(@PathVariable Long id) {
         log.debug("REST request to get Guidelines : {}", id);
-        Optional<Guidelines> guidelines = guidelinesRepository.findById(id);
+        Optional<Guidelines> guidelines = guidelinesRepository.findOneWithEagerRelationships(id);
         return ResponseUtil.wrapOrNotFound(guidelines);
     }
 
@@ -173,7 +177,7 @@ public class GuidelinesResource {
     @DeleteMapping("/guidelines/{id}")
     public ResponseEntity<Void> deleteGuidelines(@PathVariable Long id) {
         log.debug("REST request to delete Guidelines : {}", id);
-        guidelinesRepository.deleteById(id);
+        libraryEntityDeletionService.deleteGuideline(id);
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
