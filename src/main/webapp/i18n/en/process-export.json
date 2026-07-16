@@ -1,0 +1,8 @@
+{
+  "processComposerApp": {
+    "processExport": {
+      "title": "Export YAML",
+      "placeholder": "YAML export preview — generated process definition will appear here."
+    }
+  }
+}

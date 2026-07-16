@@ -3,12 +3,12 @@ import { translate } from 'react-jhipster';
 import { NavDropdown } from './menu-components';
 import EntitiesMenuItems from 'app/entities/menu';
 
-export const EntitiesMenu = () => (
+export const AdvancedEntitiesMenu = () => (
   <NavDropdown
-    icon="th-list"
-    name={translate('global.menu.entities.main')}
-    id="entity-menu"
-    data-cy="entity"
+    icon="cogs"
+    name={translate('global.menu.advanced.main')}
+    id="advanced-menu"
+    data-cy="advanced-menu"
     style={{ maxHeight: '80vh', overflow: 'auto' }}
   >
     <EntitiesMenuItems />

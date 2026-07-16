@@ -62,15 +62,34 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="processos/*"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>
+              <ProcessDesignRoutes />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="projetos/*"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>
+              <ExecutionRoutes />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="biblioteca/*"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>
+              <LibraryRoutes />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="*"
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>
-              <ErrorBoundaryRoutes>
-                <Route path="processos/*" element={<ProcessDesignRoutes />} />
-                <Route path="projetos/*" element={<ExecutionRoutes />} />
-                <Route path="biblioteca/*" element={<LibraryRoutes />} />
-                <Route path="*" element={<EntitiesRoutes />} />
-              </ErrorBoundaryRoutes>
+              <EntitiesRoutes />
             </PrivateRoute>
           }
         />

@@ -87,6 +87,9 @@
             "nameRequired": "Task name is required."
           }
         }
+      },
+      "github": {
+        "placeholder": "GitHub integration panel — connect the repository and generate issues from tasks."
       }
     }
   }

@@ -6,6 +6,7 @@ import ProjectInstantiationWizard from './project-instantiation-wizard';
 import ProjectList from './project-list';
 import ProjectOverview from './project-overview';
 import ProjectTasks from './project-tasks';
+import ProjectGithub from './project-github';
 
 export default () => {
   return (
@@ -13,6 +14,7 @@ export default () => {
       <Route index element={<ProjectList />} />
       <Route path="novo" element={<ProjectInstantiationWizard />} />
       <Route path=":id/tarefas" element={<ProjectTasks />} />
+      <Route path=":id/github" element={<ProjectGithub />} />
       <Route path=":id" element={<ProjectOverview />} />
     </ErrorBoundaryRoutes>
   );
