@@ -6,7 +6,20 @@
         "subtitle": "Browse and manage all process definitions",
         "searchPlaceholder": "Search by name...",
         "createLabel": "New Process",
-        "notFound": "No processes found"
+        "notFound": "No processes found",
+        "sort": {
+          "label": "Sort by",
+          "recent": "Most recent",
+          "name": "Name (A-Z)",
+          "phases": "Most phases"
+        },
+        "actions": {
+          "duplicate": "Duplicate process",
+          "exportYaml": "Export YAML"
+        },
+        "delete": {
+          "confirm": "Are you sure you want to delete the process \"{{name}}\"?"
+        }
       },
       "wizard": {
         "title": "New Process",

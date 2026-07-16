@@ -40,7 +40,13 @@
         "searchPlaceholder": "Search by name...",
         "createLabel": "New Project",
         "notFound": "No projects found",
-        "taskCount": "{{count}} tasks"
+        "taskCount": "{{count}} tasks",
+        "actions": {
+          "deleteProject": "Delete project"
+        },
+        "delete": {
+          "confirm": "Are you sure you want to delete the project \"{{name}}\"?"
+        }
       },
       "overview": {
         "breadcrumbProjects": "Projects",

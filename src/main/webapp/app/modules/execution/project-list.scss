@@ -23,6 +23,29 @@
     }
   }
 
+  &__card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  &__card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &__card-badge {
+    align-self: flex-start;
+  }
+
+  &__card-actions {
+    margin-top: auto;
+    padding-top: 0.75rem;
+  }
+
   &__description {
     display: -webkit-box;
     -webkit-line-clamp: 2;

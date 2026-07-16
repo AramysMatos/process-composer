@@ -1,0 +1,25 @@
+.card-actions-menu {
+  &__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0.375rem;
+    color: var(--bs-secondary-color, #6c757d);
+    text-decoration: none;
+    box-shadow: none !important;
+
+    &:hover,
+    &:focus {
+      color: var(--bs-body-color, #212529);
+      background-color: var(--bs-tertiary-bg, #f8f9fa);
+    }
+  }
+
+  &__menu {
+    min-width: 11rem;
+  }
+}

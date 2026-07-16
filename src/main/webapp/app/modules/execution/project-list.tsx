@@ -1,19 +1,43 @@
 import './project-list.scss';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Badge, Button, Card, CardBody, CardText, CardTitle, Col, Input, InputGroup, InputGroupText, Row, Spinner } from 'reactstrap';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardText,
+  CardTitle,
+  Col,
+  Input,
+  InputGroup,
+  InputGroupText,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Row,
+  Spinner,
+} from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { JhiItemCount, JhiPagination, Translate, getSortState, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getProcesses } from 'app/entities/process/process.reducer';
-import { getEntities as getProjects } from 'app/entities/project/project.reducer';
+import { deleteEntity as deleteProject, getEntities as getProjects } from 'app/entities/project/project.reducer';
 import { getEntities as getTasks } from 'app/entities/task/task.reducer';
 import { SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
+import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
+import { IProject } from 'app/shared/model/project.model';
 
 const LIST_PAGE_SIZE = 12;
+
+type ProjectDeleteTarget = {
+  id: number;
+  name: string;
+};
 
 const isGitHubConnected = (project: { gitHubRepository?: string | null }): boolean => Boolean(project.gitHubRepository?.trim());
 
@@ -23,6 +47,8 @@ export const ProjectList = () => {
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<ProjectDeleteTarget | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [pagination, setPagination] = useState(
     overridePaginationStateWithQueryParams(getSortState(location, LIST_PAGE_SIZE, 'id'), location.search)
   );
@@ -105,6 +131,37 @@ export const ProjectList = () => {
       activePage: currentPage,
     });
 
+  const handleRequestDelete = (project: IProject) => {
+    if (!project.id) {
+      return;
+    }
+
+    setDeleteTarget({ id: project.id, name: project.name ?? '' });
+  };
+
+  const handleCancelDelete = () => {
+    if (!deleting) {
+      setDeleteTarget(null);
+    }
+  };
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deleteTarget) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await dispatch(deleteProject(deleteTarget.id)).unwrap();
+      setDeleteTarget(null);
+      dispatch(getProjects({}));
+    } catch {
+      // Modal stays open so the user can retry or cancel.
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, dispatch]);
+
   return (
     <div className="project-list" data-cy="projectList">
       <div className="project-list__header">
@@ -161,21 +218,39 @@ export const ProjectList = () => {
         <Row className="g-3 project-list__grid">
           {displayedProjects.map(project => (
             <Col key={project.id} xs={12} md={6} xl={4}>
-              <Card
-                tag={Link}
-                to={`/projetos/${project.id}`}
-                className="project-list__card shadow-sm text-decoration-none"
-                data-cy={`projectListCard-${project.id}`}
-              >
-                <CardBody>
-                  <CardTitle tag="h2" className="h5 text-body mb-2">
-                    {project.name}
-                  </CardTitle>
+              <Card className="project-list__card shadow-sm" data-cy={`projectListCard-${project.id}`}>
+                <CardBody className="project-list__card-body">
+                  <div className="project-list__card-header">
+                    <CardTitle tag="h2" className="h5 text-body mb-0">
+                      {project.name}
+                    </CardTitle>
+                    <CardActionsMenu
+                      data-cy={`projectListCardMenu-${project.id}`}
+                      items={[
+                        {
+                          key: 'delete',
+                          label: (
+                            <>
+                              <FontAwesomeIcon icon="trash" className="me-2" />
+                              <Translate contentKey="processComposerApp.execution.list.actions.deleteProject">Delete project</Translate>
+                            </>
+                          ),
+                          onClick: () => handleRequestDelete(project),
+                          danger: true,
+                          disabled: deleting,
+                          'data-cy': `projectDelete-${project.id}`,
+                        },
+                      ]}
+                    />
+                  </div>
+
                   {project.description && <CardText className="text-muted small project-list__description">{project.description}</CardText>}
+
                   <CardText className="text-muted small mb-2">
                     <Translate contentKey="home.dashboard.project.sourceProcess">Source process</Translate>:{' '}
                     <span className="fw-semibold">{project.process?.processName ?? '—'}</span>
                   </CardText>
+
                   <CardText className="text-muted small mb-2">
                     <Translate
                       contentKey="processComposerApp.execution.list.taskCount"
@@ -184,13 +259,20 @@ export const ProjectList = () => {
                       {`${countTasksForProject(project.id)} tasks`}
                     </Translate>
                   </CardText>
-                  <Badge color={isGitHubConnected(project) ? 'success' : 'secondary'} pill>
+
+                  <Badge color={isGitHubConnected(project) ? 'success' : 'secondary'} pill className="project-list__card-badge">
                     {isGitHubConnected(project) ? (
                       <Translate contentKey="home.dashboard.project.githubConnected">GitHub connected</Translate>
                     ) : (
                       <Translate contentKey="home.dashboard.project.githubNotConnected">GitHub not connected</Translate>
                     )}
                   </Badge>
+
+                  <div className="project-list__card-actions d-flex flex-wrap gap-2">
+                    <Button tag={Link} to={`/projetos/${project.id}`} color="info" size="sm" data-cy={`projectOpen-${project.id}`}>
+                      <FontAwesomeIcon icon="eye" /> <Translate contentKey="home.dashboard.process.open">Open</Translate>
+                    </Button>
+                  </div>
                 </CardBody>
               </Card>
             </Col>
@@ -210,6 +292,32 @@ export const ProjectList = () => {
           />
         </div>
       )}
+
+      <Modal isOpen={deleteTarget !== null} toggle={handleCancelDelete}>
+        <ModalHeader toggle={handleCancelDelete} data-cy="projectListDeleteDialogHeading">
+          <Translate contentKey="entity.delete.title">Confirm delete operation</Translate>
+        </ModalHeader>
+        <ModalBody>
+          <Translate contentKey="processComposerApp.execution.list.delete.confirm" interpolate={{ name: deleteTarget?.name ?? '' }}>
+            {`Are you sure you want to delete the project "${deleteTarget?.name ?? ''}"?`}
+          </Translate>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={handleCancelDelete} disabled={deleting}>
+            <FontAwesomeIcon icon="ban" /> <Translate contentKey="entity.action.cancel">Cancel</Translate>
+          </Button>
+          <Button
+            color="danger"
+            onClick={() => {
+              void handleConfirmDelete();
+            }}
+            disabled={deleting}
+            data-cy="projectListConfirmDeleteButton"
+          >
+            <FontAwesomeIcon icon="trash" /> <Translate contentKey="entity.action.delete">Delete</Translate>
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 };

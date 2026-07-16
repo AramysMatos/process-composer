@@ -1,6 +1,9 @@
 {
   "processComposerApp": {
     "sharedUi": {
+      "cardActionsMenu": {
+        "label": "More actions"
+      },
       "entityCombobox": {
         "placeholder": "Search or select...",
         "create": "+ Create '{{ name }}'",
