@@ -37,23 +37,38 @@ public class GitHubService {
     }
 
     public void validateConnection(Project project) {
-        String token = requireToken(project);
-        String repository = requireRepository(project);
-        String url = GITHUB_API_BASE + "/repos/" + repository;
+        validateConnection(requireToken(project), requireRepository(project));
+    }
+
+    public void validateConnection(String token, String repository) {
+        String normalizedToken = requireTokenValue(token);
+        String normalizedRepository = requireRepositoryValue(repository);
+        String url = GITHUB_API_BASE + "/repos/" + normalizedRepository;
 
         try {
-            restTemplate.exchange(url, HttpMethod.GET, authorizedEntity(token, null), String.class);
+            restTemplate.exchange(url, HttpMethod.GET, authorizedEntity(normalizedToken, null), String.class);
         } catch (HttpClientErrorException.Unauthorized e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token do GitHub inválido ou sem permissão para o repositório.");
         } catch (HttpClientErrorException.NotFound e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Repositório não encontrado. Verifique o formato owner/repo.");
         } catch (HttpClientErrorException e) {
-            log.warn("GitHub validation failed for repository {}: {}", repository, e.getMessage());
+            log.warn("GitHub validation failed for repository {}: {}", normalizedRepository, e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Falha ao validar conexão com o GitHub: " + e.getStatusText());
         } catch (Exception e) {
             log.error("Unexpected error validating GitHub connection", e);
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Falha ao comunicar com a API do GitHub.");
         }
+    }
+
+    /**
+     * Validates token and repository against GitHub, then updates the project only when validation succeeds.
+     */
+    public void connectProject(Project project, String token, String repository) {
+        String normalizedToken = requireTokenValue(token);
+        String normalizedRepository = requireRepositoryValue(repository);
+        validateConnection(normalizedToken, normalizedRepository);
+        project.setGitHubToken(normalizedToken);
+        project.setGitHubRepository(normalizedRepository);
     }
 
     public List<GitHubIssueResultDTO> createIssues(Project project, List<GitHubIssueRequestDTO> issues) {
@@ -118,17 +133,23 @@ public class GitHubService {
     }
 
     private String requireToken(Project project) {
-        String token = project.getGitHubToken();
+        return requireTokenValue(project.getGitHubToken());
+    }
+
+    private String requireRepository(Project project) {
+        return requireRepositoryValue(project.getGitHubRepository());
+    }
+
+    private String requireTokenValue(String token) {
         if (token == null || token.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Projeto não possui token do GitHub configurado.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token do GitHub é obrigatório.");
         }
         return token.trim();
     }
 
-    private String requireRepository(Project project) {
-        String repository = project.getGitHubRepository();
+    private String requireRepositoryValue(String repository) {
         if (repository == null || repository.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Projeto não possui repositório do GitHub configurado.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Repositório do GitHub é obrigatório.");
         }
         String normalized = repository.trim();
         if (!REPOSITORY_PATTERN.matcher(normalized).matches()) {

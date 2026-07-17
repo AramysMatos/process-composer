@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { Translate, translate } from 'react-jhipster';
+import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { partialUpdateEntity as partialUpdateProject } from 'app/entities/project/project.reducer';
-import { validateGithubConnection } from 'app/modules/execution/execution.reducer';
+import { getEntity as getProject } from 'app/entities/project/project.reducer';
+import { connectGithubProject } from 'app/modules/execution/execution.reducer';
 import { IProject } from 'app/shared/model/project.model';
 
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+
+const getGithubConnectErrorMessage = (error: unknown): string => {
+  const data = (error as { response?: { data?: { detail?: string; message?: string; title?: string } } })?.response?.data;
+
+  return (
+    data?.detail ??
+    data?.message ??
+    data?.title ??
+    translate('processComposerApp.execution.github.modal.submitError', 'Could not connect to GitHub. Check the token and repository.')
+  );
+};
 
 export interface GithubConnectModalProps {
   isOpen: boolean;
@@ -18,7 +30,6 @@ export interface GithubConnectModalProps {
 
 export const GithubConnectModal = ({ isOpen, project, onClose, onConnected }: GithubConnectModalProps) => {
   const dispatch = useAppDispatch();
-  const projectUpdating = useAppSelector(state => state.project.updating);
   const executionLoading = useAppSelector(state => state.execution.loading);
 
   const [token, setToken] = useState('');
@@ -27,7 +38,7 @@ export const GithubConnectModal = ({ isOpen, project, onClose, onConnected }: Gi
   const [repositoryError, setRepositoryError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const busy = projectUpdating || executionLoading;
+  const busy = executionLoading;
 
   useEffect(() => {
     if (!isOpen) {
@@ -73,23 +84,21 @@ export const GithubConnectModal = ({ isOpen, project, onClose, onConnected }: Gi
 
     try {
       await dispatch(
-        partialUpdateProject({
-          id: project.id,
-          gitHubToken: trimmedToken,
-          gitHubRepository: trimmedRepository,
+        connectGithubProject({
+          projectId: project.id,
+          token: trimmedToken,
+          repository: trimmedRepository,
         })
       ).unwrap();
 
-      await dispatch(validateGithubConnection(project.id)).unwrap();
-
+      await dispatch(getProject(project.id));
       await onConnected?.();
       onClose();
     } catch (error: unknown) {
-      const message =
-        (error as { response?: { data?: { title?: string; message?: string } } })?.response?.data?.title ??
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        translate('processComposerApp.execution.github.modal.submitError', 'Could not connect to GitHub. Check the token and repository.');
+      const message = getGithubConnectErrorMessage(error);
       setSubmitError(message);
+      toast.error(message);
+      await dispatch(getProject(project.id));
     }
   };
 

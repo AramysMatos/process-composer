@@ -3,6 +3,7 @@ package com.mycompany.myapp.web.rest;
 import com.mycompany.myapp.domain.Project;
 import com.mycompany.myapp.repository.ProjectRepository;
 import com.mycompany.myapp.service.GitHubService;
+import com.mycompany.myapp.service.dto.GitHubConnectRequestDTO;
 import com.mycompany.myapp.service.dto.GitHubIssueRequestDTO;
 import com.mycompany.myapp.service.dto.GitHubIssueResultDTO;
 import com.mycompany.myapp.service.dto.GitHubValidateResponseDTO;
@@ -33,6 +34,21 @@ public class ProjectGitHubResource {
     public ProjectGitHubResource(ProjectRepository projectRepository, GitHubService gitHubService) {
         this.projectRepository = projectRepository;
         this.gitHubService = gitHubService;
+    }
+
+    /**
+     * {@code POST /projects/:id/github/connect} : validates token and repository, then persists them only on success.
+     */
+    @PostMapping("/{id}/github/connect")
+    public ResponseEntity<Project> connectGitHub(@PathVariable Long id, @Valid @RequestBody GitHubConnectRequestDTO request) {
+        log.debug("REST request to connect Project {} to GitHub repository {}", id, request.getRepository());
+        Project project = projectRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+
+        gitHubService.connectProject(project, request.getToken(), request.getRepository());
+        Project saved = projectRepository.save(project);
+        return ResponseEntity.ok(saved);
     }
 
     /**

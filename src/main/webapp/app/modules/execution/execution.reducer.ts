@@ -63,7 +63,26 @@ export const generateGithubIssuePreviews = createAsyncThunk<GithubIssuePreview[]
   { serializeError: serializeAxiosError }
 );
 
-// TODO backend: POST /api/projects/{id}/github/validate — uses token/repo saved on the Project.
+export interface GithubConnectRequest {
+  projectId: number;
+  token: string;
+  repository: string;
+}
+
+// POST /api/projects/{id}/github/connect — validates against GitHub, then persists token/repo atomically.
+export const connectGithubProject = createAsyncThunk<void, GithubConnectRequest, { state: IRootState }>(
+  'execution/connect_github_project',
+  async ({ projectId, token, repository }, thunkAPI) => {
+    try {
+      await axios.post(`${githubApiUrl(projectId)}/connect`, { token, repository });
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  },
+  { serializeError: serializeAxiosError }
+);
+
+// POST /api/projects/{id}/github/validate — uses token/repo already saved on the Project.
 export const validateGithubConnection = createAsyncThunk<void, number, { state: IRootState }>(
   'execution/validate_github_connection',
   async (projectId, thunkAPI) => {
@@ -114,6 +133,17 @@ const executionSlice = createSlice({
       .addCase(generateGithubIssuePreviews.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? 'Falha ao gerar previews de issues do GitHub';
+      })
+      .addCase(connectGithubProject.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(connectGithubProject.fulfilled, state => {
+        state.loading = false;
+      })
+      .addCase(connectGithubProject.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message ?? 'Falha ao conectar ao GitHub';
       })
       .addCase(validateGithubConnection.pending, state => {
         state.loading = true;

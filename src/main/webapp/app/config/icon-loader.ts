@@ -1,3 +1,4 @@
+import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
 import { faAsterisk } from '@fortawesome/free-solid-svg-icons/faAsterisk';
@@ -5,6 +6,7 @@ import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
 import { faBell } from '@fortawesome/free-solid-svg-icons/faBell';
 import { faBook } from '@fortawesome/free-solid-svg-icons/faBook';
 import { faBox } from '@fortawesome/free-solid-svg-icons/faBox';
+import { faCheckSquare } from '@fortawesome/free-solid-svg-icons/faCheckSquare';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons/faChevronUp';
@@ -23,6 +25,7 @@ import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons/faLayerGroup';
 import { faList } from '@fortawesome/free-solid-svg-icons/faList';
 import { faLock } from '@fortawesome/free-solid-svg-icons/faLock';
+import { faMagic } from '@fortawesome/free-solid-svg-icons/faMagic';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faProjectDiagram } from '@fortawesome/free-solid-svg-icons/faProjectDiagram';
@@ -32,6 +35,7 @@ import { faSignInAlt } from '@fortawesome/free-solid-svg-icons/faSignInAlt';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons/faSignOutAlt';
 import { faSitemap } from '@fortawesome/free-solid-svg-icons/faSitemap';
 import { faSort } from '@fortawesome/free-solid-svg-icons/faSort';
+import { faSquare } from '@fortawesome/free-solid-svg-icons/faSquare';
 import { faSync } from '@fortawesome/free-solid-svg-icons/faSync';
 import { faRoad } from '@fortawesome/free-solid-svg-icons/faRoad';
 import { faTachometerAlt } from '@fortawesome/free-solid-svg-icons/faTachometerAlt';
@@ -40,6 +44,7 @@ import { faThList } from '@fortawesome/free-solid-svg-icons/faThList';
 import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons/faTimesCircle';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
+import { faUpload } from '@fortawesome/free-solid-svg-icons/faUpload';
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons/faUserPlus';
 import { faUsers } from '@fortawesome/free-solid-svg-icons/faUsers';
@@ -50,6 +55,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 
 export const loadIcons = () => {
   library.add(
+    faGithub,
     faArrowLeft,
     faArrowRight,
     faAsterisk,
@@ -60,6 +66,7 @@ export const loadIcons = () => {
     faChevronDown,
     faChevronRight,
     faChevronUp,
+    faCheckSquare,
     faCircle,
     faCloud,
     faCopy,
@@ -75,6 +82,7 @@ export const loadIcons = () => {
     faLayerGroup,
     faList,
     faLock,
+    faMagic,
     faPencilAlt,
     faPlus,
     faProjectDiagram,
@@ -85,6 +93,7 @@ export const loadIcons = () => {
     faSearch,
     faSitemap,
     faSort,
+    faSquare,
     faSync,
     faTachometerAlt,
     faTasks,
@@ -92,6 +101,7 @@ export const loadIcons = () => {
     faTimes,
     faTimesCircle,
     faTrash,
+    faUpload,
     faUser,
     faUserPlus,
     faUsers,
