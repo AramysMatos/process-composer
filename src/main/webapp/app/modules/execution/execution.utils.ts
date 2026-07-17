@@ -53,11 +53,7 @@ export async function resolveActivity(
 export const isGitHubConnected = (project: Pick<IProject, 'gitHubRepository' | 'gitHubTokenConfigured'>): boolean =>
   Boolean(project.gitHubRepository?.trim()) && Boolean(project.gitHubTokenConfigured);
 
-export const getActivityOptionsForProcess = (
-  processId: number | undefined,
-  phases: IPhase[],
-  activities: IActivity[]
-): IEntityComboboxItem[] => {
+export const filterActivitiesByProcess = (processId: number | undefined, phases: IPhase[], activities: IActivity[]): IActivity[] => {
   if (!processId) {
     return [];
   }
@@ -66,8 +62,17 @@ export const getActivityOptionsForProcess = (
     phases.filter(phase => phase.process?.id === processId && phase.id !== undefined).map(phase => phase.id as number)
   );
 
-  return activities
-    .filter(activity => activity.id !== undefined && activity.phase?.id !== undefined && phaseIds.has(activity.phase.id as number))
+  return activities.filter(
+    activity => activity.id !== undefined && activity.phase?.id !== undefined && phaseIds.has(activity.phase.id as number)
+  );
+};
+
+export const getActivityOptionsForProcess = (
+  processId: number | undefined,
+  phases: IPhase[],
+  activities: IActivity[]
+): IEntityComboboxItem[] => {
+  return filterActivitiesByProcess(processId, phases, activities)
     .map(activity => ({
       id: activity.id as number,
       name: activity.name ?? `Activity ${activity.id}`,

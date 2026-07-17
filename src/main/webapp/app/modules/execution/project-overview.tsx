@@ -1,6 +1,6 @@
 import './project-overview.scss';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Alert, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,7 +9,7 @@ import { Translate, translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntity as getProject } from 'app/entities/project/project.reducer';
 import { getEntities as getTasks } from 'app/entities/task/task.reducer';
-import { countProjectTaskStats } from 'app/shared/util/task-stats.utils';
+import { ExecutionInsightsPanel } from 'app/modules/execution/execution-insights-panel';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
 
 export const ProjectOverview = () => {
@@ -21,7 +21,6 @@ export const ProjectOverview = () => {
 
   const project = useAppSelector(state => state.project.entity);
   const projectLoading = useAppSelector(state => state.project.loading);
-  const taskEntities = useAppSelector(state => state.task.entities);
   const tasksLoading = useAppSelector(state => state.task.loading);
 
   useEffect(() => {
@@ -35,13 +34,6 @@ export const ProjectOverview = () => {
 
   const projectMatches = project.id === projectId;
   const projectName = project.name ?? translate('processComposerApp.execution.overview.loadingProject', 'Loading...');
-
-  const projectTasks = useMemo(
-    () => (isValidProjectId ? taskEntities.filter(task => task.project?.id === projectId) : []),
-    [isValidProjectId, projectId, taskEntities]
-  );
-
-  const taskStats = useMemo(() => countProjectTaskStats(projectTasks), [projectTasks]);
 
   const loading = projectLoading || tasksLoading;
   const processId = project.process?.id;
@@ -104,30 +96,6 @@ export const ProjectOverview = () => {
           </p>
 
           <section
-            className="project-overview__stats"
-            aria-label={translate('processComposerApp.execution.overview.taskStatsAria', 'Task summary')}
-          >
-            <div className="project-overview__stat-card" data-cy="project-stat-total-tasks">
-              <span className="project-overview__stat-value">{taskStats.total}</span>
-              <span className="project-overview__stat-label">
-                <Translate contentKey="processComposerApp.execution.overview.totalTasks">Total tasks</Translate>
-              </span>
-            </div>
-            <div className="project-overview__stat-card" data-cy="project-stat-linked-tasks">
-              <span className="project-overview__stat-value">{taskStats.linkedToActivity}</span>
-              <span className="project-overview__stat-label">
-                <Translate contentKey="processComposerApp.execution.overview.linkedTasks">Linked to activities</Translate>
-              </span>
-            </div>
-            <div className="project-overview__stat-card" data-cy="project-stat-independent-tasks">
-              <span className="project-overview__stat-value">{taskStats.independent}</span>
-              <span className="project-overview__stat-label">
-                <Translate contentKey="processComposerApp.execution.overview.independentTasks">Independent tasks</Translate>
-              </span>
-            </div>
-          </section>
-
-          <section
             className="project-overview__nav-grid"
             aria-label={translate('processComposerApp.execution.overview.navigationAria', 'Project sections')}
           >
@@ -159,6 +127,8 @@ export const ProjectOverview = () => {
               </p>
             </Link>
           </section>
+
+          <ExecutionInsightsPanel projectId={projectId} processId={processId} />
         </>
       )}
     </div>

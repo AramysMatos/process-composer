@@ -67,10 +67,6 @@
         "invalidProjectId": "Invalid project id",
         "projectNotFound": "Project not found",
         "instantiatedFrom": "Instantiated from",
-        "taskStatsAria": "Task summary",
-        "totalTasks": "Total tasks",
-        "linkedTasks": "Linked to activities",
-        "independentTasks": "Independent tasks",
         "navigationAria": "Project sections",
         "nav": {
           "tasks": {
@@ -81,6 +77,27 @@
             "title": "GitHub",
             "description": "Connect the repository and generate issues from tasks."
           }
+        }
+      },
+      "insights": {
+        "title": "Instantiation operations",
+        "subtitle": "Comparison between the planned process and project execution, classified as Link, Split, Merge, Add and Remove.",
+        "ariaLabel": "Execution insights",
+        "statsAria": "Execution classification summary",
+        "noSourceProcess": "This project has no source process to compare against.",
+        "emptyCategory": "No items in this category",
+        "nameMismatch": "Task name differs from the linked activity name",
+        "categories": {
+          "link": "link",
+          "linkHint": "1 activity → 1 task",
+          "split": "split",
+          "splitHint": "1 activity → N tasks",
+          "merge": "merge",
+          "mergeHint": "N activities → 1 task",
+          "add": "add",
+          "addHint": "task without activity",
+          "remove": "remove",
+          "removeHint": "activity without task"
         }
       },
       "tasks": {

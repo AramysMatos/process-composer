@@ -69,6 +69,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
     gap: 1rem;
+    margin-bottom: 0;
   }
 
   &__nav-card {

@@ -67,10 +67,6 @@
         "invalidProjectId": "ID de projeto inválido",
         "projectNotFound": "Projeto não encontrado",
         "instantiatedFrom": "Instanciado a partir de",
-        "taskStatsAria": "Resumo de tarefas",
-        "totalTasks": "Total de tarefas",
-        "linkedTasks": "Vinculadas a atividades",
-        "independentTasks": "Tarefas independentes",
         "navigationAria": "Seções do projeto",
         "nav": {
           "tasks": {
@@ -81,6 +77,27 @@
             "title": "GitHub",
             "description": "Conecte o repositório e gere issues a partir das tarefas."
           }
+        }
+      },
+      "insights": {
+        "title": "Operações de instanciação",
+        "subtitle": "Comparação entre o processo planejado e a execução do projeto, classificada em Link, Split, Merge, Add e Remove.",
+        "ariaLabel": "Insights de execução",
+        "statsAria": "Resumo da classificação de execução",
+        "noSourceProcess": "Este projeto não possui processo de origem para comparação.",
+        "emptyCategory": "Nenhum item nesta categoria",
+        "nameMismatch": "O nome da tarefa difere do nome da atividade vinculada",
+        "categories": {
+          "link": "link",
+          "linkHint": "1 atividade → 1 tarefa",
+          "split": "split",
+          "splitHint": "1 atividade → N tarefas",
+          "merge": "merge",
+          "mergeHint": "N atividades → 1 tarefa",
+          "add": "add",
+          "addHint": "tarefa sem atividade",
+          "remove": "remove",
+          "removeHint": "atividade sem tarefa"
         }
       },
       "tasks": {
