@@ -156,10 +156,7 @@
         },
         "dependencies": {
           "predecessors": "Predecessor activities",
-          "subActivities": "Sub-activities",
-          "noPredecessors": "No predecessor activities defined",
-          "noSubActivities": "No sub-activities defined",
-          "canvasHint": "Edit dependencies by connecting nodes on the canvas."
+          "subActivities": "Sub-activities"
         }
       }
     }

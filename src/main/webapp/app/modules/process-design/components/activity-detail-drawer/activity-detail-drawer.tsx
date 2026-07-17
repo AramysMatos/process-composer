@@ -1,18 +1,18 @@
 import './activity-detail-drawer.scss';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Button, Nav, NavItem, NavLink, Offcanvas, OffcanvasBody, OffcanvasHeader, Spinner, TabContent, TabPane } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getEntity, updateEntity } from 'app/entities/activity/activity.reducer';
+import { getEntity, updateEntity, updateEntitySilent } from 'app/entities/activity/activity.reducer';
 import { duplicateActivity } from 'app/modules/process-design/duplicate-activity';
 import { IActivity } from 'app/shared/model/activity.model';
 import { CardActionsMenu, CardActionItem } from 'app/shared-ui/card-actions-menu';
 import { ArtifactsTab } from './artifacts-tab';
-import { cloneActivityDraft, toActivityUpdatePayload } from './activity-drawer.utils';
+import { cloneActivityDraft, collectDependencySyncUpdates, toActivityUpdatePayload } from './activity-drawer.utils';
 import { DependenciesTab } from './dependencies-tab';
 import { GeneralTab } from './general-tab';
 import { ResourcesTab } from './resources-tab';
@@ -24,6 +24,7 @@ const DRAWER_TABS: DrawerTab[] = ['general', 'roles', 'resources', 'artifacts', 
 
 export interface ActivityDetailDrawerProps {
   activityId: number | null;
+  processId?: number;
   isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
@@ -34,6 +35,7 @@ export interface ActivityDetailDrawerProps {
 
 export const ActivityDetailDrawer = ({
   activityId,
+  processId,
   isOpen,
   onClose,
   onSaved,
@@ -44,6 +46,7 @@ export const ActivityDetailDrawer = ({
   const dispatch = useAppDispatch();
 
   const activityEntity = useAppSelector(state => state.activity.entity);
+  const activityEntities = useAppSelector(state => state.activity.entities);
   const loading = useAppSelector(state => state.activity.loading);
   const updating = useAppSelector(state => state.activity.updating);
 
@@ -51,10 +54,22 @@ export const ActivityDetailDrawer = ({
   const [draft, setDraft] = useState<IActivity | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [duplicating, setDuplicating] = useState(false);
+  const originalSnapshotRef = useRef<IActivity | null>(null);
+
+  const activitiesById = useMemo(() => {
+    const map = new Map<number, IActivity>();
+    activityEntities.forEach(activity => {
+      if (activity.id !== undefined) {
+        map.set(activity.id, activity);
+      }
+    });
+    return map;
+  }, [activityEntities]);
 
   useEffect(() => {
     if (!isOpen) {
       setDraft(null);
+      originalSnapshotRef.current = null;
       setActiveTab('general');
       setSaveError(null);
       setDuplicating(false);
@@ -70,7 +85,9 @@ export const ActivityDetailDrawer = ({
     if (!isOpen || !activityId || activityEntity.id !== activityId) {
       return;
     }
-    setDraft(cloneActivityDraft(activityEntity));
+    const snapshot = cloneActivityDraft(activityEntity);
+    originalSnapshotRef.current = snapshot;
+    setDraft(snapshot);
   }, [activityEntity, activityId, isOpen]);
 
   const handleClose = useCallback(() => {
@@ -85,7 +102,17 @@ export const ActivityDetailDrawer = ({
     setSaveError(null);
 
     try {
+      const original = originalSnapshotRef.current;
+      if (original) {
+        const dependencyUpdates = collectDependencySyncUpdates(original, draft, activitiesById);
+        for (const relatedActivity of dependencyUpdates) {
+          await dispatch(updateEntitySilent(toActivityUpdatePayload(relatedActivity))).unwrap();
+        }
+      }
+
       await dispatch(updateEntity(toActivityUpdatePayload(draft))).unwrap();
+      await dispatch(getEntity(draft.id));
+      originalSnapshotRef.current = cloneActivityDraft(draft);
       toast.success(translate('processComposerApp.processDesign.drawer.saveSuccess', 'Activity saved successfully.'));
       onSaved?.();
     } catch {
@@ -224,7 +251,7 @@ export const ActivityDetailDrawer = ({
                 <ArtifactsTab draft={draft} onChange={setDraft} disabled={updating} />
               </TabPane>
               <TabPane tabId="dependencies">
-                <DependenciesTab draft={draft} />
+                <DependenciesTab draft={draft} processId={processId} onChange={setDraft} disabled={updating} />
               </TabPane>
             </TabContent>
 

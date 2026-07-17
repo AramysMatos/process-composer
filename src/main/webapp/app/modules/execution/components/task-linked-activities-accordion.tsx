@@ -34,8 +34,10 @@ function formatNamedList(items: NamedItem[] | null | undefined, emptyLabel: stri
     <ul className="task-linked-activities-accordion__list mb-0">
       {named.map((item, index) => (
         <li key={`${item.name}-${index}`}>
-          <strong>{item.name}</strong>
-          {item.description?.trim() ? `: ${item.description.trim()}` : null}
+          <span className="task-linked-activities-accordion__item-name">{item.name}</span>
+          {item.description?.trim() ? (
+            <span className="task-linked-activities-accordion__item-description">: {item.description.trim()}</span>
+          ) : null}
         </li>
       ))}
     </ul>

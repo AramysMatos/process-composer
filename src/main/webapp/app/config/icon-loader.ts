@@ -23,6 +23,7 @@ import { faFlag } from '@fortawesome/free-solid-svg-icons/faFlag';
 import { faHeart } from '@fortawesome/free-solid-svg-icons/faHeart';
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons/faLayerGroup';
+import { faLeftRight } from '@fortawesome/free-solid-svg-icons/faLeftRight';
 import { faList } from '@fortawesome/free-solid-svg-icons/faList';
 import { faLock } from '@fortawesome/free-solid-svg-icons/faLock';
 import { faMagic } from '@fortawesome/free-solid-svg-icons/faMagic';
@@ -80,6 +81,7 @@ export const loadIcons = () => {
     faHeart,
     faHome,
     faLayerGroup,
+    faLeftRight,
     faList,
     faLock,
     faMagic,

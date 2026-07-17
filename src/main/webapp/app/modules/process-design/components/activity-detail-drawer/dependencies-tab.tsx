@@ -1,60 +1,91 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { FormGroup, Label } from 'reactstrap';
 import { Translate } from 'react-jhipster';
 
+import { useAppSelector } from 'app/config/store';
 import { IActivity } from 'app/shared/model/activity.model';
+import { EntityComboboxCreatable } from 'app/shared-ui/entity-combobox-creatable';
+import { toComboboxItems } from './activity-drawer.utils';
 
 export interface DependenciesTabProps {
   draft: IActivity;
+  processId?: number;
+  onChange: (updated: IActivity) => void;
+  disabled?: boolean;
 }
 
-const renderReadOnlyList = (items: IActivity[] | null | undefined, emptyKey: string, emptyDefault: string) => {
-  if (!items?.length) {
-    return (
-      <p className="dependencies-tab__empty">
-        <Translate contentKey={emptyKey}>{emptyDefault}</Translate>
-      </p>
+const sortActivities = (activities: IActivity[]): IActivity[] =>
+  [...activities].sort((left, right) => {
+    const nameCompare = (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' });
+    if (nameCompare !== 0) {
+      return nameCompare;
+    }
+    return (left.id ?? 0) - (right.id ?? 0);
+  });
+
+export const DependenciesTab = ({ draft, processId, onChange, disabled = false }: DependenciesTabProps) => {
+  const phaseEntities = useAppSelector(state => state.phase.entities);
+  const activityEntities = useAppSelector(state => state.activity.entities);
+
+  const activityOptions = useMemo(() => {
+    if (!processId || !draft.id) {
+      return [];
+    }
+
+    const processPhaseIds = new Set(
+      phaseEntities.filter(phase => phase.process?.id === processId).flatMap(phase => (phase.id !== undefined ? [phase.id] : []))
     );
-  }
+
+    return toComboboxItems(
+      sortActivities(
+        activityEntities.filter(
+          activity => activity.id !== draft.id && activity.phase?.id !== undefined && processPhaseIds.has(activity.phase.id)
+        )
+      )
+    );
+  }, [activityEntities, draft.id, phaseEntities, processId]);
 
   return (
-    <ul className="dependencies-tab__list">
-      {items.map(item => (
-        <li key={item.id}>{item.name}</li>
-      ))}
-    </ul>
+    <div className="activity-detail-drawer__dependencies-tab">
+      <FormGroup className="activity-tab-section">
+        <Label className="activity-tab-section__label" for="activity-drawer-predecessors">
+          <Translate contentKey="processComposerApp.processDesign.drawer.dependencies.predecessors">Predecessor activities</Translate>
+        </Label>
+        <EntityComboboxCreatable
+          id="activity-drawer-predecessors"
+          options={activityOptions}
+          value={toComboboxItems(draft.predecessorActivities)}
+          onChange={selected =>
+            onChange({
+              ...draft,
+              predecessorActivities: selected.map(item => ({ id: item.id, name: item.name })),
+            })
+          }
+          disabled={disabled || !processId}
+          data-cy="activity-drawer-predecessors"
+        />
+      </FormGroup>
+
+      <FormGroup className="activity-tab-section">
+        <Label className="activity-tab-section__label" for="activity-drawer-sub-activities">
+          <Translate contentKey="processComposerApp.processDesign.drawer.dependencies.subActivities">Sub-activities</Translate>
+        </Label>
+        <EntityComboboxCreatable
+          id="activity-drawer-sub-activities"
+          options={activityOptions}
+          value={toComboboxItems(draft.subActivities)}
+          onChange={selected =>
+            onChange({
+              ...draft,
+              subActivities: selected.map(item => ({ id: item.id, name: item.name })),
+            })
+          }
+          disabled={disabled || !processId}
+          data-cy="activity-drawer-sub-activities"
+        />
+      </FormGroup>
+    </div>
   );
 };
-
-export const DependenciesTab = ({ draft }: DependenciesTabProps) => (
-  <div className="activity-detail-drawer__dependencies-tab">
-    <section className="dependencies-tab__section">
-      <h6 className="dependencies-tab__title">
-        <Translate contentKey="processComposerApp.processDesign.drawer.dependencies.predecessors">Predecessor activities</Translate>
-      </h6>
-      {renderReadOnlyList(
-        draft.predecessorActivities,
-        'processComposerApp.processDesign.drawer.dependencies.noPredecessors',
-        'No predecessor activities defined'
-      )}
-    </section>
-
-    <section className="dependencies-tab__section">
-      <h6 className="dependencies-tab__title">
-        <Translate contentKey="processComposerApp.processDesign.drawer.dependencies.subActivities">Sub-activities</Translate>
-      </h6>
-      {renderReadOnlyList(
-        draft.subActivities,
-        'processComposerApp.processDesign.drawer.dependencies.noSubActivities',
-        'No sub-activities defined'
-      )}
-    </section>
-
-    <p className="dependencies-tab__hint">
-      <Translate contentKey="processComposerApp.processDesign.drawer.dependencies.canvasHint">
-        Edit dependencies by connecting nodes on the canvas.
-      </Translate>
-    </p>
-  </div>
-);
 
 export default DependenciesTab;

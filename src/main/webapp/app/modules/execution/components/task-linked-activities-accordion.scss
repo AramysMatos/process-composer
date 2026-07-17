@@ -43,23 +43,35 @@
 
   &__label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: #6c757d;
-    margin-bottom: 0.25rem;
+    color: #343a40;
+    margin-bottom: 0.35rem;
   }
 
   &__value {
     margin: 0;
-    color: #212529;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #495057;
     white-space: pre-wrap;
   }
 
   &__list {
     margin: 0;
     padding-left: 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #495057;
+  }
+
+  &__item-name {
+    font-weight: 400;
+    color: #495057;
+  }
+
+  &__item-description {
+    color: #6c757d;
   }
 
   &__empty {

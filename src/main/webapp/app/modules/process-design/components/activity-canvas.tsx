@@ -519,7 +519,7 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }
                 onClick={() => handleLayoutModeChange('horizontal')}
                 data-cy="canvas-layout-horizontal"
               >
-                <FontAwesomeIcon icon="arrows-alt-h" className="me-1" />
+                <FontAwesomeIcon icon="left-right" className="me-1" />
                 <Translate contentKey="processComposerApp.processDesign.canvas.layoutMode.horizontal">Horizontal</Translate>
               </Button>
             </ButtonGroup>

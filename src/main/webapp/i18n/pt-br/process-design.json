@@ -156,10 +156,7 @@
         },
         "dependencies": {
           "predecessors": "Atividades predecessoras",
-          "subActivities": "Subatividades",
-          "noPredecessors": "Nenhuma atividade predecessora definida",
-          "noSubActivities": "Nenhuma subatividade definida",
-          "canvasHint": "Edite as dependências conectando os nós no canvas."
+          "subActivities": "Subatividades"
         }
       }
     }

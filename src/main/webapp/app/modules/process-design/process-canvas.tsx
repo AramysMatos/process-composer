@@ -308,6 +308,7 @@ export const ProcessCanvas = () => {
 
       <ActivityDetailDrawer
         activityId={drawerActivityId}
+        processId={processId}
         isOpen={drawerActivityId !== null}
         onClose={handleCloseActivityDrawer}
         onSaved={handleActivitySaved}

@@ -24,6 +24,83 @@ export const cloneActivityDraft = (activity: IActivity): IActivity => ({
   phase: activity.phase ? { ...activity.phase } : activity.phase,
 });
 
+export const collectDependencySyncUpdates = (
+  original: IActivity,
+  draft: IActivity,
+  activitiesById: Map<number, IActivity>
+): IActivity[] => {
+  const activityId = draft.id;
+  if (!activityId) {
+    return [];
+  }
+
+  const updates = new Map<number, IActivity>();
+
+  const mergeUpdate = (id: number, updater: (current: IActivity) => IActivity) => {
+    const base = updates.get(id) ?? activitiesById.get(id);
+    if (!base?.id) {
+      return;
+    }
+    updates.set(id, updater(base));
+  };
+
+  const originalPredIds = new Set(
+    (original.predecessorActivities ?? []).map(item => item.id).filter((id): id is number => id !== undefined)
+  );
+  const draftPredIds = new Set((draft.predecessorActivities ?? []).map(item => item.id).filter((id): id is number => id !== undefined));
+
+  draftPredIds.forEach(parentId => {
+    if (originalPredIds.has(parentId)) {
+      return;
+    }
+
+    mergeUpdate(parentId, parent => ({
+      ...parent,
+      subActivities: [...(parent.subActivities ?? []), { id: activityId, name: draft.name ?? '' }],
+    }));
+  });
+
+  originalPredIds.forEach(parentId => {
+    if (draftPredIds.has(parentId)) {
+      return;
+    }
+
+    mergeUpdate(parentId, parent => ({
+      ...parent,
+      subActivities: (parent.subActivities ?? []).filter(item => item.id !== activityId),
+    }));
+  });
+
+  const originalSubIds = new Set((original.subActivities ?? []).map(item => item.id).filter((id): id is number => id !== undefined));
+  const draftSubIds = new Set((draft.subActivities ?? []).map(item => item.id).filter((id): id is number => id !== undefined));
+
+  draftSubIds.forEach(childId => {
+    if (originalSubIds.has(childId)) {
+      return;
+    }
+
+    mergeUpdate(childId, child => ({
+      ...child,
+      predecessorActivities: [...(child.predecessorActivities ?? []), { id: activityId, name: draft.name ?? '' }],
+    }));
+  });
+
+  originalSubIds.forEach(childId => {
+    if (draftSubIds.has(childId)) {
+      return;
+    }
+
+    mergeUpdate(childId, child => ({
+      ...child,
+      predecessorActivities: (child.predecessorActivities ?? []).filter(item => item.id !== activityId),
+    }));
+  });
+
+  updates.delete(activityId);
+
+  return Array.from(updates.values());
+};
+
 export const toActivityUpdatePayload = (activity: IActivity): IActivity => ({
   ...activity,
   subActivities: mapIdList(activity.subActivities?.map(item => item.id).filter((id): id is number => id !== undefined) ?? []),
