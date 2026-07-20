@@ -104,6 +104,14 @@
         "deletePhase": "Delete phase",
         "deleteActivity": "Delete activity"
       },
+      "edit": {
+        "editPhase": "Edit phase"
+      },
+      "phaseDrawer": {
+        "title": "Phase details",
+        "saveSuccess": "Phase saved successfully.",
+        "saveError": "Could not save the phase."
+      },
       "canvas": {
         "contentAriaLabel": "Activity canvas",
         "untitledActivity": "Untitled activity",

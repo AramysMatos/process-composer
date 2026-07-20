@@ -104,6 +104,14 @@
         "deletePhase": "Excluir fase",
         "deleteActivity": "Excluir atividade"
       },
+      "edit": {
+        "editPhase": "Editar fase"
+      },
+      "phaseDrawer": {
+        "title": "Detalhes da fase",
+        "saveSuccess": "Fase salva com sucesso.",
+        "saveError": "Não foi possível salvar a fase."
+      },
       "canvas": {
         "contentAriaLabel": "Canvas de atividades",
         "untitledActivity": "Atividade sem título",

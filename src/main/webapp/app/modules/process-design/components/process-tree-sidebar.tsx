@@ -12,12 +12,14 @@ import { getEntities as getActivityEntities } from 'app/entities/activity/activi
 import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
 import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
+import { EntityEditButton } from 'app/modules/process-design/components/entity-edit-button';
 
 export interface ProcessTreeSidebarProps {
   processId: number;
   onSelectActivity: (activityId: number) => void;
   onCreateActivity: (phaseId: number) => void;
   onCreatePhase: () => void;
+  onEditPhase?: (phaseId: number) => void;
   onDeletePhase?: (phaseId: number, name: string, activityCount: number) => void;
   onDeleteActivity?: (activityId: number, name: string) => void;
   selectedActivityId?: number;
@@ -39,6 +41,7 @@ export const ProcessTreeSidebar = ({
   onSelectActivity,
   onCreateActivity,
   onCreatePhase,
+  onEditPhase,
   onDeletePhase,
   onDeleteActivity,
   selectedActivityId,
@@ -175,13 +178,22 @@ export const ProcessTreeSidebar = ({
             <FontAwesomeIcon icon="layer-group" className="process-tree-sidebar__icon" />
             <span className="process-tree-sidebar__label-text">{phase.name}</span>
           </button>
-          {onDeletePhase && (
+          {(onEditPhase || onDeletePhase) && (
             <div className="process-tree-sidebar__row-actions">
-              <EntityDeleteButton
-                label={translate('processComposerApp.processDesign.delete.deletePhase', 'Delete phase')}
-                onClick={() => onDeletePhase(phase.id as number, phase.name ?? '', phaseActivities.length)}
-                data-cy={`sidebar-delete-phase-${phase.id}`}
-              />
+              {onEditPhase && (
+                <EntityEditButton
+                  label={translate('processComposerApp.processDesign.edit.editPhase', 'Edit phase')}
+                  onClick={() => onEditPhase(phase.id as number)}
+                  data-cy={`sidebar-edit-phase-${phase.id}`}
+                />
+              )}
+              {onDeletePhase && (
+                <EntityDeleteButton
+                  label={translate('processComposerApp.processDesign.delete.deletePhase', 'Delete phase')}
+                  onClick={() => onDeletePhase(phase.id as number, phase.name ?? '', phaseActivities.length)}
+                  data-cy={`sidebar-delete-phase-${phase.id}`}
+                />
+              )}
             </div>
           )}
         </div>

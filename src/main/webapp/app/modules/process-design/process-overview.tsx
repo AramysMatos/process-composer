@@ -34,6 +34,8 @@ import { ConfirmDeleteModal } from 'app/modules/process-design/components/confir
 import { CreateActivityModal } from 'app/modules/process-design/components/create-activity-modal';
 import { CreatePhaseModal } from 'app/modules/process-design/components/create-phase-modal';
 import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
+import { EntityEditButton } from 'app/modules/process-design/components/entity-edit-button';
+import { PhaseDetailDrawer } from 'app/modules/process-design/components/phase-detail-drawer/phase-detail-drawer';
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
@@ -73,6 +75,7 @@ export const ProcessOverview = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedActivityId, setSelectedActivityId] = useState<number | undefined>();
   const [drawerActivityId, setDrawerActivityId] = useState<number | null>(null);
+  const [drawerPhaseId, setDrawerPhaseId] = useState<number | null>(null);
   const [createModalPhaseId, setCreateModalPhaseId] = useState<number | null>(null);
   const [createPhaseModalOpen, setCreatePhaseModalOpen] = useState(false);
   const [openPhaseIds, setOpenPhaseIds] = useState<Set<number>>(() => new Set());
@@ -142,6 +145,18 @@ export const ProcessOverview = () => {
   const handleCloseDrawer = useCallback(() => {
     setDrawerActivityId(null);
   }, []);
+
+  const handleEditPhase = useCallback((phaseId: number) => {
+    setDrawerPhaseId(phaseId);
+  }, []);
+
+  const handleClosePhaseDrawer = useCallback(() => {
+    setDrawerPhaseId(null);
+  }, []);
+
+  const handlePhaseSaved = useCallback(() => {
+    dispatch(getPhaseEntities({}));
+  }, [dispatch]);
 
   const { clearActivityFromUrl } = useProcessActivityDeepLink({
     processId,
@@ -371,6 +386,11 @@ export const ProcessOverview = () => {
                   {`${phaseActivities.length} activities`}
                 </Translate>
               </span>
+              <EntityEditButton
+                label={translate('processComposerApp.processDesign.edit.editPhase', 'Edit phase')}
+                onClick={() => handleEditPhase(phase.id as number)}
+                data-cy={`edit-phase-${phase.id}`}
+              />
               <EntityDeleteButton
                 label={translate('processComposerApp.processDesign.delete.deletePhase', 'Delete phase')}
                 onClick={() =>
@@ -481,6 +501,7 @@ export const ProcessOverview = () => {
             onSelectActivity={handleSelectActivity}
             onCreateActivity={handleCreateActivity}
             onCreatePhase={handleCreatePhase}
+            onEditPhase={handleEditPhase}
             onDeletePhase={(phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })}
             onDeleteActivity={(activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
           />
@@ -544,6 +565,16 @@ export const ProcessOverview = () => {
           )}
         </section>
       </div>
+
+      <PhaseDetailDrawer
+        phaseId={drawerPhaseId}
+        processId={processId}
+        isOpen={drawerPhaseId !== null}
+        onClose={handleClosePhaseDrawer}
+        onSaved={handlePhaseSaved}
+        onDelete={phase => requestDelete({ type: 'phase', id: phase.id, name: phase.name })}
+        deleting={deleting}
+      />
 
       <ActivityDetailDrawer
         activityId={drawerActivityId}

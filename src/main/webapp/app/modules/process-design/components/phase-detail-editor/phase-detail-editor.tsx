@@ -17,6 +17,7 @@ export interface PhaseDetailEditorProps {
   phaseId: number | null;
   processId?: number;
   variant?: 'panel' | 'drawer';
+  generalOnly?: boolean;
   showHeaderActions?: boolean;
   onSaved?: () => void;
   onDelete?: (phase: { id: number; name: string }) => void;
@@ -29,6 +30,7 @@ export const PhaseDetailEditor = ({
   phaseId,
   processId,
   variant = 'panel',
+  generalOnly = false,
   showHeaderActions = true,
   onSaved,
   onDelete,
@@ -78,10 +80,18 @@ export const PhaseDetailEditor = ({
       const saveThunk = isLibraryContext ? updateEntitySilent : updateEntity;
       await dispatch(saveThunk(draft)).unwrap();
       await dispatch(getEntity(draft.id));
-      toast.success(translate('processComposerApp.processDesign.drawer.saveSuccess', 'Saved successfully.'));
+      const saveSuccessKey = generalOnly
+        ? 'processComposerApp.processDesign.phaseDrawer.saveSuccess'
+        : 'processComposerApp.processDesign.drawer.saveSuccess';
+      const saveSuccessFallback = generalOnly ? 'Phase saved successfully.' : 'Saved successfully.';
+      toast.success(translate(saveSuccessKey, saveSuccessFallback));
       onSaved?.();
     } catch {
-      setSaveError(translate('processComposerApp.processDesign.drawer.saveError', 'Could not save the phase.'));
+      const saveErrorKey = generalOnly
+        ? 'processComposerApp.processDesign.phaseDrawer.saveError'
+        : 'processComposerApp.processDesign.drawer.saveError';
+      const saveErrorFallback = generalOnly ? 'Could not save the phase.' : 'Could not save.';
+      setSaveError(translate(saveErrorKey, saveErrorFallback));
     }
   };
 
@@ -212,11 +222,13 @@ export const PhaseDetailEditor = ({
       {!isLoading && draft && (
         <>
           <div className="phase-detail-editor__sections">
-            {!activityEditing && (
+            {(!activityEditing || generalOnly) && (
               <section className="phase-detail-editor__section" data-cy="phase-section-general">
-                <h3 className="phase-detail-editor__section-title">
-                  <Translate contentKey="processComposerApp.processDesign.drawer.tabs.general">General</Translate>
-                </h3>
+                {variant === 'panel' && (
+                  <h3 className="phase-detail-editor__section-title">
+                    <Translate contentKey="processComposerApp.processDesign.drawer.tabs.general">General</Translate>
+                  </h3>
+                )}
                 <FormGroup>
                   <Label for="phase-editor-name">
                     <Translate contentKey="processComposerApp.phase.name">Name</Translate>
@@ -246,21 +258,23 @@ export const PhaseDetailEditor = ({
               </section>
             )}
 
-            <section className="phase-detail-editor__section" data-cy="phase-section-activities">
-              <h3 className="phase-detail-editor__section-title">
-                <Translate contentKey="processComposerApp.library.tabs.activities">Activities</Translate>
-              </h3>
-              <PhaseActivitiesSection
-                phaseId={draft.id!}
-                phaseName={draft.name}
-                processId={processId}
-                disabled={updating}
-                onActivityEditingChange={setActivityEditing}
-              />
-            </section>
+            {!generalOnly && (
+              <section className="phase-detail-editor__section" data-cy="phase-section-activities">
+                <h3 className="phase-detail-editor__section-title">
+                  <Translate contentKey="processComposerApp.library.tabs.activities">Activities</Translate>
+                </h3>
+                <PhaseActivitiesSection
+                  phaseId={draft.id!}
+                  phaseName={draft.name}
+                  processId={processId}
+                  disabled={updating}
+                  onActivityEditingChange={setActivityEditing}
+                />
+              </section>
+            )}
           </div>
 
-          {!activityEditing && <div className="phase-detail-editor__footer">{saveButton}</div>}
+          {(!activityEditing || generalOnly) && <div className="phase-detail-editor__footer">{saveButton}</div>}
         </>
       )}
     </div>
