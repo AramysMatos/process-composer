@@ -5,8 +5,9 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Nav, NavItem, NavLink } from 'reactstrap';
 import { Translate } from 'react-jhipster';
 
-import { LIBRARY_ENTITY_CONFIGS, LIBRARY_ENTITY_TYPES, isLibraryEntityType } from 'app/modules/library/library.config';
+import { LIBRARY_ENTITY_CONFIGS, LIBRARY_TAB_TYPES, isLibraryTabType } from 'app/modules/library/library.config';
 import { LibraryMasterDetail } from 'app/modules/library/components/library-master-detail';
+import { LibraryActivitiesMasterDetail } from 'app/modules/library/components/library-activities-master-detail';
 
 const NEW_ITEM_ID = 'new';
 
@@ -14,8 +15,7 @@ export const LibraryPage = () => {
   const navigate = useNavigate();
   const { tipo, id } = useParams<'tipo' | 'id'>();
 
-  const activeType = isLibraryEntityType(tipo) ? tipo : 'roles';
-  const config = LIBRARY_ENTITY_CONFIGS[activeType];
+  const activeType = isLibraryTabType(tipo) ? tipo : 'roles';
 
   const handleTabChange = (nextType: typeof activeType) => {
     navigate(`/biblioteca/${nextType}`);
@@ -33,7 +33,7 @@ export const LibraryPage = () => {
     [activeType, navigate]
   );
 
-  if (tipo && !isLibraryEntityType(tipo)) {
+  if (tipo && !isLibraryTabType(tipo)) {
     return <Navigate to="/biblioteca/roles" replace />;
   }
 
@@ -57,7 +57,7 @@ export const LibraryPage = () => {
       </header>
 
       <Nav tabs className="library-page__tabs mb-4">
-        {LIBRARY_ENTITY_TYPES.map(entityType => (
+        {LIBRARY_TAB_TYPES.map(entityType => (
           <NavItem key={entityType}>
             <NavLink
               className={activeType === entityType ? 'active' : ''}
@@ -65,13 +65,21 @@ export const LibraryPage = () => {
               style={{ cursor: 'pointer' }}
               data-cy={`libraryTab-${entityType}`}
             >
-              <Translate contentKey={LIBRARY_ENTITY_CONFIGS[entityType].tabLabelKey} />
+              {entityType === 'activities' ? (
+                <Translate contentKey="processComposerApp.library.tabs.activities">Activities</Translate>
+              ) : (
+                <Translate contentKey={LIBRARY_ENTITY_CONFIGS[entityType].tabLabelKey} />
+              )}
             </NavLink>
           </NavItem>
         ))}
       </Nav>
 
-      <LibraryMasterDetail key={activeType} config={config} selectedId={id} onSelectItem={handleSelectItem} />
+      {activeType === 'activities' ? (
+        <LibraryActivitiesMasterDetail selectedId={id} onSelectItem={handleSelectItem} />
+      ) : (
+        <LibraryMasterDetail key={activeType} config={LIBRARY_ENTITY_CONFIGS[activeType]} selectedId={id} onSelectItem={handleSelectItem} />
+      )}
     </div>
   );
 };

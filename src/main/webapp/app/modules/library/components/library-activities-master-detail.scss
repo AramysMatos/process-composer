@@ -1,0 +1,16 @@
+@import './library-master-detail.scss';
+
+.library-activities-master-detail {
+  .library-master-detail__detail-body {
+    padding: 1.25rem;
+  }
+
+  .activity-detail-editor__panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+}

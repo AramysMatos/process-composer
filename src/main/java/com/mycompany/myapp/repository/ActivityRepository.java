@@ -44,6 +44,10 @@ public interface ActivityRepository extends ActivityRepositoryWithBagRelationshi
 
     List<Activity> findByPhase_Id(Long phaseId);
 
+    List<Activity> findByPhaseIsNull();
+
+    List<Activity> findByPhase_Process_Id(Long processId);
+
     List<Activity> findBySubActivities_IdIn(Collection<Long> subActivityIds);
 
     List<Activity> findByPredecessorActivities_IdIn(Collection<Long> predecessorActivityIds);

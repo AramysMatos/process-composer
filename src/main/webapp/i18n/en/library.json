@@ -15,7 +15,14 @@
         "tools": "Tools",
         "guidelines": "Guidelines",
         "artifacts": "Artifacts",
-        "templates": "Templates"
+        "templates": "Templates",
+        "activities": "Activities"
+      },
+      "activities": {
+        "createLabel": "New activity",
+        "createTitle": "New activity",
+        "selectItem": "Select an activity from the list or create a new one",
+        "createError": "Could not create the activity."
       },
       "usedIn": {
         "title": "Used in activities",

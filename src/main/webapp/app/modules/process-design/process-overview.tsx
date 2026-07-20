@@ -558,6 +558,7 @@ export const ProcessOverview = () => {
       <CreateActivityModal
         isOpen={createModalPhaseId !== null}
         phaseId={createModalPhaseId}
+        processId={processId}
         onClose={handleCloseCreateModal}
         onCreated={handleActivityCreated}
       />

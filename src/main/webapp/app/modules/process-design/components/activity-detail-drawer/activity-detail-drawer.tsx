@@ -1,26 +1,11 @@
 import './activity-detail-drawer.scss';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Button, Nav, NavItem, NavLink, Offcanvas, OffcanvasBody, OffcanvasHeader, Spinner, TabContent, TabPane } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Translate, translate } from 'react-jhipster';
-import { toast } from 'react-toastify';
+import React, { useCallback } from 'react';
+import { Offcanvas, OffcanvasBody, OffcanvasHeader } from 'reactstrap';
+import { translate } from 'react-jhipster';
 
-import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getEntity, updateEntity, updateEntitySilent } from 'app/entities/activity/activity.reducer';
-import { duplicateActivity } from 'app/modules/process-design/duplicate-activity';
-import { IActivity } from 'app/shared/model/activity.model';
-import { CardActionsMenu, CardActionItem } from 'app/shared-ui/card-actions-menu';
-import { ArtifactsTab } from './artifacts-tab';
-import { cloneActivityDraft, collectDependencySyncUpdates, toActivityUpdatePayload } from './activity-drawer.utils';
-import { DependenciesTab } from './dependencies-tab';
-import { GeneralTab } from './general-tab';
-import { ResourcesTab } from './resources-tab';
-import { RolesTab } from './roles-tab';
-
-type DrawerTab = 'general' | 'roles' | 'resources' | 'artifacts' | 'dependencies';
-
-const DRAWER_TABS: DrawerTab[] = ['general', 'roles', 'resources', 'artifacts', 'dependencies'];
+import { useAppSelector } from 'app/config/store';
+import { ActivityDetailEditor } from './activity-detail-editor';
 
 export interface ActivityDetailDrawerProps {
   activityId: number | null;
@@ -43,147 +28,14 @@ export const ActivityDetailDrawer = ({
   onDuplicated,
   deleting = false,
 }: ActivityDetailDrawerProps) => {
-  const dispatch = useAppDispatch();
-
   const activityEntity = useAppSelector(state => state.activity.entity);
-  const activityEntities = useAppSelector(state => state.activity.entities);
-  const loading = useAppSelector(state => state.activity.loading);
-  const updating = useAppSelector(state => state.activity.updating);
-
-  const [activeTab, setActiveTab] = useState<DrawerTab>('general');
-  const [draft, setDraft] = useState<IActivity | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [duplicating, setDuplicating] = useState(false);
-  const originalSnapshotRef = useRef<IActivity | null>(null);
-
-  const activitiesById = useMemo(() => {
-    const map = new Map<number, IActivity>();
-    activityEntities.forEach(activity => {
-      if (activity.id !== undefined) {
-        map.set(activity.id, activity);
-      }
-    });
-    return map;
-  }, [activityEntities]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setDraft(null);
-      originalSnapshotRef.current = null;
-      setActiveTab('general');
-      setSaveError(null);
-      setDuplicating(false);
-      return;
-    }
-
-    if (activityId) {
-      dispatch(getEntity(activityId));
-    }
-  }, [activityId, dispatch, isOpen]);
-
-  useEffect(() => {
-    if (!isOpen || !activityId || activityEntity.id !== activityId) {
-      return;
-    }
-    const snapshot = cloneActivityDraft(activityEntity);
-    originalSnapshotRef.current = snapshot;
-    setDraft(snapshot);
-  }, [activityEntity, activityId, isOpen]);
+  const draftName = activityEntity.id === activityId ? activityEntity.name : undefined;
+  const drawerTitle = draftName ?? translate('processComposerApp.processDesign.drawer.title', 'Activity details');
+  const drawerPhaseName = activityEntity.id === activityId ? activityEntity.phase?.name : undefined;
 
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
-
-  const handleSave = async () => {
-    if (!draft?.id) {
-      return;
-    }
-
-    setSaveError(null);
-
-    try {
-      const original = originalSnapshotRef.current;
-      if (original) {
-        const dependencyUpdates = collectDependencySyncUpdates(original, draft, activitiesById);
-        for (const relatedActivity of dependencyUpdates) {
-          await dispatch(updateEntitySilent(toActivityUpdatePayload(relatedActivity))).unwrap();
-        }
-      }
-
-      await dispatch(updateEntity(toActivityUpdatePayload(draft))).unwrap();
-      await dispatch(getEntity(draft.id));
-      originalSnapshotRef.current = cloneActivityDraft(draft);
-      toast.success(translate('processComposerApp.processDesign.drawer.saveSuccess', 'Activity saved successfully.'));
-      onSaved?.();
-    } catch {
-      setSaveError(translate('processComposerApp.processDesign.drawer.saveError', 'Could not save the activity.'));
-    }
-  };
-
-  const isLoading = loading || (!draft && isOpen && activityId !== null);
-  const drawerTitle = draft?.name ?? translate('processComposerApp.processDesign.drawer.title', 'Activity details');
-  const isBusy = updating || deleting || duplicating;
-
-  const handleDelete = () => {
-    if (!draft?.id || !onDelete) {
-      return;
-    }
-
-    onDelete({
-      id: draft.id,
-      name: draft.name ?? '',
-    });
-  };
-
-  const handleDuplicate = async () => {
-    if (!draft?.id || duplicating) {
-      return;
-    }
-
-    setDuplicating(true);
-    try {
-      const newActivityId = await duplicateActivity(dispatch, draft.id);
-      toast.success(translate('processComposerApp.processDesign.drawer.duplicateSuccess', 'Activity duplicated successfully.'));
-      onDuplicated?.(newActivityId);
-    } catch {
-      toast.error(translate('processComposerApp.processDesign.drawer.duplicateError', 'Could not duplicate the activity.'));
-    } finally {
-      setDuplicating(false);
-    }
-  };
-
-  const menuItems: CardActionItem[] = [];
-  if (draft?.id) {
-    menuItems.push({
-      key: 'duplicate',
-      label: (
-        <>
-          <FontAwesomeIcon icon="copy" className="me-2" />
-          <Translate contentKey="processComposerApp.processDesign.drawer.duplicate">Duplicate activity</Translate>
-        </>
-      ),
-      onClick() {
-        void handleDuplicate();
-      },
-      disabled: isBusy,
-      'data-cy': `activityDuplicate-${draft.id}`,
-    });
-    if (onDelete) {
-      menuItems.push({
-        key: 'delete',
-        label: (
-          <>
-            <FontAwesomeIcon icon="trash" className="me-2" />
-            <Translate contentKey="processComposerApp.processDesign.delete.deleteActivity">Delete activity</Translate>
-          </>
-        ),
-        onClick: handleDelete,
-        danger: true,
-        disabled: isBusy,
-        'data-cy': `activityDelete-${draft.id}`,
-      });
-    }
-  }
 
   return (
     <Offcanvas
@@ -198,79 +50,22 @@ export const ActivityDetailDrawer = ({
         <div className="activity-detail-drawer__header-content">
           <div className="activity-detail-drawer__title-block">
             <span className="activity-detail-drawer__title">{drawerTitle}</span>
-            {draft?.phase?.name && <p className="activity-detail-drawer__subtitle">{draft.phase.name}</p>}
+            {drawerPhaseName && <p className="activity-detail-drawer__subtitle">{drawerPhaseName}</p>}
           </div>
-          {menuItems.length > 0 && <CardActionsMenu data-cy={`activityDrawerMenu-${draft?.id}`} items={menuItems} />}
         </div>
       </OffcanvasHeader>
 
       <OffcanvasBody>
-        {saveError && (
-          <Alert color="danger" toggle={() => setSaveError(null)}>
-            {saveError}
-          </Alert>
-        )}
-
-        {isLoading && (
-          <div className="activity-detail-drawer__loading">
-            <Spinner color="primary" />
-          </div>
-        )}
-
-        {!isLoading && draft && (
-          <>
-            <Nav tabs className="activity-detail-drawer__tabs">
-              {DRAWER_TABS.map(tab => (
-                <NavItem key={tab}>
-                  <NavLink
-                    className={activeTab === tab ? 'active' : ''}
-                    onClick={event => {
-                      event.preventDefault();
-                      setActiveTab(tab);
-                    }}
-                    href="#"
-                    data-cy={`activity-drawer-tab-${tab}`}
-                  >
-                    <Translate contentKey={`processComposerApp.processDesign.drawer.tabs.${tab}`}>{tab}</Translate>
-                  </NavLink>
-                </NavItem>
-              ))}
-            </Nav>
-
-            <TabContent activeTab={activeTab}>
-              <TabPane tabId="general">
-                <GeneralTab draft={draft} onChange={setDraft} disabled={updating} />
-              </TabPane>
-              <TabPane tabId="roles">
-                <RolesTab draft={draft} onChange={setDraft} disabled={updating} />
-              </TabPane>
-              <TabPane tabId="resources">
-                <ResourcesTab draft={draft} onChange={setDraft} disabled={updating} />
-              </TabPane>
-              <TabPane tabId="artifacts">
-                <ArtifactsTab draft={draft} onChange={setDraft} disabled={updating} />
-              </TabPane>
-              <TabPane tabId="dependencies">
-                <DependenciesTab draft={draft} processId={processId} onChange={setDraft} disabled={updating} />
-              </TabPane>
-            </TabContent>
-
-            <div className="activity-detail-drawer__footer">
-              <div className="activity-detail-drawer__footer-actions">
-                <Button color="secondary" outline onClick={handleClose} disabled={isBusy}>
-                  <Translate contentKey="entity.action.cancel">Cancel</Translate>
-                </Button>
-                <Button color="primary" onClick={handleSave} disabled={isBusy} data-cy="activity-drawer-save">
-                  {updating ? (
-                    <Translate contentKey="processComposerApp.processDesign.drawer.saving">Saving...</Translate>
-                  ) : (
-                    <Translate contentKey="processComposerApp.processDesign.drawer.save">Save</Translate>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </>
-        )}
+        <ActivityDetailEditor
+          activityId={isOpen ? activityId : null}
+          processId={processId}
+          variant="drawer"
+          showHeaderActions
+          onSaved={onSaved}
+          onDelete={onDelete}
+          onDuplicated={onDuplicated}
+          deleting={deleting}
+        />
       </OffcanvasBody>
     </Offcanvas>
   );

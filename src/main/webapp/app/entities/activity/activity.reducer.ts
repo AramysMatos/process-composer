@@ -18,11 +18,24 @@ const apiUrl = 'api/activities';
 
 // Actions
 
-export const getEntities = createAsyncThunk('activity/fetch_entity_list', async (params: IQueryParams & { eagerload?: boolean } = {}) => {
-  const eagerloadQuery = params.eagerload ? 'eagerload=true&' : '';
-  const requestUrl = `${apiUrl}?${eagerloadQuery}cacheBuster=${new Date().getTime()}`;
-  return axios.get<IActivity[]>(requestUrl);
-});
+export const getEntities = createAsyncThunk(
+  'activity/fetch_entity_list',
+  async (params: IQueryParams & { eagerload?: boolean; library?: boolean; processId?: number } = {}) => {
+    const queryParts: string[] = [];
+    if (params.eagerload) {
+      queryParts.push('eagerload=true');
+    }
+    if (params.library) {
+      queryParts.push('library=true');
+    }
+    if (params.processId !== undefined) {
+      queryParts.push(`processId=${params.processId}`);
+    }
+    queryParts.push(`cacheBuster=${new Date().getTime()}`);
+    const requestUrl = `${apiUrl}?${queryParts.join('&')}`;
+    return axios.get<IActivity[]>(requestUrl);
+  }
+);
 
 export const getEntity = createAsyncThunk(
   'activity/fetch_entity',

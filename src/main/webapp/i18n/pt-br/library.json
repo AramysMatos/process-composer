@@ -15,7 +15,14 @@
         "tools": "Ferramentas",
         "guidelines": "Diretrizes",
         "artifacts": "Artefatos",
-        "templates": "Modelos"
+        "templates": "Modelos",
+        "activities": "Atividades"
+      },
+      "activities": {
+        "createLabel": "Nova atividade",
+        "createTitle": "Nova atividade",
+        "selectItem": "Selecione uma atividade da lista ou crie uma nova",
+        "createError": "Não foi possível criar a atividade."
       },
       "usedIn": {
         "title": "Usado em atividades",

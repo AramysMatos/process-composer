@@ -153,13 +153,27 @@ public class ActivityResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of activities in body.
      */
     @GetMapping("/activities")
-    public List<Activity> getAllActivities(@RequestParam(required = false, defaultValue = "false") boolean eagerload) {
-        log.debug("REST request to get all Activities");
-        if (eagerload) {
+    public List<Activity> getAllActivities(
+        @RequestParam(required = false, defaultValue = "false") boolean eagerload,
+        @RequestParam(required = false) Boolean library,
+        @RequestParam(required = false) Long processId
+    ) {
+        log.debug("REST request to get all Activities (library={}, processId={}, eagerload={})", library, processId, eagerload);
+        List<Activity> activities;
+        if (Boolean.TRUE.equals(library)) {
+            activities = activityRepository.findByPhaseIsNull();
+        } else if (processId != null) {
+            activities = activityRepository.findByPhase_Process_Id(processId);
+        } else if (eagerload) {
             return activityRepository.findAllWithEagerRelationships();
         } else {
             return activityRepository.findAll();
         }
+
+        if (eagerload) {
+            return activityRepository.fetchBagRelationships(activities);
+        }
+        return activities;
     }
 
     /**

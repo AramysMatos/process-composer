@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.mycompany.myapp.IntegrationTest;
 import com.mycompany.myapp.domain.Activity;
+import com.mycompany.myapp.domain.Phase;
+import com.mycompany.myapp.domain.Process;
 import com.mycompany.myapp.repository.ActivityRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -451,5 +453,47 @@ class ActivityResourceIT {
         assertThat(activityRepository.findById(child.getId())).isEmpty();
         Activity persistedParent = activityRepository.findOneWithEagerRelationships(parent.getId()).orElseThrow();
         assertThat(persistedParent.getSubActivities()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    void getAllLibraryActivities() throws Exception {
+        Activity libraryActivity = activityRepository.saveAndFlush(new Activity().name("Library activity"));
+        Process process = ProcessResourceIT.createEntity(em);
+        em.persist(process);
+        Phase phase = PhaseResourceIT.createEntity(em).process(process);
+        em.persist(phase);
+        Activity processActivity = new Activity().name("Process activity").phase(phase);
+        activityRepository.saveAndFlush(processActivity);
+
+        restActivityMockMvc
+            .perform(get(ENTITY_API_URL).param("library", "true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].id").value(hasItem(libraryActivity.getId().intValue())))
+            .andExpect(jsonPath("$.[*].id").value(org.hamcrest.Matchers.not(hasItem(processActivity.getId().intValue()))));
+    }
+
+    @Test
+    @Transactional
+    void getAllActivitiesByProcessId() throws Exception {
+        Process process = ProcessResourceIT.createEntity(em);
+        em.persist(process);
+        Process otherProcess = ProcessResourceIT.createUpdatedEntity(em);
+        em.persist(otherProcess);
+
+        Phase phase = PhaseResourceIT.createEntity(em).process(process);
+        em.persist(phase);
+        Phase otherPhase = PhaseResourceIT.createUpdatedEntity(em).process(otherProcess);
+        em.persist(otherPhase);
+
+        Activity processActivity = activityRepository.saveAndFlush(new Activity().name("Process activity").phase(phase));
+        activityRepository.saveAndFlush(new Activity().name("Other process activity").phase(otherPhase));
+        activityRepository.saveAndFlush(new Activity().name("Library activity"));
+
+        restActivityMockMvc
+            .perform(get(ENTITY_API_URL).param("processId", process.getId().toString()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].id").value(hasItem(processActivity.getId().intValue())))
+            .andExpect(jsonPath("$.length()").value(1));
     }
 }
