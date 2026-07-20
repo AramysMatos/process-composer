@@ -23,7 +23,7 @@ import { JhiItemCount, JhiPagination, Translate, translate } from 'react-jhipste
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import {
   createEntitySilent as createActivity,
-  deleteEntity as deleteActivity,
+  deleteEntitySilent as deleteActivity,
   getEntities as getActivities,
   reset as resetActivity,
 } from 'app/entities/activity/activity.reducer';

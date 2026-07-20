@@ -113,7 +113,8 @@ export const ActivityDetailEditor = ({
         }
       }
 
-      await dispatch(updateEntity(toActivityUpdatePayload(draft))).unwrap();
+      const saveThunk = isLibraryContext ? updateEntitySilent : updateEntity;
+      await dispatch(saveThunk(toActivityUpdatePayload(draft))).unwrap();
       await dispatch(getEntity(draft.id));
       originalSnapshotRef.current = cloneActivityDraft(draft);
       toast.success(translate('processComposerApp.processDesign.drawer.saveSuccess', 'Activity saved successfully.'));

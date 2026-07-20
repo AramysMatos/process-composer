@@ -7,7 +7,7 @@ import { Translate, translate } from 'react-jhipster';
 import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { deleteEntity, getEntity, updateEntity } from 'app/entities/phase/phase.reducer';
+import { deleteEntity, getEntity, updateEntity, updateEntitySilent } from 'app/entities/phase/phase.reducer';
 import { clonePhase } from 'app/modules/process-design/clone-phase';
 import { IPhase } from 'app/shared/model/phase.model';
 import { CardActionsMenu, CardActionItem } from 'app/shared-ui/card-actions-menu';
@@ -75,7 +75,8 @@ export const PhaseDetailEditor = ({
     setSaveError(null);
 
     try {
-      await dispatch(updateEntity(draft)).unwrap();
+      const saveThunk = isLibraryContext ? updateEntitySilent : updateEntity;
+      await dispatch(saveThunk(draft)).unwrap();
       await dispatch(getEntity(draft.id));
       toast.success(translate('processComposerApp.processDesign.drawer.saveSuccess', 'Saved successfully.'));
       onSaved?.();
@@ -181,6 +182,21 @@ export const PhaseDetailEditor = ({
 
   return (
     <div className={`phase-detail-editor phase-detail-editor--${variant}`} data-cy="phase-detail-editor">
+      {variant === 'panel' && draft && (
+        <div className="phase-detail-editor__panel-header">
+          <div className="phase-detail-editor__title-block">
+            <h2 className="h5 mb-0">{draft.name}</h2>
+          </div>
+          {menuItems.length > 0 && <CardActionsMenu data-cy={`phaseEditorMenu-${draft.id}`} items={menuItems} />}
+        </div>
+      )}
+
+      {variant === 'drawer' && menuItems.length > 0 && (
+        <div className="phase-detail-editor__drawer-actions mb-3 d-flex justify-content-end">
+          <CardActionsMenu data-cy={`phaseEditorMenu-${draft?.id}`} items={menuItems} />
+        </div>
+      )}
+
       {saveError && (
         <Alert color="danger" toggle={() => setSaveError(null)}>
           {saveError}

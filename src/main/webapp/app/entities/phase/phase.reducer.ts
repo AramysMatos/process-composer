@@ -72,6 +72,12 @@ export const updateEntity = createAsyncThunk(
   { serializeError: serializeAxiosError }
 );
 
+export const updateEntitySilent = createAsyncThunk(
+  'phase/update_entity_silent',
+  async (entity: IPhase) => axios.put<IPhase>(`${apiUrl}/${entity.id}`, cleanEntity(entity)),
+  { serializeError: serializeAxiosError }
+);
+
 export const partialUpdateEntity = createAsyncThunk(
   'phase/partial_update_entity',
   async (entity: IPhase, thunkAPI) => {
@@ -93,6 +99,12 @@ export const deleteEntity = createAsyncThunk(
   { serializeError: serializeAxiosError }
 );
 
+export const deleteEntitySilent = createAsyncThunk(
+  'phase/delete_entity_silent',
+  async (id: string | number) => axios.delete<IPhase>(`${apiUrl}/${id}`),
+  { serializeError: serializeAxiosError }
+);
+
 // slice
 
 export const PhaseSlice = createEntitySlice({
@@ -109,6 +121,11 @@ export const PhaseSlice = createEntitySlice({
         state.updateSuccess = true;
         state.entity = {};
       })
+      .addCase(deleteEntitySilent.fulfilled, state => {
+        state.updating = false;
+        state.updateSuccess = true;
+        state.entity = {};
+      })
       .addMatcher(isFulfilled(getEntities), (state, action) => {
         const { data } = action.payload;
 
@@ -118,7 +135,7 @@ export const PhaseSlice = createEntitySlice({
           entities: data,
         };
       })
-      .addMatcher(isFulfilled(createEntity, updateEntity, partialUpdateEntity, createEntitySilent), (state, action) => {
+      .addMatcher(isFulfilled(createEntity, updateEntity, partialUpdateEntity, createEntitySilent, updateEntitySilent), (state, action) => {
         state.updating = false;
         state.loading = false;
         state.updateSuccess = true;
@@ -129,11 +146,22 @@ export const PhaseSlice = createEntitySlice({
         state.updateSuccess = false;
         state.loading = true;
       })
-      .addMatcher(isPending(createEntity, updateEntity, partialUpdateEntity, deleteEntity, createEntitySilent), state => {
-        state.errorMessage = null;
-        state.updateSuccess = false;
-        state.updating = true;
-      });
+      .addMatcher(
+        isPending(
+          createEntity,
+          updateEntity,
+          partialUpdateEntity,
+          deleteEntity,
+          deleteEntitySilent,
+          createEntitySilent,
+          updateEntitySilent
+        ),
+        state => {
+          state.errorMessage = null;
+          state.updateSuccess = false;
+          state.updating = true;
+        }
+      );
   },
 });
 

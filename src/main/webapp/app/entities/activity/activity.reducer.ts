@@ -102,6 +102,12 @@ export const deleteEntity = createAsyncThunk(
   { serializeError: serializeAxiosError }
 );
 
+export const deleteEntitySilent = createAsyncThunk(
+  'activity/delete_entity_silent',
+  async (id: string | number) => axios.delete<IActivity>(`${apiUrl}/${id}`),
+  { serializeError: serializeAxiosError }
+);
+
 // slice
 
 export const ActivitySlice = createEntitySlice({
@@ -114,6 +120,11 @@ export const ActivitySlice = createEntitySlice({
         state.entity = action.payload.data;
       })
       .addCase(deleteEntity.fulfilled, state => {
+        state.updating = false;
+        state.updateSuccess = true;
+        state.entity = {};
+      })
+      .addCase(deleteEntitySilent.fulfilled, state => {
         state.updating = false;
         state.updateSuccess = true;
         state.entity = {};
@@ -139,7 +150,15 @@ export const ActivitySlice = createEntitySlice({
         state.loading = true;
       })
       .addMatcher(
-        isPending(createEntity, updateEntity, partialUpdateEntity, deleteEntity, createEntitySilent, updateEntitySilent),
+        isPending(
+          createEntity,
+          updateEntity,
+          partialUpdateEntity,
+          deleteEntity,
+          deleteEntitySilent,
+          createEntitySilent,
+          updateEntitySilent
+        ),
         state => {
           state.errorMessage = null;
           state.updateSuccess = false;
