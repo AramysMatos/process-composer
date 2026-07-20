@@ -1,6 +1,8 @@
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
+import { faAnglesDown } from '@fortawesome/free-solid-svg-icons/faAnglesDown';
+import { faAnglesUp } from '@fortawesome/free-solid-svg-icons/faAnglesUp';
 import { faAsterisk } from '@fortawesome/free-solid-svg-icons/faAsterisk';
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
 import { faBell } from '@fortawesome/free-solid-svg-icons/faBell';
@@ -59,6 +61,8 @@ export const loadIcons = () => {
     faGithub,
     faArrowLeft,
     faArrowRight,
+    faAnglesDown,
+    faAnglesUp,
     faAsterisk,
     faBan,
     faBell,

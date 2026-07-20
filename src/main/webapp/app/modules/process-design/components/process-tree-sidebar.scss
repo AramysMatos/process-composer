@@ -134,6 +134,37 @@
     color: #6c757d;
   }
 
+  &__phases-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  &__phases-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    border-radius: 0.25rem;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(0, 0, 0, 0.06);
+      color: #0d6efd;
+    }
+
+    &:disabled {
+      color: #adb5bd;
+      cursor: not-allowed;
+    }
+  }
+
   &__row-actions {
     display: flex;
     align-items: center;

@@ -72,6 +72,8 @@ export const ProcessTreeSidebar = ({
 
   const phases = useMemo(() => sortById(phaseEntities.filter(phase => phase.process?.id === processId)), [phaseEntities, processId]);
 
+  const phaseIds = useMemo((): number[] => phases.flatMap(phase => (phase.id !== undefined ? [phase.id] : [])), [phases]);
+
   const activitiesByPhaseId = useMemo(() => {
     const grouped = new Map<number, IActivity[]>();
 
@@ -92,7 +94,8 @@ export const ProcessTreeSidebar = ({
       return;
     }
 
-    setExpandedPhaseIds(new Set(phases.map(phase => phase.id).filter((id): id is number => id !== undefined)));
+    const firstPhaseId = phases.find(phase => phase.id !== undefined)?.id;
+    setExpandedPhaseIds(firstPhaseId !== undefined ? new Set([firstPhaseId]) : new Set());
     expansionInitializedRef.current = true;
   }, [phases]);
 
@@ -127,6 +130,19 @@ export const ProcessTreeSidebar = ({
       return next;
     });
   };
+
+  const expandAllPhases = () => {
+    setExpandedPhaseIds(new Set(phaseIds));
+  };
+
+  const collapseAllPhases = () => {
+    setExpandedPhaseIds(new Set());
+  };
+
+  const allPhasesExpanded = phaseIds.length > 0 && phaseIds.every(phaseId => expandedPhaseIds.has(phaseId));
+  const allPhasesCollapsed = phaseIds.every(phaseId => !expandedPhaseIds.has(phaseId));
+  const expandAllPhasesLabel = translate('processComposerApp.processDesign.tree.expandAllPhases', 'Expand phases');
+  const collapseAllPhasesLabel = translate('processComposerApp.processDesign.tree.collapseAllPhases', 'Collapse phases');
 
   const renderPhaseNode = (phase: IPhase) => {
     if (!phase.id) {
@@ -272,6 +288,32 @@ export const ProcessTreeSidebar = ({
               <FontAwesomeIcon icon="sitemap" className="process-tree-sidebar__icon" />
               <span className="process-tree-sidebar__label-text">{processLabel}</span>
             </button>
+            {phases.length > 0 && (
+              <div className="process-tree-sidebar__phases-toolbar">
+                <button
+                  type="button"
+                  className="process-tree-sidebar__phases-action"
+                  onClick={expandAllPhases}
+                  disabled={allPhasesExpanded}
+                  title={expandAllPhasesLabel}
+                  aria-label={expandAllPhasesLabel}
+                  data-cy="sidebar-expand-all-phases"
+                >
+                  <FontAwesomeIcon icon="angles-down" />
+                </button>
+                <button
+                  type="button"
+                  className="process-tree-sidebar__phases-action"
+                  onClick={collapseAllPhases}
+                  disabled={allPhasesCollapsed}
+                  title={collapseAllPhasesLabel}
+                  aria-label={collapseAllPhasesLabel}
+                  data-cy="sidebar-collapse-all-phases"
+                >
+                  <FontAwesomeIcon icon="angles-up" />
+                </button>
+              </div>
+            )}
           </div>
 
           {processExpanded && (

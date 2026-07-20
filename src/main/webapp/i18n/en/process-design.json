@@ -63,6 +63,8 @@
         "collapseProcess": "Collapse process",
         "expandPhase": "Expand phase",
         "collapsePhase": "Collapse phase",
+        "expandAllPhases": "Expand phases",
+        "collapseAllPhases": "Collapse phases",
         "newActivity": "New activity",
         "newPhase": "New phase",
         "noPhases": "No phases defined yet",

@@ -63,6 +63,8 @@
         "collapseProcess": "Recolher processo",
         "expandPhase": "Expandir fase",
         "collapsePhase": "Recolher fase",
+        "expandAllPhases": "Expandir fases",
+        "collapseAllPhases": "Recolher fases",
         "newActivity": "Nova atividade",
         "newPhase": "Nova fase",
         "noPhases": "Nenhuma fase definida ainda",
