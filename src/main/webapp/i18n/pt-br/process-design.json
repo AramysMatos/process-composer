@@ -34,6 +34,16 @@
         },
         "phasesStep": {
           "title": "Fases",
+          "creationModeLabel": "Como deseja definir as fases?",
+          "creationModeBlank": "Criar do zero",
+          "creationModeFromProcess": "Clonar de processo existente",
+          "blankHint": "Adicione as fases que estruturarão este processo.",
+          "fromProcessHint": "Selecione um processo de origem e escolha quais fases e atividades serão clonadas para o novo processo.",
+          "sourceProcessLabel": "Processo de origem",
+          "sourceProcessPlaceholder": "Selecione um processo...",
+          "loadingProcesses": "Carregando processos...",
+          "noProcesses": "Nenhum processo disponível. Crie um processo primeiro ou use a criação manual de fases.",
+          "selectedCount": "{{count}} itens selecionados",
           "addPhase": "Adicionar fase",
           "moveUp": "Mover para cima",
           "moveDown": "Mover para baixo"
@@ -41,7 +51,9 @@
         "confirmStep": {
           "title": "Revisar e confirmar",
           "process": "Processo",
-          "phases": "Fases"
+          "phases": "Fases",
+          "sourceProcess": "Processo de origem",
+          "emptyPhase": "Fase vazia"
         },
         "actions": {
           "previous": "Anterior",
@@ -53,7 +65,9 @@
         "validation": {
           "processNameRequired": "O nome do processo é obrigatório.",
           "phaseNameRequired": "O nome da fase é obrigatório.",
-          "atLeastOnePhase": "Adicione pelo menos uma fase antes de continuar."
+          "atLeastOnePhase": "Adicione pelo menos uma fase antes de continuar.",
+          "sourceProcessRequired": "Selecione um processo de origem.",
+          "atLeastOneItemToClone": "Selecione pelo menos uma fase ou atividade para clonar."
         }
       },
       "tree": {

@@ -10,10 +10,13 @@ export interface ClonePhaseOptions {
   targetProcessId?: number | null;
   name?: string;
   copyActivities?: boolean;
+  activityIdsToClone?: number[];
+  activityIdMap?: Map<number, number>;
+  skipDependencyUpdate?: boolean;
 }
 
 export async function clonePhase(dispatch: AppDispatch, options: ClonePhaseOptions): Promise<number> {
-  const { sourcePhaseId, targetProcessId, name, copyActivities = true } = options;
+  const { sourcePhaseId, targetProcessId, name, copyActivities = true, activityIdsToClone, activityIdMap, skipDependencyUpdate } = options;
   const { data: source } = await dispatch(getPhase(sourcePhaseId)).unwrap();
 
   const copySuffix = ' (cópia)';
@@ -34,7 +37,17 @@ export async function clonePhase(dispatch: AppDispatch, options: ClonePhaseOptio
 
   if (copyActivities) {
     const activitiesResponse = await axios.get<IActivity[]>(`api/activities?phaseId=${sourcePhaseId}&eagerload=true`);
-    await cloneActivitiesForPhase(dispatch, activitiesResponse.data, newPhase.id);
+    const activitiesToClone =
+      activityIdsToClone !== undefined
+        ? activitiesResponse.data.filter(activity => activity.id !== undefined && activityIdsToClone.includes(activity.id))
+        : activitiesResponse.data;
+
+    if (activityIdsToClone === undefined || activitiesToClone.length > 0) {
+      await cloneActivitiesForPhase(dispatch, activitiesToClone, newPhase.id, {
+        activityIdMap,
+        skipDependencyUpdate,
+      });
+    }
   }
 
   return newPhase.id;

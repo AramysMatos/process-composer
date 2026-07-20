@@ -3,7 +3,11 @@ import axios from 'axios';
 import { AppDispatch } from 'app/config/store';
 import { createEntitySilent as createPhase } from 'app/entities/phase/phase.reducer';
 import { createEntity as createProcess, getEntity as getProcess } from 'app/entities/process/process.reducer';
-import { cloneActivitiesForPhase } from 'app/modules/process-design/clone-activities-for-phase';
+import {
+  applyClonedActivityDependencies,
+  cloneActivitiesForPhase,
+  ClonedActivityContext,
+} from 'app/modules/process-design/clone-activities-for-phase';
 import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
 
@@ -42,6 +46,8 @@ export async function duplicateProcess(dispatch: AppDispatch, processId: number)
   }
 
   const activitiesResponse = await axios.get<IActivity[]>('api/activities?eagerload=true');
+  const activityIdMap = new Map<number, number>();
+  const clonedActivities: ClonedActivityContext[] = [];
 
   for (const sourcePhase of sourcePhases) {
     if (!sourcePhase.id) {
@@ -54,8 +60,17 @@ export async function duplicateProcess(dispatch: AppDispatch, processId: number)
     }
 
     const sourceActivities = activitiesResponse.data.filter(activity => activity.phase?.id === sourcePhase.id);
-    await cloneActivitiesForPhase(dispatch, sourceActivities, newPhaseId);
+    await cloneActivitiesForPhase(dispatch, sourceActivities, newPhaseId, {
+      activityIdMap,
+      skipDependencyUpdate: true,
+    });
+
+    sourceActivities.forEach(sourceActivity => {
+      clonedActivities.push({ sourceActivity, targetPhaseId: newPhaseId });
+    });
   }
+
+  await applyClonedActivityDependencies(dispatch, clonedActivities, activityIdMap);
 
   return newProcessId;
 }

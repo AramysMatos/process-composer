@@ -52,7 +52,10 @@ describe('clonePhase', () => {
 
     expect(newId).toBe(50);
     expect(mockedAxiosGet).toHaveBeenCalledWith('api/activities?phaseId=10&eagerload=true');
-    expect(mockedCloneActivitiesForPhase).toHaveBeenCalledWith(dispatch, [{ id: 1, name: 'Activity 1' }], 50);
+    expect(mockedCloneActivitiesForPhase).toHaveBeenCalledWith(dispatch, [{ id: 1, name: 'Activity 1' }], 50, {
+      activityIdMap: undefined,
+      skipDependencyUpdate: undefined,
+    });
   });
 
   it('skips activity cloning when copyActivities is false', async () => {

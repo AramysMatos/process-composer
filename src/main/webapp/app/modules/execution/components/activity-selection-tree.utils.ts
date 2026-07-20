@@ -46,6 +46,9 @@ export const buildActivitySelectionTree = (
 export const getAllActivityIdsFromTree = (tree: ActivitySelectionTreePhase[]): number[] =>
   tree.flatMap(phase => phase.activities.map(activity => activity.id));
 
+export const getAllEmptyPhaseIdsFromTree = (tree: ActivitySelectionTreePhase[]): number[] =>
+  tree.filter(phase => phase.activities.length === 0).map(phase => phase.id);
+
 export const getPhaseSelectionState = (
   phase: ActivitySelectionTreePhase,
   selectedActivityIds: Set<number>

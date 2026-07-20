@@ -34,6 +34,16 @@
         },
         "phasesStep": {
           "title": "Phases",
+          "creationModeLabel": "How do you want to define phases?",
+          "creationModeBlank": "Create from scratch",
+          "creationModeFromProcess": "Clone from existing process",
+          "blankHint": "Add the phases that will structure this process.",
+          "fromProcessHint": "Select a source process and choose which phases and activities to clone into the new process.",
+          "sourceProcessLabel": "Source process",
+          "sourceProcessPlaceholder": "Select a process...",
+          "loadingProcesses": "Loading processes...",
+          "noProcesses": "No processes available. Create a process first or switch to manual phase creation.",
+          "selectedCount": "{{count}} items selected",
           "addPhase": "Add phase",
           "moveUp": "Move up",
           "moveDown": "Move down"
@@ -41,7 +51,9 @@
         "confirmStep": {
           "title": "Review and confirm",
           "process": "Process",
-          "phases": "Phases"
+          "phases": "Phases",
+          "sourceProcess": "Source process",
+          "emptyPhase": "Empty phase"
         },
         "actions": {
           "previous": "Previous",
@@ -53,7 +65,9 @@
         "validation": {
           "processNameRequired": "Process name is required.",
           "phaseNameRequired": "Phase name is required.",
-          "atLeastOnePhase": "Add at least one phase before continuing."
+          "atLeastOnePhase": "Add at least one phase before continuing.",
+          "sourceProcessRequired": "Select a source process.",
+          "atLeastOneItemToClone": "Select at least one phase or activity to clone."
         }
       },
       "tree": {

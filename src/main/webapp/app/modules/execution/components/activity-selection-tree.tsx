@@ -10,26 +10,32 @@ export interface ActivitySelectionTreeProps {
   phases: ActivitySelectionTreePhase[];
   selectedActivityIds: number[];
   onChange: (selectedActivityIds: number[]) => void;
+  selectedEmptyPhaseIds?: number[];
+  onEmptyPhaseIdsChange?: (selectedEmptyPhaseIds: number[]) => void;
   loading?: boolean;
 }
 
 const PhaseCheckbox = ({
   phase,
   selectedActivityIds,
+  selectedEmptyPhaseIds,
   onTogglePhase,
 }: {
   phase: ActivitySelectionTreePhase;
   selectedActivityIds: Set<number>;
+  selectedEmptyPhaseIds?: Set<number>;
   onTogglePhase: (phase: ActivitySelectionTreePhase, checked: boolean) => void;
 }) => {
   const checkboxRef = useRef<HTMLInputElement>(null);
-  const { checked, indeterminate } = getPhaseSelectionState(phase, selectedActivityIds);
+  const isEmptyPhase = phase.activities.length === 0;
+  const { checked: activityChecked, indeterminate } = getPhaseSelectionState(phase, selectedActivityIds);
+  const checked = isEmptyPhase ? Boolean(selectedEmptyPhaseIds?.has(phase.id)) : activityChecked;
 
   useEffect(() => {
     if (checkboxRef.current) {
-      checkboxRef.current.indeterminate = indeterminate;
+      checkboxRef.current.indeterminate = !isEmptyPhase && indeterminate;
     }
-  }, [indeterminate]);
+  }, [indeterminate, isEmptyPhase]);
 
   return (
     <Input
@@ -43,7 +49,14 @@ const PhaseCheckbox = ({
   );
 };
 
-export const ActivitySelectionTree = ({ phases, selectedActivityIds, onChange, loading = false }: ActivitySelectionTreeProps) => {
+export const ActivitySelectionTree = ({
+  phases,
+  selectedActivityIds,
+  onChange,
+  selectedEmptyPhaseIds = [],
+  onEmptyPhaseIdsChange,
+  loading = false,
+}: ActivitySelectionTreeProps) => {
   const [expandedPhaseIds, setExpandedPhaseIds] = useState<Set<number>>(() => new Set(phases.map(phase => phase.id)));
 
   useEffect(() => {
@@ -51,6 +64,7 @@ export const ActivitySelectionTree = ({ phases, selectedActivityIds, onChange, l
   }, [phases]);
 
   const selectedIds = new Set(selectedActivityIds);
+  const selectedEmptyIds = new Set(selectedEmptyPhaseIds);
 
   const togglePhaseExpansion = (phaseId: number) => {
     setExpandedPhaseIds(current => {
@@ -65,6 +79,21 @@ export const ActivitySelectionTree = ({ phases, selectedActivityIds, onChange, l
   };
 
   const togglePhase = (phase: ActivitySelectionTreePhase, checked: boolean) => {
+    if (phase.activities.length === 0) {
+      if (!onEmptyPhaseIdsChange) {
+        return;
+      }
+
+      const next = new Set(selectedEmptyIds);
+      if (checked) {
+        next.add(phase.id);
+      } else {
+        next.delete(phase.id);
+      }
+      onEmptyPhaseIdsChange(Array.from(next));
+      return;
+    }
+
     const phaseActivityIds = phase.activities.map(activity => activity.id);
     const next = new Set(selectedIds);
 
@@ -125,7 +154,12 @@ export const ActivitySelectionTree = ({ phases, selectedActivityIds, onChange, l
                 >
                   {isExpanded ? '▼' : '▶'}
                 </button>
-                <PhaseCheckbox phase={phase} selectedActivityIds={selectedIds} onTogglePhase={togglePhase} />
+                <PhaseCheckbox
+                  phase={phase}
+                  selectedActivityIds={selectedIds}
+                  selectedEmptyPhaseIds={selectedEmptyIds}
+                  onTogglePhase={togglePhase}
+                />
                 <Label for={`activity-tree-phase-${phase.id}`} className="activity-selection-tree__phase-label">
                   {phase.name}
                   <span className="text-muted fw-normal ms-1">({phase.activities.length})</span>
