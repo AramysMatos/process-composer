@@ -199,6 +199,7 @@ export const ProcessOverview = () => {
   const handlePhaseCreated = useCallback(
     (phaseId: number) => {
       dispatch(getPhaseEntities({}));
+      dispatch(getActivityEntities({ eagerload: true }));
       setOpenPhaseIds(current => new Set([...current, phaseId]));
     },
     [dispatch]

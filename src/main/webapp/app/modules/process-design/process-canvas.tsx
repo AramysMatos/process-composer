@@ -127,6 +127,7 @@ export const ProcessCanvas = () => {
   const handlePhaseCreated = useCallback(
     (_phaseId: number) => {
       dispatch(getPhaseEntities({}));
+      dispatch(getActivityEntities({ eagerload: true }));
     },
     [dispatch]
   );
