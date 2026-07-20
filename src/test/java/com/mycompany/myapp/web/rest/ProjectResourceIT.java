@@ -8,7 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.mycompany.myapp.IntegrationTest;
 import com.mycompany.myapp.domain.Project;
+import com.mycompany.myapp.domain.Task;
 import com.mycompany.myapp.repository.ProjectRepository;
+import com.mycompany.myapp.repository.TaskRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -61,6 +63,9 @@ class ProjectResourceIT {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Mock
     private ProjectRepository projectRepositoryMock;
@@ -449,5 +454,24 @@ class ProjectResourceIT {
         // Validate the database contains one less item
         List<Project> projectList = projectRepository.findAll();
         assertThat(projectList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    void deleteProjectWithTasks() throws Exception {
+        projectRepository.saveAndFlush(project);
+
+        Task task = new Task().name("Task in project").project(project);
+        taskRepository.saveAndFlush(task);
+
+        int databaseSizeBeforeDelete = projectRepository.findAll().size();
+        int taskCountBeforeDelete = taskRepository.findAll().size();
+
+        restProjectMockMvc
+            .perform(delete(ENTITY_API_URL_ID, project.getId()).accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        assertThat(projectRepository.findAll()).hasSize(databaseSizeBeforeDelete - 1);
+        assertThat(taskRepository.findAll()).hasSize(taskCountBeforeDelete - 1);
     }
 }

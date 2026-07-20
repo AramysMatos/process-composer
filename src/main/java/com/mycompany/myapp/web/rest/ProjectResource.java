@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Project;
 import com.mycompany.myapp.repository.ProjectRepository;
+import com.mycompany.myapp.service.TaskDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,9 +34,11 @@ public class ProjectResource {
     private String applicationName;
 
     private final ProjectRepository projectRepository;
+    private final TaskDeletionService taskDeletionService;
 
-    public ProjectResource(ProjectRepository projectRepository) {
+    public ProjectResource(ProjectRepository projectRepository, TaskDeletionService taskDeletionService) {
         this.projectRepository = projectRepository;
+        this.taskDeletionService = taskDeletionService;
     }
 
     /**
@@ -185,6 +188,7 @@ public class ProjectResource {
     @DeleteMapping("/projects/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         log.debug("REST request to delete Project : {}", id);
+        taskDeletionService.deleteTasksByProjectId(id);
         projectRepository.deleteById(id);
         return ResponseEntity
             .noContent()

@@ -17,6 +17,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface TaskRepository extends TaskRepositoryWithBagRelationships, JpaRepository<Task, Long> {
+    List<Task> findByProject_Id(Long projectId);
+
     default Optional<Task> findOneWithEagerRelationships(Long id) {
         return this.fetchBagRelationships(this.findOneWithToOneRelationships(id));
     }
