@@ -8,6 +8,7 @@ import { Translate } from 'react-jhipster';
 import { LIBRARY_ENTITY_CONFIGS, LIBRARY_TAB_TYPES, isLibraryTabType } from 'app/modules/library/library.config';
 import { LibraryMasterDetail } from 'app/modules/library/components/library-master-detail';
 import { LibraryActivitiesMasterDetail } from 'app/modules/library/components/library-activities-master-detail';
+import { LibraryPhasesMasterDetail } from 'app/modules/library/components/library-phases-master-detail';
 
 const NEW_ITEM_ID = 'new';
 
@@ -67,6 +68,8 @@ export const LibraryPage = () => {
             >
               {entityType === 'activities' ? (
                 <Translate contentKey="processComposerApp.library.tabs.activities">Activities</Translate>
+              ) : entityType === 'phases' ? (
+                <Translate contentKey="processComposerApp.library.tabs.phases">Phases</Translate>
               ) : (
                 <Translate contentKey={LIBRARY_ENTITY_CONFIGS[entityType].tabLabelKey} />
               )}
@@ -77,6 +80,8 @@ export const LibraryPage = () => {
 
       {activeType === 'activities' ? (
         <LibraryActivitiesMasterDetail selectedId={id} onSelectItem={handleSelectItem} />
+      ) : activeType === 'phases' ? (
+        <LibraryPhasesMasterDetail selectedId={id} onSelectItem={handleSelectItem} />
       ) : (
         <LibraryMasterDetail key={activeType} config={LIBRARY_ENTITY_CONFIGS[activeType]} selectedId={id} onSelectItem={handleSelectItem} />
       )}

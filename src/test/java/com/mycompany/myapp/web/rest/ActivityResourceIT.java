@@ -11,6 +11,7 @@ import com.mycompany.myapp.domain.Activity;
 import com.mycompany.myapp.domain.Phase;
 import com.mycompany.myapp.domain.Process;
 import com.mycompany.myapp.repository.ActivityRepository;
+import com.mycompany.myapp.repository.PhaseRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -57,6 +58,9 @@ class ActivityResourceIT {
 
     @Autowired
     private ActivityRepository activityRepository;
+
+    @Autowired
+    private PhaseRepository phaseRepository;
 
     @Mock
     private ActivityRepository activityRepositoryMock;
@@ -494,6 +498,23 @@ class ActivityResourceIT {
             .perform(get(ENTITY_API_URL).param("processId", process.getId().toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.[*].id").value(hasItem(processActivity.getId().intValue())))
+            .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    @Transactional
+    void getAllActivitiesByPhaseId() throws Exception {
+        Phase libraryPhase = phaseRepository.saveAndFlush(new Phase().name("Library phase"));
+        Phase otherPhase = phaseRepository.saveAndFlush(new Phase().name("Other phase"));
+
+        Activity phaseActivity = activityRepository.saveAndFlush(new Activity().name("Phase activity").phase(libraryPhase));
+        activityRepository.saveAndFlush(new Activity().name("Other phase activity").phase(otherPhase));
+        activityRepository.saveAndFlush(new Activity().name("Standalone activity"));
+
+        restActivityMockMvc
+            .perform(get(ENTITY_API_URL).param("phaseId", libraryPhase.getId().toString()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].id").value(hasItem(phaseActivity.getId().intValue())))
             .andExpect(jsonPath("$.length()").value(1));
     }
 }

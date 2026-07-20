@@ -20,7 +20,7 @@ const apiUrl = 'api/activities';
 
 export const getEntities = createAsyncThunk(
   'activity/fetch_entity_list',
-  async (params: IQueryParams & { eagerload?: boolean; library?: boolean; processId?: number } = {}) => {
+  async (params: IQueryParams & { eagerload?: boolean; library?: boolean; processId?: number; phaseId?: number } = {}) => {
     const queryParts: string[] = [];
     if (params.eagerload) {
       queryParts.push('eagerload=true');
@@ -30,6 +30,9 @@ export const getEntities = createAsyncThunk(
     }
     if (params.processId !== undefined) {
       queryParts.push(`processId=${params.processId}`);
+    }
+    if (params.phaseId !== undefined) {
+      queryParts.push(`phaseId=${params.phaseId}`);
     }
     queryParts.push(`cacheBuster=${new Date().getTime()}`);
     const requestUrl = `${apiUrl}?${queryParts.join('&')}`;

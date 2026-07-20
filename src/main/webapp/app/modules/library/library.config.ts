@@ -15,11 +15,11 @@ import { IQueryParams } from 'app/shared/reducers/reducer.utils';
 
 export type LibraryEntityType = 'roles' | 'tools' | 'guidelines' | 'artifacts' | 'templates';
 
-export type LibraryTabType = LibraryEntityType | 'activities';
+export type LibraryTabType = LibraryEntityType | 'activities' | 'phases';
 
 export const LIBRARY_ENTITY_TYPES: LibraryEntityType[] = ['roles', 'tools', 'guidelines', 'artifacts', 'templates'];
 
-export const LIBRARY_TAB_TYPES: LibraryTabType[] = [...LIBRARY_ENTITY_TYPES, 'activities'];
+export const LIBRARY_TAB_TYPES: LibraryTabType[] = [...LIBRARY_ENTITY_TYPES, 'activities', 'phases'];
 
 export const isLibraryEntityType = (value: string | undefined): value is LibraryEntityType =>
   value !== undefined && LIBRARY_ENTITY_TYPES.includes(value as LibraryEntityType);

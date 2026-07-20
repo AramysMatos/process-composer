@@ -156,14 +156,23 @@ public class ActivityResource {
     public List<Activity> getAllActivities(
         @RequestParam(required = false, defaultValue = "false") boolean eagerload,
         @RequestParam(required = false) Boolean library,
-        @RequestParam(required = false) Long processId
+        @RequestParam(required = false) Long processId,
+        @RequestParam(required = false) Long phaseId
     ) {
-        log.debug("REST request to get all Activities (library={}, processId={}, eagerload={})", library, processId, eagerload);
+        log.debug(
+            "REST request to get all Activities (library={}, processId={}, phaseId={}, eagerload={})",
+            library,
+            processId,
+            phaseId,
+            eagerload
+        );
         List<Activity> activities;
         if (Boolean.TRUE.equals(library)) {
             activities = activityRepository.findByPhaseIsNull();
         } else if (processId != null) {
             activities = activityRepository.findByPhase_Process_Id(processId);
+        } else if (phaseId != null) {
+            activities = activityRepository.findByPhase_Id(phaseId);
         } else if (eagerload) {
             return activityRepository.findAllWithEagerRelationships();
         } else {

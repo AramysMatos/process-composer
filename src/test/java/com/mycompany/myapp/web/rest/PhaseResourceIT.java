@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.mycompany.myapp.IntegrationTest;
 import com.mycompany.myapp.domain.Activity;
 import com.mycompany.myapp.domain.Phase;
+import com.mycompany.myapp.domain.Process;
 import com.mycompany.myapp.repository.ActivityRepository;
 import com.mycompany.myapp.repository.PhaseRepository;
 import java.util.ArrayList;
@@ -424,5 +425,39 @@ class PhaseResourceIT {
 
         assertThat(phaseRepository.findAll()).hasSize(databaseSizeBeforeDelete - 1);
         assertThat(activityRepository.findAll()).hasSize(activityCountBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    void getAllLibraryPhases() throws Exception {
+        Phase libraryPhase = phaseRepository.saveAndFlush(new Phase().name("Library phase"));
+        Process process = ProcessResourceIT.createEntity(em);
+        em.persist(process);
+        phaseRepository.saveAndFlush(new Phase().name("Process phase").process(process));
+
+        restPhaseMockMvc
+            .perform(get(ENTITY_API_URL).param("library", "true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].id").value(hasItem(libraryPhase.getId().intValue())))
+            .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    @Transactional
+    void getAllPhasesByProcessId() throws Exception {
+        Process process = ProcessResourceIT.createEntity(em);
+        em.persist(process);
+        Process otherProcess = ProcessResourceIT.createUpdatedEntity(em);
+        em.persist(otherProcess);
+
+        Phase processPhase = phaseRepository.saveAndFlush(new Phase().name("Process phase").process(process));
+        phaseRepository.saveAndFlush(new Phase().name("Other process phase").process(otherProcess));
+        phaseRepository.saveAndFlush(new Phase().name("Library phase"));
+
+        restPhaseMockMvc
+            .perform(get(ENTITY_API_URL).param("processId", process.getId().toString()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].id").value(hasItem(processPhase.getId().intValue())))
+            .andExpect(jsonPath("$.length()").value(1));
     }
 }

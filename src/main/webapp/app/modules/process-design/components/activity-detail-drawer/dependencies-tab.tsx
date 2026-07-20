@@ -10,6 +10,7 @@ import { toComboboxItems } from './activity-drawer.utils';
 export interface DependenciesTabProps {
   draft: IActivity;
   processId?: number;
+  phaseId?: number;
   onChange: (updated: IActivity) => void;
   disabled?: boolean;
 }
@@ -23,27 +24,32 @@ const sortActivities = (activities: IActivity[]): IActivity[] =>
     return (left.id ?? 0) - (right.id ?? 0);
   });
 
-export const DependenciesTab = ({ draft, processId, onChange, disabled = false }: DependenciesTabProps) => {
+export const DependenciesTab = ({ draft, processId, phaseId, onChange, disabled = false }: DependenciesTabProps) => {
   const phaseEntities = useAppSelector(state => state.phase.entities);
   const activityEntities = useAppSelector(state => state.activity.entities);
 
   const activityOptions = useMemo(() => {
-    if (!processId || !draft.id) {
+    if (!draft.id || (!processId && phaseId === undefined)) {
       return [];
     }
 
-    const processPhaseIds = new Set(
-      phaseEntities.filter(phase => phase.process?.id === processId).flatMap(phase => (phase.id !== undefined ? [phase.id] : []))
-    );
+    const eligibleActivities = activityEntities.filter(activity => {
+      if (activity.id === draft.id || activity.phase?.id === undefined) {
+        return false;
+      }
 
-    return toComboboxItems(
-      sortActivities(
-        activityEntities.filter(
-          activity => activity.id !== draft.id && activity.phase?.id !== undefined && processPhaseIds.has(activity.phase.id)
-        )
-      )
-    );
-  }, [activityEntities, draft.id, phaseEntities, processId]);
+      if (processId) {
+        const processPhaseIds = new Set(
+          phaseEntities.filter(phase => phase.process?.id === processId).flatMap(phase => (phase.id !== undefined ? [phase.id] : []))
+        );
+        return processPhaseIds.has(activity.phase.id);
+      }
+
+      return activity.phase.id === phaseId;
+    });
+
+    return toComboboxItems(sortActivities(eligibleActivities));
+  }, [activityEntities, draft.id, phaseEntities, phaseId, processId]);
 
   return (
     <div className="activity-detail-drawer__dependencies-tab">
@@ -61,7 +67,7 @@ export const DependenciesTab = ({ draft, processId, onChange, disabled = false }
               predecessorActivities: selected.map(item => ({ id: item.id, name: item.name })),
             })
           }
-          disabled={disabled || !processId}
+          disabled={disabled || (!processId && phaseId === undefined)}
           data-cy="activity-drawer-predecessors"
         />
       </FormGroup>
@@ -80,7 +86,7 @@ export const DependenciesTab = ({ draft, processId, onChange, disabled = false }
               subActivities: selected.map(item => ({ id: item.id, name: item.name })),
             })
           }
-          disabled={disabled || !processId}
+          disabled={disabled || (!processId && phaseId === undefined)}
           data-cy="activity-drawer-sub-activities"
         />
       </FormGroup>

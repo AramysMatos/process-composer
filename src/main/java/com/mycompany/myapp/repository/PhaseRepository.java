@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 public interface PhaseRepository extends JpaRepository<Phase, Long> {
     List<Phase> findByProcess_Id(Long processId);
 
+    List<Phase> findByProcessIsNull();
+
     default Optional<Phase> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }

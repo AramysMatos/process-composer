@@ -16,13 +16,28 @@
         "guidelines": "Guidelines",
         "artifacts": "Artifacts",
         "templates": "Templates",
-        "activities": "Activities"
+        "activities": "Activities",
+        "phases": "Phases"
       },
       "activities": {
         "createLabel": "New activity",
         "createTitle": "New activity",
         "selectItem": "Select an activity from the list or create a new one",
         "createError": "Could not create the activity."
+      },
+      "phases": {
+        "createLabel": "New phase",
+        "createTitle": "New phase",
+        "selectItem": "Select a phase from the list or create a new one",
+        "createError": "Could not create the phase.",
+        "duplicate": "Duplicate phase",
+        "duplicateSuccess": "Phase duplicated successfully.",
+        "duplicateError": "Could not duplicate the phase.",
+        "newActivity": "New activity",
+        "noActivities": "No activities in this phase yet.",
+        "activitiesCount": "{{count}} activities",
+        "backToPhase": "Back to phase",
+        "activityCreateError": "Could not create the activity."
       },
       "usedIn": {
         "title": "Used in activities",

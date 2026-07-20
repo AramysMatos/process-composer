@@ -1,0 +1,104 @@
+.phase-detail-editor {
+  &--panel {
+    .phase-detail-editor__panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .phase-detail-editor__sections {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phase-detail-editor__section {
+      padding: 1.25rem 0;
+      border-bottom: 1px solid #dee2e6;
+
+      &:first-child {
+        padding-top: 0;
+      }
+
+      &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+    }
+
+    .phase-detail-editor__section-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #6c757d;
+      margin-bottom: 1rem;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+  }
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+}
+
+.phase-activities-section {
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__list-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    &:hover .entity-delete-button {
+      opacity: 1;
+    }
+  }
+
+  &__list-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      background: #f8f9fa;
+    }
+  }
+
+  &__list-item-name {
+    font-weight: 500;
+  }
+
+  &__list-item-description {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+  }
+
+  &__editor {
+    margin-top: -0.5rem;
+  }
+}

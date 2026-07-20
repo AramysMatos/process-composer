@@ -19,12 +19,14 @@ import { RolesTab } from './roles-tab';
 type ActivitySection = 'general' | 'roles' | 'resources' | 'artifacts' | 'dependencies';
 
 const ALL_SECTIONS: ActivitySection[] = ['general', 'roles', 'resources', 'artifacts', 'dependencies'];
-const LIBRARY_SECTIONS: ActivitySection[] = ['general', 'roles', 'resources', 'artifacts'];
+const LIBRARY_SECTIONS: ActivitySection[] = ['general', 'roles', 'resources', 'artifacts', 'dependencies'];
 
 export interface ActivityDetailEditorProps {
   activityId: number | null;
   processId?: number;
+  phaseId?: number;
   variant?: 'drawer' | 'panel';
+  embeddedInPhase?: boolean;
   showHeaderActions?: boolean;
   onSaved?: () => void;
   onDelete?: (activity: { id: number; name: string }) => void;
@@ -36,7 +38,9 @@ export interface ActivityDetailEditorProps {
 export const ActivityDetailEditor = ({
   activityId,
   processId,
+  phaseId,
   variant = 'drawer',
+  embeddedInPhase = false,
   showHeaderActions = true,
   onSaved,
   onDelete,
@@ -102,7 +106,7 @@ export const ActivityDetailEditor = ({
 
     try {
       const original = originalSnapshotRef.current;
-      if (original && !isLibraryContext) {
+      if (original) {
         const dependencyUpdates = collectDependencySyncUpdates(original, draft, activitiesById);
         for (const relatedActivity of dependencyUpdates) {
           await dispatch(updateEntitySilent(toActivityUpdatePayload(relatedActivity))).unwrap();
@@ -160,6 +164,7 @@ export const ActivityDetailEditor = ({
 
   const isLoading = loading || (!draft && activityId !== null);
   const isBusy = updating || deleting || duplicating;
+  const effectivePhaseId = phaseId ?? draft?.phase?.id;
 
   const menuItems: CardActionItem[] = [];
   if (draft?.id && showHeaderActions) {
@@ -215,7 +220,7 @@ export const ActivityDetailEditor = ({
       case 'artifacts':
         return <ArtifactsTab draft={draft} onChange={setDraft} disabled={updating} />;
       case 'dependencies':
-        return <DependenciesTab draft={draft} processId={processId} onChange={setDraft} disabled={updating} />;
+        return <DependenciesTab draft={draft} processId={processId} phaseId={effectivePhaseId} onChange={setDraft} disabled={updating} />;
       default:
         return null;
     }
@@ -233,12 +238,21 @@ export const ActivityDetailEditor = ({
 
   return (
     <div className={`activity-detail-editor activity-detail-editor--${variant}`} data-cy="activity-detail-editor">
-      {variant === 'panel' && draft && (
+      {variant === 'panel' && draft && !embeddedInPhase && (
         <div className="activity-detail-editor__panel-header">
           <div className="activity-detail-editor__title-block">
             <h2 className="h5 mb-0">{draft.name}</h2>
             {draft.phase?.name && <p className="text-muted small mb-0">{draft.phase.name}</p>}
           </div>
+          {menuItems.length > 0 && <CardActionsMenu data-cy={`activityEditorMenu-${draft.id}`} items={menuItems} />}
+        </div>
+      )}
+
+      {variant === 'panel' && draft && embeddedInPhase && (
+        <div className="activity-detail-editor__embedded-header mb-3 d-flex justify-content-between align-items-start gap-2">
+          <h4 className="activity-detail-editor__embedded-title h6 mb-0" data-cy="phase-activity-name">
+            {draft.name}
+          </h4>
           {menuItems.length > 0 && <CardActionsMenu data-cy={`activityEditorMenu-${draft.id}`} items={menuItems} />}
         </div>
       )}
@@ -305,7 +319,7 @@ export const ActivityDetailEditor = ({
             <TabPane tabId="roles">{renderSectionContent('roles')}</TabPane>
             <TabPane tabId="resources">{renderSectionContent('resources')}</TabPane>
             <TabPane tabId="artifacts">{renderSectionContent('artifacts')}</TabPane>
-            {!isLibraryContext && <TabPane tabId="dependencies">{renderSectionContent('dependencies')}</TabPane>}
+            <TabPane tabId="dependencies">{renderSectionContent('dependencies')}</TabPane>
           </TabContent>
 
           <div className="activity-detail-drawer__footer">

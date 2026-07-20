@@ -75,6 +75,15 @@
 
 .activity-detail-editor {
   &--panel {
+    .activity-detail-editor__panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
     .activity-detail-editor__sections {
       display: flex;
       flex-direction: column;

@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -146,13 +147,30 @@ public class PhaseResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of phases in body.
      */
     @GetMapping("/phases")
-    public List<Phase> getAllPhases(@RequestParam(required = false, defaultValue = "false") boolean eagerload) {
-        log.debug("REST request to get all Phases");
-        if (eagerload) {
+    public List<Phase> getAllPhases(
+        @RequestParam(required = false, defaultValue = "false") boolean eagerload,
+        @RequestParam(required = false) Boolean library,
+        @RequestParam(required = false) Long processId
+    ) {
+        log.debug("REST request to get all Phases (library={}, processId={}, eagerload={})", library, processId, eagerload);
+        List<Phase> phases;
+        if (Boolean.TRUE.equals(library)) {
+            phases = phaseRepository.findByProcessIsNull();
+        } else if (processId != null) {
+            phases = phaseRepository.findByProcess_Id(processId);
+        } else if (eagerload) {
             return phaseRepository.findAllWithEagerRelationships();
         } else {
             return phaseRepository.findAll();
         }
+
+        if (eagerload) {
+            return phases
+                .stream()
+                .map(phase -> phaseRepository.findOneWithEagerRelationships(phase.getId()).orElse(phase))
+                .collect(Collectors.toList());
+        }
+        return phases;
     }
 
     /**

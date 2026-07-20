@@ -16,13 +16,28 @@
         "guidelines": "Diretrizes",
         "artifacts": "Artefatos",
         "templates": "Modelos",
-        "activities": "Atividades"
+        "activities": "Atividades",
+        "phases": "Fases"
       },
       "activities": {
         "createLabel": "Nova atividade",
         "createTitle": "Nova atividade",
         "selectItem": "Selecione uma atividade da lista ou crie uma nova",
         "createError": "Não foi possível criar a atividade."
+      },
+      "phases": {
+        "createLabel": "Nova fase",
+        "createTitle": "Nova fase",
+        "selectItem": "Selecione uma fase da lista ou crie uma nova",
+        "createError": "Não foi possível criar a fase.",
+        "duplicate": "Duplicar fase",
+        "duplicateSuccess": "Fase duplicada com sucesso.",
+        "duplicateError": "Não foi possível duplicar a fase.",
+        "newActivity": "Nova atividade",
+        "noActivities": "Nenhuma atividade nesta fase ainda.",
+        "activitiesCount": "{{count}} atividades",
+        "backToPhase": "Voltar para a fase",
+        "activityCreateError": "Não foi possível criar a atividade."
       },
       "usedIn": {
         "title": "Usado em atividades",

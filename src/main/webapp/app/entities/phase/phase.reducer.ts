@@ -18,10 +18,24 @@ const apiUrl = 'api/phases';
 
 // Actions
 
-export const getEntities = createAsyncThunk('phase/fetch_entity_list', async ({ page, size, sort }: IQueryParams) => {
-  const requestUrl = `${apiUrl}?cacheBuster=${new Date().getTime()}`;
-  return axios.get<IPhase[]>(requestUrl);
-});
+export const getEntities = createAsyncThunk(
+  'phase/fetch_entity_list',
+  async (params: IQueryParams & { eagerload?: boolean; library?: boolean; processId?: number } = {}) => {
+    const queryParts: string[] = [];
+    if (params.eagerload) {
+      queryParts.push('eagerload=true');
+    }
+    if (params.library) {
+      queryParts.push('library=true');
+    }
+    if (params.processId !== undefined) {
+      queryParts.push(`processId=${params.processId}`);
+    }
+    queryParts.push(`cacheBuster=${new Date().getTime()}`);
+    const requestUrl = `${apiUrl}?${queryParts.join('&')}`;
+    return axios.get<IPhase[]>(requestUrl);
+  }
+);
 
 export const getEntity = createAsyncThunk(
   'phase/fetch_entity',

@@ -13,12 +13,13 @@ type CreateMode = 'blank' | 'clone';
 export interface CreateActivityModalProps {
   isOpen: boolean;
   phaseId: number | null;
-  processId: number;
+  processId?: number;
+  phaseName?: string;
   onClose: () => void;
   onCreated?: (activityId: number) => void;
 }
 
-export const CreateActivityModal = ({ isOpen, phaseId, processId, onClose, onCreated }: CreateActivityModalProps) => {
+export const CreateActivityModal = ({ isOpen, phaseId, processId, phaseName, onClose, onCreated }: CreateActivityModalProps) => {
   const dispatch = useAppDispatch();
   const activityUpdating = useAppSelector(state => state.activity.updating);
   const phaseEntities = useAppSelector(state => state.phase.entities);
@@ -31,7 +32,10 @@ export const CreateActivityModal = ({ isOpen, phaseId, processId, onClose, onCre
   const [loadingSources, setLoadingSources] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const phase = phaseId !== null ? phaseEntities.find(item => item.id === phaseId) : undefined;
+  const phase =
+    phaseId !== null
+      ? phaseEntities.find(item => item.id === phaseId) ?? (phaseName ? { id: phaseId, name: phaseName } : undefined)
+      : undefined;
 
   useEffect(() => {
     if (!isOpen) {
@@ -48,12 +52,15 @@ export const CreateActivityModal = ({ isOpen, phaseId, processId, onClose, onCre
       setLoadingSources(true);
       try {
         const cacheBuster = new Date().getTime();
-        const [libraryResponse, processResponse] = await Promise.all([
-          axios.get<IActivity[]>(`api/activities?library=true&cacheBuster=${cacheBuster}`),
-          axios.get<IActivity[]>(`api/activities?processId=${processId}&cacheBuster=${cacheBuster}`),
-        ]);
+        const libraryResponse = await axios.get<IActivity[]>(`api/activities?library=true&cacheBuster=${cacheBuster}`);
         setLibraryActivities(libraryResponse.data);
-        setProcessActivities(processResponse.data);
+
+        if (processId) {
+          const processResponse = await axios.get<IActivity[]>(`api/activities?processId=${processId}&cacheBuster=${cacheBuster}`);
+          setProcessActivities(processResponse.data);
+        } else {
+          setProcessActivities([]);
+        }
       } catch {
         setSubmitError(translate('processComposerApp.processDesign.canvas.cloneLoadError', 'Could not load activity sources.'));
       } finally {
