@@ -4,22 +4,7 @@ import { FieldError } from 'react-hook-form';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFieldArray, useForm } from 'react-hook-form';
-import {
-  Alert,
-  Button,
-  Card,
-  CardBody,
-  Col,
-  Form,
-  FormFeedback,
-  FormGroup,
-  Input,
-  Label,
-  ListGroup,
-  ListGroupItem,
-  Row,
-  Spinner,
-} from 'reactstrap';
+import { Alert, Button, Card, CardBody, Form, FormFeedback, FormGroup, Input, Label, ListGroup, ListGroupItem, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 
@@ -450,9 +435,15 @@ export const ProcessWizard = () => {
 
                       return (
                         <ListGroupItem key={field.id} className="process-wizard__phase-item">
-                          <div className="process-wizard__phase-order">
+                          <div className="process-wizard__phase-grid">
                             <span className="process-wizard__phase-position">{index + 1}</span>
-                            <div className="btn-group-vertical btn-group-sm">
+                            <Label className="process-wizard__phase-name-label" for={`phase-name-${index}`}>
+                              <Translate contentKey="processComposerApp.phase.name">Name</Translate>
+                            </Label>
+                            <Label className="process-wizard__phase-description-label" for={`phase-description-${index}`}>
+                              <Translate contentKey="processComposerApp.phase.description">Description</Translate>
+                            </Label>
+                            <div className="btn-group-vertical btn-group-sm process-wizard__phase-move">
                               <Button
                                 type="button"
                                 color="light"
@@ -474,67 +465,55 @@ export const ProcessWizard = () => {
                                 ▼
                               </Button>
                             </div>
+                            <div className="process-wizard__phase-name">
+                              <Input
+                                id={`phase-name-${index}`}
+                                type="text"
+                                invalid={Boolean(errors.phases?.[index]?.name)}
+                                data-cy={`phaseName-${index}`}
+                                innerRef={phaseNameField.ref}
+                                name={phaseNameField.name}
+                                onChange={event => {
+                                  void phaseNameField.onChange(event);
+                                }}
+                                onBlur={event => {
+                                  void phaseNameField.onBlur(event);
+                                }}
+                              />
+                              {errors.phases?.[index]?.name && (
+                                <FormFeedback>
+                                  <Translate contentKey={errors.phases[index].name.message}>{errors.phases[index].name.message}</Translate>
+                                </FormFeedback>
+                              )}
+                            </div>
+                            <div className="process-wizard__phase-description">
+                              <Input
+                                id={`phase-description-${index}`}
+                                type="text"
+                                data-cy={`phaseDescription-${index}`}
+                                innerRef={phaseDescriptionField.ref}
+                                name={phaseDescriptionField.name}
+                                onChange={event => {
+                                  void phaseDescriptionField.onChange(event);
+                                }}
+                                onBlur={event => {
+                                  void phaseDescriptionField.onBlur(event);
+                                }}
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              color="danger"
+                              outline
+                              size="sm"
+                              className="process-wizard__phase-remove"
+                              disabled={fields.length === 1}
+                              onClick={() => remove(index)}
+                              data-cy={`removePhase-${index}`}
+                            >
+                              <FontAwesomeIcon icon="trash" />
+                            </Button>
                           </div>
-                          <div className="flex-grow-1">
-                            <Row className="g-3">
-                              <Col md={5}>
-                                <Label for={`phase-name-${index}`}>
-                                  <Translate contentKey="processComposerApp.phase.name">Name</Translate>
-                                </Label>
-                                <Input
-                                  id={`phase-name-${index}`}
-                                  type="text"
-                                  invalid={Boolean(errors.phases?.[index]?.name)}
-                                  data-cy={`phaseName-${index}`}
-                                  innerRef={phaseNameField.ref}
-                                  name={phaseNameField.name}
-                                  onChange={event => {
-                                    void phaseNameField.onChange(event);
-                                  }}
-                                  onBlur={event => {
-                                    void phaseNameField.onBlur(event);
-                                  }}
-                                />
-                                {errors.phases?.[index]?.name && (
-                                  <FormFeedback>
-                                    <Translate contentKey={errors.phases[index].name.message}>
-                                      {errors.phases[index].name.message}
-                                    </Translate>
-                                  </FormFeedback>
-                                )}
-                              </Col>
-                              <Col md={7}>
-                                <Label for={`phase-description-${index}`}>
-                                  <Translate contentKey="processComposerApp.phase.description">Description</Translate>
-                                </Label>
-                                <Input
-                                  id={`phase-description-${index}`}
-                                  type="text"
-                                  data-cy={`phaseDescription-${index}`}
-                                  innerRef={phaseDescriptionField.ref}
-                                  name={phaseDescriptionField.name}
-                                  onChange={event => {
-                                    void phaseDescriptionField.onChange(event);
-                                  }}
-                                  onBlur={event => {
-                                    void phaseDescriptionField.onBlur(event);
-                                  }}
-                                />
-                              </Col>
-                            </Row>
-                          </div>
-                          <Button
-                            type="button"
-                            color="danger"
-                            outline
-                            size="sm"
-                            className="process-wizard__phase-remove"
-                            disabled={fields.length === 1}
-                            onClick={() => remove(index)}
-                            data-cy={`removePhase-${index}`}
-                          >
-                            <FontAwesomeIcon icon="trash" />
-                          </Button>
                         </ListGroupItem>
                       );
                     })}
