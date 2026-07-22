@@ -1,19 +1,19 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import './entity-delete-button.scss';
+import './entity-save-to-library-button.scss';
 
-export interface EntityDeleteButtonProps {
+export interface EntitySaveToLibraryButtonProps {
   label: string;
   onClick: () => void;
   disabled?: boolean;
   'data-cy'?: string;
 }
 
-export const EntityDeleteButton = ({ label, onClick, disabled = false, 'data-cy': dataCy }: EntityDeleteButtonProps) => (
+export const EntitySaveToLibraryButton = ({ label, onClick, disabled = false, 'data-cy': dataCy }: EntitySaveToLibraryButtonProps) => (
   <button
     type="button"
-    className="entity-delete-button"
+    className="entity-save-to-library-button"
     aria-label={label}
     title={label}
     disabled={disabled}
@@ -23,8 +23,8 @@ export const EntityDeleteButton = ({ label, onClick, disabled = false, 'data-cy'
       onClick();
     }}
   >
-    <FontAwesomeIcon icon="trash" />
+    <FontAwesomeIcon icon="book" />
   </button>
 );
 
-export default EntityDeleteButton;
+export default EntitySaveToLibraryButton;

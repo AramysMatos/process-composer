@@ -1,4 +1,4 @@
-.entity-edit-button {
+.entity-save-to-library-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -15,8 +15,8 @@
   transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
 
   &:hover:not(:disabled) {
-    color: #0d6efd;
-    background-color: rgba(13, 110, 253, 0.1);
+    color: #198754;
+    background-color: rgba(25, 135, 84, 0.1);
   }
 
   &:disabled {
@@ -25,8 +25,8 @@
   }
 }
 
-.process-overview__phase-header:hover .entity-edit-button,
-.process-overview__activity-row:hover .entity-edit-button,
-.process-tree-sidebar__row:hover .entity-edit-button {
+.process-overview__phase-header:hover .entity-save-to-library-button,
+.process-overview__activity-row:hover .entity-save-to-library-button,
+.process-tree-sidebar__row:hover .entity-save-to-library-button {
   opacity: 1;
 }

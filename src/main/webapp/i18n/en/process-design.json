@@ -105,7 +105,16 @@
         "deleteActivity": "Delete activity"
       },
       "edit": {
-        "editPhase": "Edit phase"
+        "editPhase": "Edit phase",
+        "editActivity": "Edit activity"
+      },
+      "library": {
+        "saveActivity": "Save activity to library",
+        "savePhase": "Save phase to library",
+        "saveActivitySuccess": "Activity saved to library.",
+        "saveActivityError": "Could not save the activity to the library.",
+        "savePhaseSuccess": "Phase saved to library.",
+        "savePhaseError": "Could not save the phase to the library."
       },
       "phaseDrawer": {
         "title": "Phase details",

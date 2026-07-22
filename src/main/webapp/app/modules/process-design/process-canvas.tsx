@@ -22,6 +22,7 @@ import { PhaseDetailDrawer } from 'app/modules/process-design/components/phase-d
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
+import { useSaveToLibrary } from 'app/modules/process-design/hooks/use-save-to-library';
 
 export const ProcessCanvas = () => {
   const dispatch = useAppDispatch();
@@ -162,6 +163,8 @@ export const ProcessCanvas = () => {
     onActivityDeleted: handleActivityDeleted,
   });
 
+  const { isSaving, handleSaveActivityToLibrary, handleSavePhaseToLibrary } = useSaveToLibrary();
+
   const handleRequestDeleteProcess = useCallback(() => {
     setDeleteProcessTarget(true);
   }, []);
@@ -290,6 +293,9 @@ export const ProcessCanvas = () => {
             onCreateActivity={handleCreateActivity}
             onCreatePhase={handleCreatePhase}
             onEditPhase={handleEditPhase}
+            onSavePhaseToLibrary={handleSavePhaseToLibrary}
+            onSaveActivityToLibrary={handleSaveActivityToLibrary}
+            isSavingToLibrary={isSaving}
             onDeletePhase={(phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })}
             onDeleteActivity={(activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
           />

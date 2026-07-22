@@ -35,10 +35,12 @@ import { CreateActivityModal } from 'app/modules/process-design/components/creat
 import { CreatePhaseModal } from 'app/modules/process-design/components/create-phase-modal';
 import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
 import { EntityEditButton } from 'app/modules/process-design/components/entity-edit-button';
+import { EntitySaveToLibraryButton } from 'app/modules/process-design/components/entity-save-to-library-button';
 import { PhaseDetailDrawer } from 'app/modules/process-design/components/phase-detail-drawer/phase-detail-drawer';
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
+import { useSaveToLibrary } from 'app/modules/process-design/hooks/use-save-to-library';
 import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
 
 /** Rota `/processos/:id/canvas` registrada em `routes.tsx`. */
@@ -245,6 +247,8 @@ export const ProcessOverview = () => {
     onPhaseDeleted: handlePhaseDeleted,
   });
 
+  const { isSaving, handleSaveActivityToLibrary, handleSavePhaseToLibrary } = useSaveToLibrary();
+
   const handleRequestDeleteProcess = useCallback(() => {
     setDeleteProcessTarget(true);
   }, []);
@@ -331,6 +335,19 @@ export const ProcessOverview = () => {
               </span>
             </span>
           </button>
+          <EntityEditButton
+            label={translate('processComposerApp.processDesign.edit.editActivity', 'Edit activity')}
+            onClick={() => handleSelectActivity(activity.id as number)}
+            data-cy={`edit-activity-${activity.id}`}
+          />
+          <EntitySaveToLibraryButton
+            label={translate('processComposerApp.processDesign.library.saveActivity', 'Save activity to library')}
+            onClick={() => {
+              void handleSaveActivityToLibrary(activity.id as number);
+            }}
+            disabled={isSaving('activity', activity.id as number)}
+            data-cy={`save-activity-to-library-${activity.id}`}
+          />
           <EntityDeleteButton
             label={translate('processComposerApp.processDesign.delete.deleteActivity', 'Delete activity')}
             onClick={() =>
@@ -390,6 +407,14 @@ export const ProcessOverview = () => {
                 label={translate('processComposerApp.processDesign.edit.editPhase', 'Edit phase')}
                 onClick={() => handleEditPhase(phase.id as number)}
                 data-cy={`edit-phase-${phase.id}`}
+              />
+              <EntitySaveToLibraryButton
+                label={translate('processComposerApp.processDesign.library.savePhase', 'Save phase to library')}
+                onClick={() => {
+                  void handleSavePhaseToLibrary(phase.id as number);
+                }}
+                disabled={isSaving('phase', phase.id as number)}
+                data-cy={`save-phase-to-library-${phase.id}`}
               />
               <EntityDeleteButton
                 label={translate('processComposerApp.processDesign.delete.deletePhase', 'Delete phase')}
@@ -502,6 +527,9 @@ export const ProcessOverview = () => {
             onCreateActivity={handleCreateActivity}
             onCreatePhase={handleCreatePhase}
             onEditPhase={handleEditPhase}
+            onSavePhaseToLibrary={handleSavePhaseToLibrary}
+            onSaveActivityToLibrary={handleSaveActivityToLibrary}
+            isSavingToLibrary={isSaving}
             onDeletePhase={(phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })}
             onDeleteActivity={(activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
           />

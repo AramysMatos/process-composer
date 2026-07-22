@@ -15,6 +15,7 @@ export const EntityEditButton = ({ label, onClick, disabled = false, 'data-cy': 
     type="button"
     className="entity-edit-button"
     aria-label={label}
+    title={label}
     disabled={disabled}
     data-cy={dataCy}
     onClick={event => {

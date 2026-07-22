@@ -13,6 +13,7 @@ import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
 import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
 import { EntityEditButton } from 'app/modules/process-design/components/entity-edit-button';
+import { EntitySaveToLibraryButton } from 'app/modules/process-design/components/entity-save-to-library-button';
 
 export interface ProcessTreeSidebarProps {
   processId: number;
@@ -20,6 +21,9 @@ export interface ProcessTreeSidebarProps {
   onCreateActivity: (phaseId: number) => void;
   onCreatePhase: () => void;
   onEditPhase?: (phaseId: number) => void;
+  onSavePhaseToLibrary?: (phaseId: number) => void;
+  onSaveActivityToLibrary?: (activityId: number) => void;
+  isSavingToLibrary?: (type: 'activity' | 'phase', id: number) => boolean;
   onDeletePhase?: (phaseId: number, name: string, activityCount: number) => void;
   onDeleteActivity?: (activityId: number, name: string) => void;
   selectedActivityId?: number;
@@ -42,6 +46,9 @@ export const ProcessTreeSidebar = ({
   onCreateActivity,
   onCreatePhase,
   onEditPhase,
+  onSavePhaseToLibrary,
+  onSaveActivityToLibrary,
+  isSavingToLibrary,
   onDeletePhase,
   onDeleteActivity,
   selectedActivityId,
@@ -146,6 +153,10 @@ export const ProcessTreeSidebar = ({
   const allPhasesCollapsed = phaseIds.every(phaseId => !expandedPhaseIds.has(phaseId));
   const expandAllPhasesLabel = translate('processComposerApp.processDesign.tree.expandAllPhases', 'Expand phases');
   const collapseAllPhasesLabel = translate('processComposerApp.processDesign.tree.collapseAllPhases', 'Collapse phases');
+  const processToggleLabel = processExpanded
+    ? translate('processComposerApp.processDesign.tree.collapseProcess', 'Collapse process')
+    : translate('processComposerApp.processDesign.tree.expandProcess', 'Expand process');
+  const newPhaseLabel = translate('processComposerApp.processDesign.tree.newPhase', 'New phase');
 
   const renderPhaseNode = (phase: IPhase) => {
     if (!phase.id) {
@@ -154,6 +165,10 @@ export const ProcessTreeSidebar = ({
 
     const phaseExpanded = expandedPhaseIds.has(phase.id);
     const phaseActivities = activitiesByPhaseId.get(phase.id) ?? [];
+    const phaseToggleLabel = phaseExpanded
+      ? translate('processComposerApp.processDesign.tree.collapsePhase', 'Collapse phase')
+      : translate('processComposerApp.processDesign.tree.expandPhase', 'Expand phase');
+    const newActivityLabel = translate('processComposerApp.processDesign.tree.newActivity', 'New activity');
 
     return (
       <li key={phase.id} className="process-tree-sidebar__node" role="treeitem" aria-expanded={phaseExpanded}>
@@ -162,11 +177,8 @@ export const ProcessTreeSidebar = ({
             type="button"
             className="process-tree-sidebar__toggle"
             onClick={() => togglePhaseExpanded(phase.id as number)}
-            aria-label={
-              phaseExpanded
-                ? translate('processComposerApp.processDesign.tree.collapsePhase', 'Collapse phase')
-                : translate('processComposerApp.processDesign.tree.expandPhase', 'Expand phase')
-            }
+            aria-label={phaseToggleLabel}
+            title={phaseToggleLabel}
           >
             <FontAwesomeIcon icon={phaseExpanded ? 'chevron-down' : 'chevron-right'} />
           </button>
@@ -178,13 +190,23 @@ export const ProcessTreeSidebar = ({
             <FontAwesomeIcon icon="layer-group" className="process-tree-sidebar__icon" />
             <span className="process-tree-sidebar__label-text">{phase.name}</span>
           </button>
-          {(onEditPhase || onDeletePhase) && (
+          {(onEditPhase || onSavePhaseToLibrary || onDeletePhase) && (
             <div className="process-tree-sidebar__row-actions">
               {onEditPhase && (
                 <EntityEditButton
                   label={translate('processComposerApp.processDesign.edit.editPhase', 'Edit phase')}
                   onClick={() => onEditPhase(phase.id as number)}
                   data-cy={`sidebar-edit-phase-${phase.id}`}
+                />
+              )}
+              {onSavePhaseToLibrary && (
+                <EntitySaveToLibraryButton
+                  label={translate('processComposerApp.processDesign.library.savePhase', 'Save phase to library')}
+                  onClick={() => {
+                    void onSavePhaseToLibrary(phase.id as number);
+                  }}
+                  disabled={isSavingToLibrary?.('phase', phase.id as number)}
+                  data-cy={`sidebar-save-phase-to-library-${phase.id}`}
                 />
               )}
               {onDeletePhase && (
@@ -225,13 +247,32 @@ export const ProcessTreeSidebar = ({
                       <FontAwesomeIcon icon="circle" className="process-tree-sidebar__icon" />
                       <span className="process-tree-sidebar__label-text">{activity.name}</span>
                     </button>
-                    {onDeleteActivity && (
+                    {(onSaveActivityToLibrary || onDeleteActivity) && (
                       <div className="process-tree-sidebar__row-actions">
-                        <EntityDeleteButton
-                          label={translate('processComposerApp.processDesign.delete.deleteActivity', 'Delete activity')}
-                          onClick={() => onDeleteActivity(activity.id as number, activity.name ?? '')}
-                          data-cy={`sidebar-delete-activity-${activity.id}`}
-                        />
+                        {onSaveActivityToLibrary && (
+                          <>
+                            <EntityEditButton
+                              label={translate('processComposerApp.processDesign.edit.editActivity', 'Edit activity')}
+                              onClick={() => onSelectActivity(activity.id as number)}
+                              data-cy={`sidebar-edit-activity-${activity.id}`}
+                            />
+                            <EntitySaveToLibraryButton
+                              label={translate('processComposerApp.processDesign.library.saveActivity', 'Save activity to library')}
+                              onClick={() => {
+                                void onSaveActivityToLibrary(activity.id as number);
+                              }}
+                              disabled={isSavingToLibrary?.('activity', activity.id as number)}
+                              data-cy={`sidebar-save-activity-to-library-${activity.id}`}
+                            />
+                          </>
+                        )}
+                        {onDeleteActivity && (
+                          <EntityDeleteButton
+                            label={translate('processComposerApp.processDesign.delete.deleteActivity', 'Delete activity')}
+                            onClick={() => onDeleteActivity(activity.id as number, activity.name ?? '')}
+                            data-cy={`sidebar-delete-activity-${activity.id}`}
+                          />
+                        )}
                       </div>
                     )}
                   </div>
@@ -240,7 +281,12 @@ export const ProcessTreeSidebar = ({
             })}
 
             <li>
-              <button type="button" className="process-tree-sidebar__create" onClick={() => onCreateActivity(phase.id as number)}>
+              <button
+                type="button"
+                className="process-tree-sidebar__create"
+                onClick={() => onCreateActivity(phase.id as number)}
+                title={newActivityLabel}
+              >
                 <FontAwesomeIcon icon="plus" />
                 <Translate contentKey="processComposerApp.processDesign.tree.newActivity">New activity</Translate>
               </button>
@@ -284,11 +330,8 @@ export const ProcessTreeSidebar = ({
               type="button"
               className="process-tree-sidebar__toggle"
               onClick={() => setProcessExpanded(current => !current)}
-              aria-label={
-                processExpanded
-                  ? translate('processComposerApp.processDesign.tree.collapseProcess', 'Collapse process')
-                  : translate('processComposerApp.processDesign.tree.expandProcess', 'Expand process')
-              }
+              aria-label={processToggleLabel}
+              title={processToggleLabel}
             >
               <FontAwesomeIcon icon={processExpanded ? 'chevron-down' : 'chevron-right'} />
             </button>
@@ -339,7 +382,7 @@ export const ProcessTreeSidebar = ({
               {phases.map(renderPhaseNode)}
 
               <li>
-                <button type="button" className="process-tree-sidebar__create" onClick={onCreatePhase}>
+                <button type="button" className="process-tree-sidebar__create" onClick={onCreatePhase} title={newPhaseLabel}>
                   <FontAwesomeIcon icon="plus" />
                   <Translate contentKey="processComposerApp.processDesign.tree.newPhase">New phase</Translate>
                 </button>
