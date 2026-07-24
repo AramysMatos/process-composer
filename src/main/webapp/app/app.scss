@@ -4,6 +4,12 @@
 @import '~@fontsource/inter/600.css';
 @import '~bootstrap/scss/bootstrap';
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   background: $light;
   margin: 0;
@@ -32,9 +38,17 @@ a {
 
 .app-container {
   box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
   .view-container {
     width: 100%;
-    height: calc(100% - 40px);
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 1rem;
@@ -42,7 +56,10 @@ a {
       padding: 1rem;
     }
     .view-routes {
-      min-height: 100%;
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
 
       > div {
         height: auto;
@@ -51,7 +68,12 @@ a {
     }
 
     .jh-card {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
       height: auto;
+      margin-bottom: 0;
       overflow: visible;
     }
   }

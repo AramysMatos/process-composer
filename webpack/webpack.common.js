@@ -61,7 +61,11 @@ module.exports = async options => {
       resolve: {
         extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
         modules: ['node_modules'],
-        alias: utils.mapTypescriptAliasToWebpackAlias(),
+        alias: {
+          ...utils.mapTypescriptAliasToWebpackAlias(),
+          // lucide-react ESM barrel breaks webpack 5.74 (buildMeta undefined); use CJS entry.
+          'lucide-react': path.resolve(__dirname, '../node_modules/lucide-react/dist/cjs/lucide-react.js'),
+        },
         fallback: {
           path: require.resolve('path-browserify'),
         },

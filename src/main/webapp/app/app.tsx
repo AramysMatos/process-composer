@@ -10,9 +10,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getSession } from 'app/shared/reducers/authentication';
 import { getProfile } from 'app/shared/reducers/application-profile';
-import { setLocale } from 'app/shared/reducers/locale';
 import Header from 'app/shared/layout/header/header';
-import Footer from 'app/shared/layout/footer/footer';
+import AppSidebarNav, { useSidebarCollapsed } from 'app/shared/layout/app-sidebar-nav';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import ErrorBoundary from 'app/shared/error/error-boundary';
 import { AUTHORITIES } from 'app/config/constants';
@@ -22,6 +21,7 @@ const baseHref = document.querySelector('base').getAttribute('href').replace(/\/
 
 export const App = () => {
   const dispatch = useAppDispatch();
+  const [sidebarCollapsed, setSidebarCollapsed] = useSidebarCollapsed();
 
   useEffect(() => {
     dispatch(getSession());
@@ -35,28 +35,33 @@ export const App = () => {
   const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
   const isOpenAPIEnabled = useAppSelector(state => state.applicationProfile.isOpenAPIEnabled);
 
-  const paddingTop = '60px';
   return (
     <BrowserRouter basename={baseHref}>
-      <div className="app-container" style={{ paddingTop }}>
-        <ToastContainer position={toast.POSITION.TOP_LEFT} className="toastify-container" toastClassName="toastify-toast" />
+      <div className={`app-shell${sidebarCollapsed ? ' app-shell--sidebar-collapsed' : ''}`}>
         <ErrorBoundary>
-          <Header
+          <AppSidebarNav
             isAuthenticated={isAuthenticated}
             isAdmin={isAdmin}
-            currentLocale={currentLocale}
-            ribbonEnv={ribbonEnv}
-            isInProduction={isInProduction}
             isOpenAPIEnabled={isOpenAPIEnabled}
+            currentLocale={currentLocale}
+            collapsed={sidebarCollapsed}
+            onCollapsedChange={setSidebarCollapsed}
           />
         </ErrorBoundary>
-        <div className="container-fluid view-container" id="app-view-container">
-          <Card className="jh-card">
+        <div className="app-shell__main">
+          <div className="app-container">
+            <ToastContainer position={toast.POSITION.TOP_LEFT} className="toastify-container" toastClassName="toastify-toast" />
             <ErrorBoundary>
-              <AppRoutes />
+              <Header ribbonEnv={ribbonEnv} isInProduction={isInProduction} />
             </ErrorBoundary>
-          </Card>
-          <Footer />
+            <div className="container-fluid view-container" id="app-view-container">
+              <Card className="jh-card">
+                <ErrorBoundary>
+                  <AppRoutes />
+                </ErrorBoundary>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </BrowserRouter>
