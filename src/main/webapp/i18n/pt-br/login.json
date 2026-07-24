@@ -1,11 +1,23 @@
 {
   "login": {
     "title": "Autenticação",
+    "welcome": {
+      "title": "Bem-vindo de volta",
+      "subtitle": "Acesse sua conta para continuar especificando processos e gerando tarefas."
+    },
     "form": {
+      "email": "E-mail",
+      "email.placeholder": "voce@empresa.com",
+      "email.required": "O e-mail é obrigatório.",
       "password": "Senha",
-      "password.placeholder": "Sua senha",
-      "rememberme": "Manter-me logado",
+      "password.placeholder": "Digite sua senha",
+      "password.required": "A senha é obrigatória.",
+      "rememberme": "Manter conectado",
       "button": "Entrar"
+    },
+    "footer": {
+      "new": "Novo por aqui?",
+      "requestAccess": "Solicitar acesso"
     },
     "messages": {
       "error": {
@@ -13,7 +25,7 @@
       }
     },
     "password": {
-      "forgot": "Esqueceu sua senha?"
+      "forgot": "Esqueci minha senha"
     }
   }
 }

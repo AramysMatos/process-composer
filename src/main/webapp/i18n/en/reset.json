@@ -1,9 +1,16 @@
 {
   "reset": {
+    "footer": {
+      "backToLogin": "Back to sign in"
+    },
     "request": {
       "title": "Reset your password",
+      "welcome": {
+        "title": "Forgot your password?",
+        "subtitle": "Enter the email you used to register. We will send instructions to create a new password."
+      },
       "form": {
-        "button": "Reset password"
+        "button": "Send instructions"
       },
       "messages": {
         "info": "Enter the email address you used to register",
@@ -12,6 +19,10 @@
     },
     "finish": {
       "title": "Reset password",
+      "welcome": {
+        "title": "Create new password",
+        "subtitle": "Choose a new password to access your account."
+      },
       "form": {
         "button": "Validate new password"
       },

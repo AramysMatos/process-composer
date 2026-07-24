@@ -1,9 +1,16 @@
 {
   "reset": {
+    "footer": {
+      "backToLogin": "Voltar ao login"
+    },
     "request": {
       "title": "Nova senha",
+      "welcome": {
+        "title": "Esqueceu sua senha?",
+        "subtitle": "Informe o e-mail usado no cadastro. Enviaremos instruções para criar uma nova senha."
+      },
       "form": {
-        "button": "Criar nova senha"
+        "button": "Enviar instruções"
       },
       "messages": {
         "info": "Informe endereço de e-mail utilizado no cadastro",
@@ -12,6 +19,10 @@
     },
     "finish": {
       "title": "Criar nova senha",
+      "welcome": {
+        "title": "Criar nova senha",
+        "subtitle": "Escolha uma nova senha para acessar sua conta."
+      },
       "form": {
         "button": "Validar nova senha"
       },

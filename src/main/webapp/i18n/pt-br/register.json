@@ -1,6 +1,14 @@
 {
   "register": {
     "title": "Cadastro",
+    "welcome": {
+      "title": "Solicitar acesso",
+      "subtitle": "Crie sua conta para especificar processos e gerar tarefas de projeto."
+    },
+    "footer": {
+      "hasAccount": "Já tem conta?",
+      "signIn": "Entrar"
+    },
     "form": {
       "button": "Cadastrar"
     },

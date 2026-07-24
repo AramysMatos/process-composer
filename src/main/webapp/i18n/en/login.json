@@ -1,11 +1,23 @@
 {
   "login": {
     "title": "Sign in",
+    "welcome": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to continue specifying processes and generating tasks."
+    },
     "form": {
+      "email": "Email",
+      "email.placeholder": "you@company.com",
+      "email.required": "Email is required.",
       "password": "Password",
-      "password.placeholder": "Your password",
-      "rememberme": "Remember me",
+      "password.placeholder": "Enter your password",
+      "password.required": "Password is required.",
+      "rememberme": "Keep me signed in",
       "button": "Sign in"
+    },
+    "footer": {
+      "new": "New here?",
+      "requestAccess": "Request access"
     },
     "messages": {
       "error": {
@@ -13,7 +25,7 @@
       }
     },
     "password": {
-      "forgot": "Did you forget your password?"
+      "forgot": "Forgot your password?"
     }
   }
 }

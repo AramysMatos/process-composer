@@ -1,6 +1,14 @@
 {
   "register": {
     "title": "Registration",
+    "welcome": {
+      "title": "Request access",
+      "subtitle": "Create your account to specify processes and generate project tasks."
+    },
+    "footer": {
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
     "form": {
       "button": "Register"
     },

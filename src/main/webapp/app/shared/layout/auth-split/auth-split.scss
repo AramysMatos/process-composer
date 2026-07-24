@@ -1,0 +1,197 @@
+@import '../../../bootstrap-variables';
+
+.auth-split {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  min-height: 100vh;
+  font-family: $font-family-sans-serif;
+  color: $body-color;
+
+  &__hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem 3.5rem;
+    background: #0f0b1e;
+    color: #f4f2fb;
+  }
+
+  &__flow-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  &__flow-node {
+    stroke: #4b3f8c;
+    fill: none;
+    stroke-width: 1.5;
+    opacity: 0.55;
+  }
+
+  &__flow-link {
+    stroke: #4b3f8c;
+    stroke-width: 1;
+    fill: none;
+    opacity: 0.35;
+  }
+
+  &__flow-hero-path {
+    stroke: #8a6bff;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: auth-split-draw 1.6s 0.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+
+  &__flow-hero-shape {
+    stroke: #8a6bff;
+    stroke-width: 3;
+    fill: none;
+    opacity: 0;
+    animation: auth-split-fade-in 0.6s 1.7s ease forwards;
+  }
+
+  &__flow-dot {
+    fill: #8a6bff;
+    opacity: 0;
+    animation: auth-split-fade-in 0.4s 1.9s ease forwards;
+  }
+
+  &__hero-brand {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  &__hero-logo {
+    flex-shrink: 0;
+  }
+
+  &__hero-copy {
+    position: relative;
+    z-index: 2;
+    max-width: 420px;
+
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin: 0 0 12px;
+      letter-spacing: -0.01em;
+      white-space: pre-line;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #9c94be;
+    }
+  }
+
+  &__panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem;
+    background: #f8f6fc;
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 28rem;
+
+    &--wide {
+      max-width: 32rem;
+    }
+  }
+
+  &__panel-title {
+    font-size: 1.5rem;
+    font-weight: $headings-font-weight;
+    margin-bottom: 0.5rem;
+  }
+
+  &__panel-sub {
+    margin-bottom: 1.5rem;
+  }
+
+  &__footer {
+    margin-top: 1.5rem;
+    margin-bottom: 0;
+    text-align: center;
+    font-size: 0.875rem;
+  }
+
+  &__row-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &__remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 0.875rem;
+    color: $secondary;
+    cursor: pointer;
+  }
+
+  &__strength {
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 860px) {
+    grid-template-columns: 1fr;
+
+    &__hero {
+      display: none;
+    }
+
+    &__panel {
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__flow-hero-path,
+    &__flow-hero-shape,
+    &__flow-dot {
+      animation: none;
+      opacity: 1;
+      stroke-dashoffset: 0;
+    }
+  }
+}
+
+@keyframes auth-split-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes auth-split-fade-in {
+  to {
+    opacity: 1;
+  }
+}
