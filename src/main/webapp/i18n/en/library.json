@@ -10,6 +10,12 @@
       "createTitle": "New item",
       "notFound": "No items found",
       "selectItem": "Select an item from the list or create a new one",
+      "systemTemplate": "Template",
+      "clone": "Clone",
+      "saveAsSystemTemplate": "Save as system template",
+      "audit": {
+        "createdBy": "Created by {{user}}"
+      },
       "tabs": {
         "roles": "Roles",
         "tools": "Tools",

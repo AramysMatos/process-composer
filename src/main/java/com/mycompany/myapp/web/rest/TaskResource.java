@@ -2,6 +2,8 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Task;
 import com.mycompany.myapp.repository.TaskRepository;
+import com.mycompany.myapp.service.EntityAccessService;
+import com.mycompany.myapp.service.ReferenceAccessValidator;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,9 +35,17 @@ public class TaskResource {
     private String applicationName;
 
     private final TaskRepository taskRepository;
+    private final EntityAccessService entityAccessService;
+    private final ReferenceAccessValidator referenceAccessValidator;
 
-    public TaskResource(TaskRepository taskRepository) {
+    public TaskResource(
+        TaskRepository taskRepository,
+        EntityAccessService entityAccessService,
+        ReferenceAccessValidator referenceAccessValidator
+    ) {
         this.taskRepository = taskRepository;
+        this.entityAccessService = entityAccessService;
+        this.referenceAccessValidator = referenceAccessValidator;
     }
 
     /**
@@ -51,6 +61,8 @@ public class TaskResource {
         if (task.getId() != null) {
             throw new BadRequestAlertException("A new task cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        entityAccessService.prepareForCreate(task);
+        referenceAccessValidator.validateTaskReferences(task);
         Task result = taskRepository.save(task);
         return ResponseEntity
             .created(new URI("/api/tasks/" + result.getId()))
@@ -79,9 +91,12 @@ public class TaskResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!taskRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+        Task existing = taskRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
+        entityAccessService.preserveOwnerOnUpdate(existing, task);
+        referenceAccessValidator.validateTaskReferences(task);
 
         Task result = taskRepository.save(task);
         return ResponseEntity
@@ -112,13 +127,11 @@ public class TaskResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!taskRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         Optional<Task> result = taskRepository
             .findById(task.getId())
             .map(existingTask -> {
+                entityAccessService.assertCanWrite(existingTask);
+                referenceAccessValidator.validateTaskReferences(task);
                 if (task.getName() != null) {
                     existingTask.setName(task.getName());
                 }
@@ -151,11 +164,17 @@ public class TaskResource {
     @GetMapping("/tasks")
     public List<Task> getAllTasks(@RequestParam(required = false, defaultValue = "false") boolean eagerload) {
         log.debug("REST request to get all Tasks");
-        if (eagerload) {
-            return taskRepository.findAllWithEagerRelationships();
-        } else {
+        if (entityAccessService.isAdmin()) {
+            if (eagerload) {
+                return taskRepository.findAllWithEagerRelationships();
+            }
             return taskRepository.findAll();
         }
+        List<Task> tasks = taskRepository.findAllVisibleToUser(entityAccessService.getCurrentUserId());
+        if (eagerload) {
+            return taskRepository.fetchBagRelationships(tasks);
+        }
+        return tasks;
     }
 
     /**
@@ -168,6 +187,7 @@ public class TaskResource {
     public ResponseEntity<Task> getTask(@PathVariable Long id) {
         log.debug("REST request to get Task : {}", id);
         Optional<Task> task = taskRepository.findOneWithEagerRelationships(id);
+        task.ifPresent(entityAccessService::assertCanRead);
         return ResponseUtil.wrapOrNotFound(task);
     }
 
@@ -180,6 +200,10 @@ public class TaskResource {
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         log.debug("REST request to delete Task : {}", id);
+        Task existing = taskRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
         taskRepository.deleteById(id);
         return ResponseEntity
             .noContent()

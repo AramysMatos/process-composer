@@ -42,4 +42,13 @@ public interface TaskRepository extends TaskRepositoryWithBagRelationships, JpaR
 
     @Query("select task from Task task left join fetch task.project where task.id =:id")
     Optional<Task> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @Query("SELECT t FROM Task t WHERE t.owner IS NULL OR t.owner.id = :userId")
+    List<Task> findAllVisibleToUser(@Param("userId") Long userId);
+
+    @Query("SELECT t FROM Task t WHERE t.id = :id AND (t.owner IS NULL OR t.owner.id = :userId)")
+    Optional<Task> findVisibleToUser(@Param("id") Long id, @Param("userId") Long userId);
+
+    @Query("SELECT t FROM Task t WHERE t.project.id = :projectId AND (t.owner IS NULL OR t.owner.id = :userId)")
+    List<Task> findByProjectIdVisibleToUser(@Param("projectId") Long projectId, @Param("userId") Long userId);
 }

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20260804120000-1" author="dev">
+        <addColumn tableName="roles">
+            <column name="owner_id" type="bigint"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="created_date" type="${datetimeType}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="${datetimeType}"/>
+        </addColumn>
+        <addColumn tableName="tools">
+            <column name="owner_id" type="bigint"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="created_date" type="${datetimeType}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="${datetimeType}"/>
+        </addColumn>
+        <addColumn tableName="guidelines">
+            <column name="owner_id" type="bigint"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="created_date" type="${datetimeType}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="${datetimeType}"/>
+        </addColumn>
+        <addColumn tableName="artifacts">
+            <column name="owner_id" type="bigint"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="created_date" type="${datetimeType}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="${datetimeType}"/>
+        </addColumn>
+        <addColumn tableName="templates">
+            <column name="owner_id" type="bigint"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="created_date" type="${datetimeType}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="${datetimeType}"/>
+        </addColumn>
+        <addColumn tableName="process">
+            <column name="owner_id" type="bigint"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="created_date" type="${datetimeType}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="${datetimeType}"/>
+        </addColumn>
+        <addColumn tableName="phase">
+            <column name="owner_id" type="bigint"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="created_date" type="${datetimeType}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="${datetimeType}"/>
+        </addColumn>
+        <addColumn tableName="activity">
+            <column name="owner_id" type="bigint"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="created_date" type="${datetimeType}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="${datetimeType}"/>
+        </addColumn>
+        <addColumn tableName="project">
+            <column name="owner_id" type="bigint"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="created_date" type="${datetimeType}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="${datetimeType}"/>
+        </addColumn>
+        <addColumn tableName="task">
+            <column name="owner_id" type="bigint"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="created_date" type="${datetimeType}"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="${datetimeType}"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20260804120000-2" author="dev">
+        <addForeignKeyConstraint
+            baseTableName="roles"
+            baseColumnNames="owner_id"
+            constraintName="fk_roles_owner_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="tools"
+            baseColumnNames="owner_id"
+            constraintName="fk_tools_owner_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="guidelines"
+            baseColumnNames="owner_id"
+            constraintName="fk_guidelines_owner_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="artifacts"
+            baseColumnNames="owner_id"
+            constraintName="fk_artifacts_owner_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="templates"
+            baseColumnNames="owner_id"
+            constraintName="fk_templates_owner_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="process"
+            baseColumnNames="owner_id"
+            constraintName="fk_process_owner_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="phase"
+            baseColumnNames="owner_id"
+            constraintName="fk_phase_owner_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="activity"
+            baseColumnNames="owner_id"
+            constraintName="fk_activity_owner_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="project"
+            baseColumnNames="owner_id"
+            constraintName="fk_project_owner_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="task"
+            baseColumnNames="owner_id"
+            constraintName="fk_task_owner_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="20260804120000-3" author="dev">
+        <createIndex tableName="roles" indexName="idx_roles_owner_id"><column name="owner_id"/></createIndex>
+        <createIndex tableName="tools" indexName="idx_tools_owner_id"><column name="owner_id"/></createIndex>
+        <createIndex tableName="guidelines" indexName="idx_guidelines_owner_id"><column name="owner_id"/></createIndex>
+        <createIndex tableName="artifacts" indexName="idx_artifacts_owner_id"><column name="owner_id"/></createIndex>
+        <createIndex tableName="templates" indexName="idx_templates_owner_id"><column name="owner_id"/></createIndex>
+        <createIndex tableName="process" indexName="idx_process_owner_id"><column name="owner_id"/></createIndex>
+        <createIndex tableName="phase" indexName="idx_phase_owner_id"><column name="owner_id"/></createIndex>
+        <createIndex tableName="activity" indexName="idx_activity_owner_id"><column name="owner_id"/></createIndex>
+        <createIndex tableName="project" indexName="idx_project_owner_id"><column name="owner_id"/></createIndex>
+        <createIndex tableName="task" indexName="idx_task_owner_id"><column name="owner_id"/></createIndex>
+    </changeSet>
+
+    <changeSet id="20260804120000-4" author="dev">
+        <update tableName="roles"><column name="created_by" value="system"/><where>created_by IS NULL</where></update>
+        <update tableName="tools"><column name="created_by" value="system"/><where>created_by IS NULL</where></update>
+        <update tableName="guidelines"><column name="created_by" value="system"/><where>created_by IS NULL</where></update>
+        <update tableName="artifacts"><column name="created_by" value="system"/><where>created_by IS NULL</where></update>
+        <update tableName="templates"><column name="created_by" value="system"/><where>created_by IS NULL</where></update>
+        <update tableName="process"><column name="created_by" value="system"/><where>created_by IS NULL</where></update>
+        <update tableName="phase"><column name="created_by" value="system"/><where>created_by IS NULL</where></update>
+        <update tableName="activity"><column name="created_by" value="system"/><where>created_by IS NULL</where></update>
+        <update tableName="project"><column name="created_by" value="system"/><where>created_by IS NULL</where></update>
+        <update tableName="task"><column name="created_by" value="system"/><where>created_by IS NULL</where></update>
+    </changeSet>
+</databaseChangeLog>

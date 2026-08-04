@@ -11,6 +11,7 @@ import { IGuidelines, defaultValue as guidelinesDefaultValue } from 'app/shared/
 import { IRoles, defaultValue as rolesDefaultValue } from 'app/shared/model/roles.model';
 import { ITemplates, defaultValue as templatesDefaultValue } from 'app/shared/model/templates.model';
 import { ITools, defaultValue as toolsDefaultValue } from 'app/shared/model/tools.model';
+import { IOwnedEntity } from 'app/shared/model/owned-entity.model';
 import { IQueryParams } from 'app/shared/reducers/reducer.utils';
 
 export type LibraryEntityType = 'roles' | 'tools' | 'guidelines' | 'artifacts' | 'templates';
@@ -32,7 +33,7 @@ export interface LibraryActivityRef {
   relationLabelKey: string;
 }
 
-export interface LibraryEntityBase {
+export interface LibraryEntityBase extends IOwnedEntity {
   id?: number;
   name?: string | null;
   description?: string | null;

@@ -2,6 +2,8 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Artifacts;
 import com.mycompany.myapp.repository.ArtifactsRepository;
+import com.mycompany.myapp.service.EntityAccessService;
+import com.mycompany.myapp.service.LibraryCloneService;
 import com.mycompany.myapp.service.LibraryEntityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -34,12 +36,20 @@ public class ArtifactsResource {
     private String applicationName;
 
     private final ArtifactsRepository artifactsRepository;
-
     private final LibraryEntityDeletionService libraryEntityDeletionService;
+    private final EntityAccessService entityAccessService;
+    private final LibraryCloneService libraryCloneService;
 
-    public ArtifactsResource(ArtifactsRepository artifactsRepository, LibraryEntityDeletionService libraryEntityDeletionService) {
+    public ArtifactsResource(
+        ArtifactsRepository artifactsRepository,
+        LibraryEntityDeletionService libraryEntityDeletionService,
+        EntityAccessService entityAccessService,
+        LibraryCloneService libraryCloneService
+    ) {
         this.artifactsRepository = artifactsRepository;
         this.libraryEntityDeletionService = libraryEntityDeletionService;
+        this.entityAccessService = entityAccessService;
+        this.libraryCloneService = libraryCloneService;
     }
 
     /**
@@ -55,7 +65,7 @@ public class ArtifactsResource {
         if (artifacts.getId() != null) {
             throw new BadRequestAlertException("A new artifacts cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Artifacts result = artifactsRepository.save(artifacts);
+        Artifacts result = artifactsRepository.save(entityAccessService.prepareForCreate(artifacts));
         return ResponseEntity
             .created(new URI("/api/artifacts/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -85,9 +95,11 @@ public class ArtifactsResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!artifactsRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+        Artifacts existing = artifactsRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
+        entityAccessService.preserveOwnerOnUpdate(existing, artifacts);
 
         Artifacts result = artifactsRepository.save(artifacts);
         return ResponseEntity
@@ -120,13 +132,10 @@ public class ArtifactsResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!artifactsRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         Optional<Artifacts> result = artifactsRepository
             .findById(artifacts.getId())
             .map(existingArtifacts -> {
+                entityAccessService.assertCanWrite(existingArtifacts);
                 if (artifacts.getName() != null) {
                     existingArtifacts.setName(artifacts.getName());
                 }
@@ -156,11 +165,17 @@ public class ArtifactsResource {
     @GetMapping("/artifacts")
     public List<Artifacts> getAllArtifacts(@RequestParam(required = false, defaultValue = "false") boolean eagerload) {
         log.debug("REST request to get all Artifacts");
-        if (eagerload) {
-            return artifactsRepository.findAllWithEagerRelationships();
-        } else {
+        if (entityAccessService.isAdmin()) {
+            if (eagerload) {
+                return artifactsRepository.findAllWithEagerRelationships();
+            }
             return artifactsRepository.findAll();
         }
+        List<Artifacts> artifacts = artifactsRepository.findAllVisibleToUser(entityAccessService.getCurrentUserId());
+        if (eagerload) {
+            return artifactsRepository.fetchBagRelationships(artifacts);
+        }
+        return artifacts;
     }
 
     /**
@@ -172,8 +187,23 @@ public class ArtifactsResource {
     @GetMapping("/artifacts/{id}")
     public ResponseEntity<Artifacts> getArtifacts(@PathVariable Long id) {
         log.debug("REST request to get Artifacts : {}", id);
-        Optional<Artifacts> artifacts = artifactsRepository.findOneWithEagerRelationships(id);
+        Optional<Artifacts> artifacts = entityAccessService.isAdmin()
+            ? artifactsRepository.findOneWithEagerRelationships(id)
+            : artifactsRepository
+                .findVisibleToUser(id, entityAccessService.getCurrentUserId())
+                .flatMap(a -> artifactsRepository.findOneWithEagerRelationships(id));
+        artifacts.ifPresent(entityAccessService::assertCanRead);
         return ResponseUtil.wrapOrNotFound(artifacts);
+    }
+
+    @PostMapping("/artifacts/{id}/clone")
+    public ResponseEntity<Artifacts> cloneArtifacts(@PathVariable Long id) throws URISyntaxException {
+        log.debug("REST request to clone Artifacts : {}", id);
+        Artifacts result = libraryCloneService.cloneArtifact(id);
+        return ResponseEntity
+            .created(new URI("/api/artifacts/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
 
     /**
@@ -185,6 +215,10 @@ public class ArtifactsResource {
     @DeleteMapping("/artifacts/{id}")
     public ResponseEntity<Void> deleteArtifacts(@PathVariable Long id) {
         log.debug("REST request to delete Artifacts : {}", id);
+        Artifacts existing = artifactsRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
         libraryEntityDeletionService.deleteArtifact(id);
         return ResponseEntity
             .noContent()

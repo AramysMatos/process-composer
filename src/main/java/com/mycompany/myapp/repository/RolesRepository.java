@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -25,4 +26,10 @@ public interface RolesRepository extends RolesRepositoryWithBagRelationships, Jp
     default Page<Roles> findAllWithEagerRelationships(Pageable pageable) {
         return this.fetchBagRelationships(this.findAll(pageable));
     }
+
+    @Query("SELECT r FROM Roles r WHERE r.owner IS NULL OR r.owner.id = :userId")
+    List<Roles> findAllVisibleToUser(@Param("userId") Long userId);
+
+    @Query("SELECT r FROM Roles r WHERE r.id = :id AND (r.owner IS NULL OR r.owner.id = :userId)")
+    Optional<Roles> findVisibleToUser(@Param("id") Long id, @Param("userId") Long userId);
 }

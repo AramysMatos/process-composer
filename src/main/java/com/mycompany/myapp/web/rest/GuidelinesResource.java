@@ -2,6 +2,8 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Guidelines;
 import com.mycompany.myapp.repository.GuidelinesRepository;
+import com.mycompany.myapp.service.EntityAccessService;
+import com.mycompany.myapp.service.LibraryCloneService;
 import com.mycompany.myapp.service.LibraryEntityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -34,12 +36,20 @@ public class GuidelinesResource {
     private String applicationName;
 
     private final GuidelinesRepository guidelinesRepository;
-
     private final LibraryEntityDeletionService libraryEntityDeletionService;
+    private final EntityAccessService entityAccessService;
+    private final LibraryCloneService libraryCloneService;
 
-    public GuidelinesResource(GuidelinesRepository guidelinesRepository, LibraryEntityDeletionService libraryEntityDeletionService) {
+    public GuidelinesResource(
+        GuidelinesRepository guidelinesRepository,
+        LibraryEntityDeletionService libraryEntityDeletionService,
+        EntityAccessService entityAccessService,
+        LibraryCloneService libraryCloneService
+    ) {
         this.guidelinesRepository = guidelinesRepository;
         this.libraryEntityDeletionService = libraryEntityDeletionService;
+        this.entityAccessService = entityAccessService;
+        this.libraryCloneService = libraryCloneService;
     }
 
     /**
@@ -55,7 +65,7 @@ public class GuidelinesResource {
         if (guidelines.getId() != null) {
             throw new BadRequestAlertException("A new guidelines cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Guidelines result = guidelinesRepository.save(guidelines);
+        Guidelines result = guidelinesRepository.save(entityAccessService.prepareForCreate(guidelines));
         return ResponseEntity
             .created(new URI("/api/guidelines/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -85,9 +95,11 @@ public class GuidelinesResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!guidelinesRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+        Guidelines existing = guidelinesRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
+        entityAccessService.preserveOwnerOnUpdate(existing, guidelines);
 
         Guidelines result = guidelinesRepository.save(guidelines);
         return ResponseEntity
@@ -120,13 +132,10 @@ public class GuidelinesResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!guidelinesRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         Optional<Guidelines> result = guidelinesRepository
             .findById(guidelines.getId())
             .map(existingGuidelines -> {
+                entityAccessService.assertCanWrite(existingGuidelines);
                 if (guidelines.getName() != null) {
                     existingGuidelines.setName(guidelines.getName());
                 }
@@ -152,7 +161,10 @@ public class GuidelinesResource {
     @GetMapping("/guidelines")
     public List<Guidelines> getAllGuidelines() {
         log.debug("REST request to get all Guidelines");
-        return guidelinesRepository.findAll();
+        if (entityAccessService.isAdmin()) {
+            return guidelinesRepository.findAll();
+        }
+        return guidelinesRepository.findAllVisibleToUser(entityAccessService.getCurrentUserId());
     }
 
     /**
@@ -164,8 +176,23 @@ public class GuidelinesResource {
     @GetMapping("/guidelines/{id}")
     public ResponseEntity<Guidelines> getGuidelines(@PathVariable Long id) {
         log.debug("REST request to get Guidelines : {}", id);
-        Optional<Guidelines> guidelines = guidelinesRepository.findOneWithEagerRelationships(id);
+        Optional<Guidelines> guidelines = entityAccessService.isAdmin()
+            ? guidelinesRepository.findOneWithEagerRelationships(id)
+            : guidelinesRepository
+                .findVisibleToUser(id, entityAccessService.getCurrentUserId())
+                .flatMap(g -> guidelinesRepository.findOneWithEagerRelationships(id));
+        guidelines.ifPresent(entityAccessService::assertCanRead);
         return ResponseUtil.wrapOrNotFound(guidelines);
+    }
+
+    @PostMapping("/guidelines/{id}/clone")
+    public ResponseEntity<Guidelines> cloneGuidelines(@PathVariable Long id) throws URISyntaxException {
+        log.debug("REST request to clone Guidelines : {}", id);
+        Guidelines result = libraryCloneService.cloneGuideline(id);
+        return ResponseEntity
+            .created(new URI("/api/guidelines/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
 
     /**
@@ -177,6 +204,10 @@ public class GuidelinesResource {
     @DeleteMapping("/guidelines/{id}")
     public ResponseEntity<Void> deleteGuidelines(@PathVariable Long id) {
         log.debug("REST request to delete Guidelines : {}", id);
+        Guidelines existing = guidelinesRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
         libraryEntityDeletionService.deleteGuideline(id);
         return ResponseEntity
             .noContent()

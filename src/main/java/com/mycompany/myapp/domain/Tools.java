@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "tools")
 @SuppressWarnings("common-java:DuplicatedBlocks")
-public class Tools implements Serializable {
+public class Tools extends AbstractOwnedAuditingEntity<Long> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -48,6 +48,7 @@ public class Tools implements Serializable {
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
+    @Override
     public Long getId() {
         return this.id;
     }

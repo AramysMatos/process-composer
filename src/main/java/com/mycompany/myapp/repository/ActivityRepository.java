@@ -51,4 +51,19 @@ public interface ActivityRepository extends ActivityRepositoryWithBagRelationshi
     List<Activity> findBySubActivities_IdIn(Collection<Long> subActivityIds);
 
     List<Activity> findByPredecessorActivities_IdIn(Collection<Long> predecessorActivityIds);
+
+    @Query("SELECT a FROM Activity a WHERE a.owner IS NULL OR a.owner.id = :userId")
+    List<Activity> findAllVisibleToUser(@Param("userId") Long userId);
+
+    @Query("SELECT a FROM Activity a WHERE a.id = :id AND (a.owner IS NULL OR a.owner.id = :userId)")
+    Optional<Activity> findVisibleToUser(@Param("id") Long id, @Param("userId") Long userId);
+
+    @Query("SELECT a FROM Activity a WHERE a.phase IS NULL AND (a.owner IS NULL OR a.owner.id = :userId)")
+    List<Activity> findLibraryVisibleToUser(@Param("userId") Long userId);
+
+    @Query("SELECT a FROM Activity a WHERE a.phase.process.id = :processId AND (a.owner IS NULL OR a.owner.id = :userId)")
+    List<Activity> findByProcessIdVisibleToUser(@Param("processId") Long processId, @Param("userId") Long userId);
+
+    @Query("SELECT a FROM Activity a WHERE a.phase.id = :phaseId AND (a.owner IS NULL OR a.owner.id = :userId)")
+    List<Activity> findByPhaseIdVisibleToUser(@Param("phaseId") Long phaseId, @Param("userId") Long userId);
 }

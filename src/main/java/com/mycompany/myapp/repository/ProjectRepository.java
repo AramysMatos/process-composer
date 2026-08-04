@@ -39,4 +39,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("select project from Project project left join fetch project.process where project.id =:id")
     Optional<Project> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @Query("SELECT p FROM Project p WHERE p.owner IS NULL OR p.owner.id = :userId")
+    List<Project> findAllVisibleToUser(@Param("userId") Long userId);
+
+    @Query("SELECT p FROM Project p WHERE p.id = :id AND (p.owner IS NULL OR p.owner.id = :userId)")
+    Optional<Project> findVisibleToUser(@Param("id") Long id, @Param("userId") Long userId);
 }

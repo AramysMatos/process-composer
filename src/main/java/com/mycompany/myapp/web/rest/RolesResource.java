@@ -2,6 +2,8 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Roles;
 import com.mycompany.myapp.repository.RolesRepository;
+import com.mycompany.myapp.service.EntityAccessService;
+import com.mycompany.myapp.service.LibraryCloneService;
 import com.mycompany.myapp.service.LibraryEntityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -34,44 +36,35 @@ public class RolesResource {
     private String applicationName;
 
     private final RolesRepository rolesRepository;
-
     private final LibraryEntityDeletionService libraryEntityDeletionService;
+    private final EntityAccessService entityAccessService;
+    private final LibraryCloneService libraryCloneService;
 
-    public RolesResource(RolesRepository rolesRepository, LibraryEntityDeletionService libraryEntityDeletionService) {
+    public RolesResource(
+        RolesRepository rolesRepository,
+        LibraryEntityDeletionService libraryEntityDeletionService,
+        EntityAccessService entityAccessService,
+        LibraryCloneService libraryCloneService
+    ) {
         this.rolesRepository = rolesRepository;
         this.libraryEntityDeletionService = libraryEntityDeletionService;
+        this.entityAccessService = entityAccessService;
+        this.libraryCloneService = libraryCloneService;
     }
 
-    /**
-     * {@code POST  /roles} : Create a new roles.
-     *
-     * @param roles the roles to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new roles, or with status {@code 400 (Bad Request)} if the roles has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
     @PostMapping("/roles")
     public ResponseEntity<Roles> createRoles(@RequestBody Roles roles) throws URISyntaxException {
         log.debug("REST request to save Roles : {}", roles);
         if (roles.getId() != null) {
             throw new BadRequestAlertException("A new roles cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Roles result = rolesRepository.save(roles);
+        Roles result = rolesRepository.save(entityAccessService.prepareForCreate(roles));
         return ResponseEntity
             .created(new URI("/api/roles/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
-    /**
-     * {@code PUT  /roles/:id} : Updates an existing roles.
-     *
-     * @param id the id of the roles to save.
-     * @param roles the roles to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated roles,
-     * or with status {@code 400 (Bad Request)} if the roles is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the roles couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
     @PutMapping("/roles/{id}")
     public ResponseEntity<Roles> updateRoles(@PathVariable(value = "id", required = false) final Long id, @RequestBody Roles roles)
         throws URISyntaxException {
@@ -83,9 +76,11 @@ public class RolesResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!rolesRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+        Roles existing = rolesRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
+        entityAccessService.preserveOwnerOnUpdate(existing, roles);
 
         Roles result = rolesRepository.save(roles);
         return ResponseEntity
@@ -94,17 +89,6 @@ public class RolesResource {
             .body(result);
     }
 
-    /**
-     * {@code PATCH  /roles/:id} : Partial updates given fields of an existing roles, field will ignore if it is null
-     *
-     * @param id the id of the roles to save.
-     * @param roles the roles to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated roles,
-     * or with status {@code 400 (Bad Request)} if the roles is not valid,
-     * or with status {@code 404 (Not Found)} if the roles is not found,
-     * or with status {@code 500 (Internal Server Error)} if the roles couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
     @PatchMapping(value = "/roles/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<Roles> partialUpdateRoles(@PathVariable(value = "id", required = false) final Long id, @RequestBody Roles roles)
         throws URISyntaxException {
@@ -116,20 +100,16 @@ public class RolesResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!rolesRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         Optional<Roles> result = rolesRepository
             .findById(roles.getId())
             .map(existingRoles -> {
+                entityAccessService.assertCanWrite(existingRoles);
                 if (roles.getName() != null) {
                     existingRoles.setName(roles.getName());
                 }
                 if (roles.getDescription() != null) {
                     existingRoles.setDescription(roles.getDescription());
                 }
-
                 return existingRoles;
             })
             .map(rolesRepository::save);
@@ -140,39 +120,40 @@ public class RolesResource {
         );
     }
 
-    /**
-     * {@code GET  /roles} : get all the roles.
-     *
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of roles in body.
-     */
     @GetMapping("/roles")
     public List<Roles> getAllRoles() {
         log.debug("REST request to get all Roles");
-        return rolesRepository.findAll();
+        if (entityAccessService.isAdmin()) {
+            return rolesRepository.findAll();
+        }
+        return rolesRepository.findAllVisibleToUser(entityAccessService.getCurrentUserId());
     }
 
-    /**
-     * {@code GET  /roles/:id} : get the "id" roles.
-     *
-     * @param id the id of the roles to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the roles, or with status {@code 404 (Not Found)}.
-     */
     @GetMapping("/roles/{id}")
     public ResponseEntity<Roles> getRoles(@PathVariable Long id) {
         log.debug("REST request to get Roles : {}", id);
-        Optional<Roles> roles = rolesRepository.findOneWithEagerRelationships(id);
-        return ResponseUtil.wrapOrNotFound(roles);
+        Optional<Roles> roles = rolesRepository.findById(id);
+        roles.ifPresent(entityAccessService::assertCanRead);
+        return ResponseUtil.wrapOrNotFound(roles.flatMap(r -> rolesRepository.findOneWithEagerRelationships(id)));
     }
 
-    /**
-     * {@code DELETE  /roles/:id} : delete the "id" roles.
-     *
-     * @param id the id of the roles to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
-     */
+    @PostMapping("/roles/{id}/clone")
+    public ResponseEntity<Roles> cloneRoles(@PathVariable Long id) throws URISyntaxException {
+        log.debug("REST request to clone Roles : {}", id);
+        Roles result = libraryCloneService.cloneRole(id);
+        return ResponseEntity
+            .created(new URI("/api/roles/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
     @DeleteMapping("/roles/{id}")
     public ResponseEntity<Void> deleteRoles(@PathVariable Long id) {
         log.debug("REST request to delete Roles : {}", id);
+        Roles existing = rolesRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
         libraryEntityDeletionService.deleteRole(id);
         return ResponseEntity
             .noContent()

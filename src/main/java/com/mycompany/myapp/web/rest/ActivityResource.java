@@ -1,8 +1,12 @@
 package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Activity;
+import com.mycompany.myapp.domain.Process;
 import com.mycompany.myapp.repository.ActivityRepository;
+import com.mycompany.myapp.repository.ProcessRepository;
 import com.mycompany.myapp.service.ActivityDeletionService;
+import com.mycompany.myapp.service.EntityAccessService;
+import com.mycompany.myapp.service.ReferenceAccessValidator;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,11 +38,23 @@ public class ActivityResource {
     private String applicationName;
 
     private final ActivityRepository activityRepository;
+    private final ProcessRepository processRepository;
     private final ActivityDeletionService activityDeletionService;
+    private final EntityAccessService entityAccessService;
+    private final ReferenceAccessValidator referenceAccessValidator;
 
-    public ActivityResource(ActivityRepository activityRepository, ActivityDeletionService activityDeletionService) {
+    public ActivityResource(
+        ActivityRepository activityRepository,
+        ProcessRepository processRepository,
+        ActivityDeletionService activityDeletionService,
+        EntityAccessService entityAccessService,
+        ReferenceAccessValidator referenceAccessValidator
+    ) {
         this.activityRepository = activityRepository;
+        this.processRepository = processRepository;
         this.activityDeletionService = activityDeletionService;
+        this.entityAccessService = entityAccessService;
+        this.referenceAccessValidator = referenceAccessValidator;
     }
 
     /**
@@ -54,6 +70,8 @@ public class ActivityResource {
         if (activity.getId() != null) {
             throw new BadRequestAlertException("A new activity cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        entityAccessService.prepareForCreate(activity);
+        referenceAccessValidator.validateActivityReferences(activity);
         Activity result = activityRepository.save(activity);
         return ResponseEntity
             .created(new URI("/api/activities/" + result.getId()))
@@ -84,9 +102,12 @@ public class ActivityResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!activityRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+        Activity existing = activityRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
+        entityAccessService.preserveOwnerOnUpdate(existing, activity);
+        referenceAccessValidator.validateActivityReferences(activity);
 
         Activity result = activityRepository.save(activity);
         return ResponseEntity
@@ -119,13 +140,11 @@ public class ActivityResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!activityRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         Optional<Activity> result = activityRepository
             .findById(activity.getId())
             .map(existingActivity -> {
+                entityAccessService.assertCanWrite(existingActivity);
+                referenceAccessValidator.validateActivityReferences(activity);
                 if (activity.getName() != null) {
                     existingActivity.setName(activity.getName());
                 }
@@ -166,17 +185,28 @@ public class ActivityResource {
             phaseId,
             eagerload
         );
+        Long userId = entityAccessService.getCurrentUserId();
+        boolean admin = entityAccessService.isAdmin();
+
         List<Activity> activities;
         if (Boolean.TRUE.equals(library)) {
-            activities = activityRepository.findByPhaseIsNull();
+            activities = admin ? activityRepository.findByPhaseIsNull() : activityRepository.findLibraryVisibleToUser(userId);
         } else if (processId != null) {
-            activities = activityRepository.findByPhase_Process_Id(processId);
+            Process process = processRepository
+                .findById(processId)
+                .orElseThrow(() -> new BadRequestAlertException("Entity not found", "process", "idnotfound"));
+            entityAccessService.assertCanRead(process);
+            activities =
+                admin
+                    ? activityRepository.findByPhase_Process_Id(processId)
+                    : activityRepository.findByProcessIdVisibleToUser(processId, userId);
         } else if (phaseId != null) {
-            activities = activityRepository.findByPhase_Id(phaseId);
+            activities =
+                admin ? activityRepository.findByPhase_Id(phaseId) : activityRepository.findByPhaseIdVisibleToUser(phaseId, userId);
         } else if (eagerload) {
-            return activityRepository.findAllWithEagerRelationships();
+            activities = admin ? activityRepository.findAllWithEagerRelationships() : activityRepository.findAllVisibleToUser(userId);
         } else {
-            return activityRepository.findAll();
+            return admin ? activityRepository.findAll() : activityRepository.findAllVisibleToUser(userId);
         }
 
         if (eagerload) {
@@ -195,6 +225,7 @@ public class ActivityResource {
     public ResponseEntity<Activity> getActivity(@PathVariable Long id) {
         log.debug("REST request to get Activity : {}", id);
         Optional<Activity> activity = activityRepository.findOneWithEagerRelationships(id);
+        activity.ifPresent(entityAccessService::assertCanRead);
         return ResponseUtil.wrapOrNotFound(activity);
     }
 
@@ -207,6 +238,10 @@ public class ActivityResource {
     @DeleteMapping("/activities/{id}")
     public ResponseEntity<Void> deleteActivity(@PathVariable Long id) {
         log.debug("REST request to delete Activity : {}", id);
+        Activity existing = activityRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
         activityDeletionService.deleteActivity(id);
         return ResponseEntity
             .noContent()

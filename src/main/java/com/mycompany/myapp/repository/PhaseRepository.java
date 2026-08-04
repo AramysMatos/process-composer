@@ -41,4 +41,16 @@ public interface PhaseRepository extends JpaRepository<Phase, Long> {
 
     @Query("select phase from Phase phase left join fetch phase.process where phase.id =:id")
     Optional<Phase> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @Query("SELECT p FROM Phase p WHERE p.owner IS NULL OR p.owner.id = :userId")
+    List<Phase> findAllVisibleToUser(@Param("userId") Long userId);
+
+    @Query("SELECT p FROM Phase p WHERE p.id = :id AND (p.owner IS NULL OR p.owner.id = :userId)")
+    Optional<Phase> findVisibleToUser(@Param("id") Long id, @Param("userId") Long userId);
+
+    @Query("SELECT p FROM Phase p WHERE p.process IS NULL AND (p.owner IS NULL OR p.owner.id = :userId)")
+    List<Phase> findLibraryVisibleToUser(@Param("userId") Long userId);
+
+    @Query("SELECT p FROM Phase p WHERE p.process.id = :processId AND (p.owner IS NULL OR p.owner.id = :userId)")
+    List<Phase> findByProcessIdVisibleToUser(@Param("processId") Long processId, @Param("userId") Long userId);
 }

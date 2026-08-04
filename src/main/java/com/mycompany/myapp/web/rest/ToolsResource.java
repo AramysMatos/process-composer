@@ -2,6 +2,8 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Tools;
 import com.mycompany.myapp.repository.ToolsRepository;
+import com.mycompany.myapp.service.EntityAccessService;
+import com.mycompany.myapp.service.LibraryCloneService;
 import com.mycompany.myapp.service.LibraryEntityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -34,12 +36,20 @@ public class ToolsResource {
     private String applicationName;
 
     private final ToolsRepository toolsRepository;
-
     private final LibraryEntityDeletionService libraryEntityDeletionService;
+    private final EntityAccessService entityAccessService;
+    private final LibraryCloneService libraryCloneService;
 
-    public ToolsResource(ToolsRepository toolsRepository, LibraryEntityDeletionService libraryEntityDeletionService) {
+    public ToolsResource(
+        ToolsRepository toolsRepository,
+        LibraryEntityDeletionService libraryEntityDeletionService,
+        EntityAccessService entityAccessService,
+        LibraryCloneService libraryCloneService
+    ) {
         this.toolsRepository = toolsRepository;
         this.libraryEntityDeletionService = libraryEntityDeletionService;
+        this.entityAccessService = entityAccessService;
+        this.libraryCloneService = libraryCloneService;
     }
 
     /**
@@ -55,7 +65,7 @@ public class ToolsResource {
         if (tools.getId() != null) {
             throw new BadRequestAlertException("A new tools cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Tools result = toolsRepository.save(tools);
+        Tools result = toolsRepository.save(entityAccessService.prepareForCreate(tools));
         return ResponseEntity
             .created(new URI("/api/tools/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -83,9 +93,11 @@ public class ToolsResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!toolsRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+        Tools existing = toolsRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
+        entityAccessService.preserveOwnerOnUpdate(existing, tools);
 
         Tools result = toolsRepository.save(tools);
         return ResponseEntity
@@ -116,13 +128,10 @@ public class ToolsResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!toolsRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         Optional<Tools> result = toolsRepository
             .findById(tools.getId())
             .map(existingTools -> {
+                entityAccessService.assertCanWrite(existingTools);
                 if (tools.getName() != null) {
                     existingTools.setName(tools.getName());
                 }
@@ -148,7 +157,10 @@ public class ToolsResource {
     @GetMapping("/tools")
     public List<Tools> getAllTools() {
         log.debug("REST request to get all Tools");
-        return toolsRepository.findAll();
+        if (entityAccessService.isAdmin()) {
+            return toolsRepository.findAll();
+        }
+        return toolsRepository.findAllVisibleToUser(entityAccessService.getCurrentUserId());
     }
 
     /**
@@ -160,8 +172,23 @@ public class ToolsResource {
     @GetMapping("/tools/{id}")
     public ResponseEntity<Tools> getTools(@PathVariable Long id) {
         log.debug("REST request to get Tools : {}", id);
-        Optional<Tools> tools = toolsRepository.findOneWithEagerRelationships(id);
+        Optional<Tools> tools = entityAccessService.isAdmin()
+            ? toolsRepository.findOneWithEagerRelationships(id)
+            : toolsRepository
+                .findVisibleToUser(id, entityAccessService.getCurrentUserId())
+                .flatMap(t -> toolsRepository.findOneWithEagerRelationships(id));
+        tools.ifPresent(entityAccessService::assertCanRead);
         return ResponseUtil.wrapOrNotFound(tools);
+    }
+
+    @PostMapping("/tools/{id}/clone")
+    public ResponseEntity<Tools> cloneTools(@PathVariable Long id) throws URISyntaxException {
+        log.debug("REST request to clone Tools : {}", id);
+        Tools result = libraryCloneService.cloneTool(id);
+        return ResponseEntity
+            .created(new URI("/api/tools/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
 
     /**
@@ -173,6 +200,10 @@ public class ToolsResource {
     @DeleteMapping("/tools/{id}")
     public ResponseEntity<Void> deleteTools(@PathVariable Long id) {
         log.debug("REST request to delete Tools : {}", id);
+        Tools existing = toolsRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
         libraryEntityDeletionService.deleteTool(id);
         return ResponseEntity
             .noContent()

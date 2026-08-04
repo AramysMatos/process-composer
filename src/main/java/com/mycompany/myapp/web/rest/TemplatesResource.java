@@ -2,6 +2,8 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Templates;
 import com.mycompany.myapp.repository.TemplatesRepository;
+import com.mycompany.myapp.service.EntityAccessService;
+import com.mycompany.myapp.service.LibraryCloneService;
 import com.mycompany.myapp.service.LibraryEntityDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -34,12 +36,20 @@ public class TemplatesResource {
     private String applicationName;
 
     private final TemplatesRepository templatesRepository;
-
     private final LibraryEntityDeletionService libraryEntityDeletionService;
+    private final EntityAccessService entityAccessService;
+    private final LibraryCloneService libraryCloneService;
 
-    public TemplatesResource(TemplatesRepository templatesRepository, LibraryEntityDeletionService libraryEntityDeletionService) {
+    public TemplatesResource(
+        TemplatesRepository templatesRepository,
+        LibraryEntityDeletionService libraryEntityDeletionService,
+        EntityAccessService entityAccessService,
+        LibraryCloneService libraryCloneService
+    ) {
         this.templatesRepository = templatesRepository;
         this.libraryEntityDeletionService = libraryEntityDeletionService;
+        this.entityAccessService = entityAccessService;
+        this.libraryCloneService = libraryCloneService;
     }
 
     /**
@@ -55,7 +65,7 @@ public class TemplatesResource {
         if (templates.getId() != null) {
             throw new BadRequestAlertException("A new templates cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Templates result = templatesRepository.save(templates);
+        Templates result = templatesRepository.save(entityAccessService.prepareForCreate(templates));
         return ResponseEntity
             .created(new URI("/api/templates/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -85,9 +95,11 @@ public class TemplatesResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!templatesRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+        Templates existing = templatesRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
+        entityAccessService.preserveOwnerOnUpdate(existing, templates);
 
         Templates result = templatesRepository.save(templates);
         return ResponseEntity
@@ -120,13 +132,10 @@ public class TemplatesResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!templatesRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         Optional<Templates> result = templatesRepository
             .findById(templates.getId())
             .map(existingTemplates -> {
+                entityAccessService.assertCanWrite(existingTemplates);
                 if (templates.getName() != null) {
                     existingTemplates.setName(templates.getName());
                 }
@@ -152,7 +161,10 @@ public class TemplatesResource {
     @GetMapping("/templates")
     public List<Templates> getAllTemplates() {
         log.debug("REST request to get all Templates");
-        return templatesRepository.findAll();
+        if (entityAccessService.isAdmin()) {
+            return templatesRepository.findAll();
+        }
+        return templatesRepository.findAllVisibleToUser(entityAccessService.getCurrentUserId());
     }
 
     /**
@@ -164,8 +176,23 @@ public class TemplatesResource {
     @GetMapping("/templates/{id}")
     public ResponseEntity<Templates> getTemplates(@PathVariable Long id) {
         log.debug("REST request to get Templates : {}", id);
-        Optional<Templates> templates = templatesRepository.findOneWithEagerRelationships(id);
+        Optional<Templates> templates = entityAccessService.isAdmin()
+            ? templatesRepository.findOneWithEagerRelationships(id)
+            : templatesRepository
+                .findVisibleToUser(id, entityAccessService.getCurrentUserId())
+                .flatMap(t -> templatesRepository.findOneWithEagerRelationships(id));
+        templates.ifPresent(entityAccessService::assertCanRead);
         return ResponseUtil.wrapOrNotFound(templates);
+    }
+
+    @PostMapping("/templates/{id}/clone")
+    public ResponseEntity<Templates> cloneTemplates(@PathVariable Long id) throws URISyntaxException {
+        log.debug("REST request to clone Templates : {}", id);
+        Templates result = libraryCloneService.cloneTemplate(id);
+        return ResponseEntity
+            .created(new URI("/api/templates/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
 
     /**
@@ -177,6 +204,10 @@ public class TemplatesResource {
     @DeleteMapping("/templates/{id}")
     public ResponseEntity<Void> deleteTemplates(@PathVariable Long id) {
         log.debug("REST request to delete Templates : {}", id);
+        Templates existing = templatesRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
         libraryEntityDeletionService.deleteTemplate(id);
         return ResponseEntity
             .noContent()

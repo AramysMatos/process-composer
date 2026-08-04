@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Process;
 import com.mycompany.myapp.repository.ProcessRepository;
+import com.mycompany.myapp.service.EntityAccessService;
 import com.mycompany.myapp.service.ProcessDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -40,10 +41,16 @@ public class ProcessResource {
 
     private final ProcessRepository processRepository;
     private final ProcessDeletionService processDeletionService;
+    private final EntityAccessService entityAccessService;
 
-    public ProcessResource(ProcessRepository processRepository, ProcessDeletionService processDeletionService) {
+    public ProcessResource(
+        ProcessRepository processRepository,
+        ProcessDeletionService processDeletionService,
+        EntityAccessService entityAccessService
+    ) {
         this.processRepository = processRepository;
         this.processDeletionService = processDeletionService;
+        this.entityAccessService = entityAccessService;
     }
 
     /**
@@ -59,7 +66,7 @@ public class ProcessResource {
         if (process.getId() != null) {
             throw new BadRequestAlertException("A new process cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Process result = processRepository.save(process);
+        Process result = processRepository.save(entityAccessService.prepareForCreate(process));
         return ResponseEntity
             .created(new URI("/api/processes/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -87,9 +94,11 @@ public class ProcessResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!processRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+        Process existing = processRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
+        entityAccessService.preserveOwnerOnUpdate(existing, process);
 
         Process result = processRepository.save(process);
         return ResponseEntity
@@ -122,13 +131,10 @@ public class ProcessResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!processRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         Optional<Process> result = processRepository
             .findById(process.getId())
             .map(existingProcess -> {
+                entityAccessService.assertCanWrite(existingProcess);
                 if (process.getProcessName() != null) {
                     existingProcess.setProcessName(process.getProcessName());
                 }
@@ -155,7 +161,12 @@ public class ProcessResource {
     @GetMapping("/processes")
     public ResponseEntity<List<Process>> getAllProcesses(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get a page of Processes");
-        Page<Process> page = processRepository.findAll(pageable);
+        Page<Process> page;
+        if (entityAccessService.isAdmin()) {
+            page = processRepository.findAll(pageable);
+        } else {
+            page = processRepository.findAllVisibleToUser(entityAccessService.getCurrentUserId(), pageable);
+        }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -170,6 +181,7 @@ public class ProcessResource {
     public ResponseEntity<Process> getProcess(@PathVariable Long id) {
         log.debug("REST request to get Process : {}", id);
         Optional<Process> process = processRepository.findById(id);
+        process.ifPresent(entityAccessService::assertCanRead);
         return ResponseUtil.wrapOrNotFound(process);
     }
 
@@ -182,6 +194,10 @@ public class ProcessResource {
     @DeleteMapping("/processes/{id}")
     public ResponseEntity<Void> deleteProcess(@PathVariable Long id) {
         log.debug("REST request to delete Process : {}", id);
+        Process existing = processRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
         processDeletionService.deleteProcess(id);
         return ResponseEntity
             .noContent()

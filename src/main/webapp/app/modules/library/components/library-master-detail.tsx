@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Alert,
+  Badge,
   Button,
   Form,
   FormGroup,
@@ -21,8 +22,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { JhiItemCount, JhiPagination, Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { cloneLibraryEntity } from 'app/modules/library/clone-library-entity';
 import { LibraryEntityBase, LibraryEntityConfig } from 'app/modules/library/library.config';
 import { UsedInActivitiesList } from 'app/modules/library/components/used-in-activities-list';
+import { AUTHORITIES } from 'app/config/constants';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
+import { canEditEntity, isSystemTemplate } from 'app/shared/model/owned-entity.model';
 
 const LIST_PAGE_SIZE = 20;
 const NEW_ITEM_ID = 'new';
@@ -41,6 +46,11 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
   const [activePage, setActivePage] = useState(1);
   const [draft, setDraft] = useState<T>(config.defaultValue as T);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [cloning, setCloning] = useState(false);
+
+  const account = useAppSelector(state => state.authentication.account);
+  const isAdmin = hasAnyAuthority(account.authorities, [AUTHORITIES.ADMIN]);
+  const currentUserId = account.id;
 
   const entities = useAppSelector(state => state[config.sliceKey].entities) as T[];
   const entity = useAppSelector(state => state[config.sliceKey].entity) as T;
@@ -116,6 +126,8 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
   }, [activePage, filteredEntities]);
 
   const detailEntity = isCreating ? draft : entity?.id === selectedNumericId ? entity : draft;
+  const readOnly = !isCreating && !canEditEntity(detailEntity, isAdmin, currentUserId);
+  const showSystemBadge = !isCreating && isSystemTemplate(detailEntity);
   const activityRefs = useMemo(() => config.extractActivityRefs(detailEntity), [config, detailEntity]);
   const usedInCount = useMemo(() => {
     const uniqueIds = new Set<number>();
@@ -140,6 +152,7 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
     const payload = {
       ...detailEntity,
       ...draft,
+      ...(isCreating && isAdmin && draft.systemTemplate ? { systemTemplate: true } : {}),
     } as T;
 
     if (isCreating) {
@@ -162,6 +175,16 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
     if (detailEntity.id) {
       dispatch(config.thunks.deleteEntity(detailEntity.id));
     }
+  };
+
+  const handleClone = () => {
+    if (!detailEntity.id) {
+      return;
+    }
+    setCloning(true);
+    cloneLibraryEntity(config.type, detailEntity.id)
+      .then(() => dispatch(config.thunks.getEntities({})))
+      .finally(() => setCloning(false));
   };
 
   return (
@@ -210,7 +233,14 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
                   onClick={() => item.id && onSelectItem(item.id)}
                   data-cy={`libraryListItem-${item.id}`}
                 >
-                  <span className="library-master-detail__list-item-name">{item.name}</span>
+                  <span className="library-master-detail__list-item-name">
+                    {item.name}
+                    {isSystemTemplate(item) && (
+                      <Badge color="info" className="ms-2">
+                        <Translate contentKey="processComposerApp.library.systemTemplate">Modelo</Translate>
+                      </Badge>
+                    )}
+                  </span>
                   {item.description && <span className="library-master-detail__list-item-description">{item.description}</span>}
                 </button>
               );
@@ -242,13 +272,28 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
         ) : (
           <div className="library-master-detail__detail-body">
             <div className="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
-              <h2 className="h4 mb-0">
+              <h2 className="h4 mb-0 d-flex align-items-center gap-2 flex-wrap">
                 {isCreating ? <Translate contentKey="processComposerApp.library.createTitle">New item</Translate> : detailEntity.name}
+                {showSystemBadge && (
+                  <Badge color="info">
+                    <Translate contentKey="processComposerApp.library.systemTemplate">Modelo</Translate>
+                  </Badge>
+                )}
               </h2>
               {!isCreating && detailEntity.id && (
-                <Button color="danger" outline size="sm" onClick={openDeleteModal} data-cy="libraryDeleteButton">
-                  <FontAwesomeIcon icon="trash" /> <Translate contentKey="entity.action.delete">Delete</Translate>
-                </Button>
+                <div className="d-flex gap-2 flex-wrap">
+                  {readOnly && (
+                    <Button color="secondary" outline size="sm" onClick={handleClone} disabled={cloning} data-cy="libraryCloneButton">
+                      <FontAwesomeIcon icon="copy" spin={cloning} />{' '}
+                      <Translate contentKey="processComposerApp.library.clone">Clonar</Translate>
+                    </Button>
+                  )}
+                  {canEditEntity(detailEntity, isAdmin, currentUserId) && (
+                    <Button color="danger" outline size="sm" onClick={openDeleteModal} data-cy="libraryDeleteButton">
+                      <FontAwesomeIcon icon="trash" /> <Translate contentKey="entity.action.delete">Delete</Translate>
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
 
@@ -259,55 +304,83 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
             )}
 
             <Form onSubmit={handleSave}>
-              <FormGroup>
-                <Label for={`library-${config.type}-name`}>
-                  <Translate contentKey={`processComposerApp.${config.type}.name`}>Name</Translate>
-                </Label>
-                <Input
-                  id={`library-${config.type}-name`}
-                  name="name"
-                  value={draft.name ?? ''}
-                  onChange={event => handleFieldChange('name', event.target.value)}
-                  required
-                  data-cy="libraryNameInput"
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for={`library-${config.type}-description`}>
-                  <Translate contentKey={`processComposerApp.${config.type}.description`}>Description</Translate>
-                </Label>
-                <Input
-                  id={`library-${config.type}-description`}
-                  name="description"
-                  type="textarea"
-                  rows={3}
-                  value={draft.description ?? ''}
-                  onChange={event => handleFieldChange('description', event.target.value)}
-                  data-cy="libraryDescriptionInput"
-                />
-              </FormGroup>
-
-              {config.showOptional && (
-                <FormGroup check className="mb-3">
-                  <Input
-                    id={`library-${config.type}-optional`}
-                    name="optional"
-                    type="checkbox"
-                    checked={Boolean(draft.optional)}
-                    onChange={event => handleFieldChange('optional', event.target.checked)}
-                    data-cy="libraryOptionalInput"
-                  />
-                  <Label check for={`library-${config.type}-optional`}>
-                    <Translate contentKey="processComposerApp.artifacts.optional">Optional</Translate>
+              <fieldset disabled={readOnly}>
+                <FormGroup>
+                  <Label for={`library-${config.type}-name`}>
+                    <Translate contentKey={`processComposerApp.${config.type}.name`}>Name</Translate>
                   </Label>
+                  <Input
+                    id={`library-${config.type}-name`}
+                    name="name"
+                    value={draft.name ?? ''}
+                    onChange={event => handleFieldChange('name', event.target.value)}
+                    required
+                    data-cy="libraryNameInput"
+                  />
                 </FormGroup>
-              )}
 
-              <Button color="primary" type="submit" disabled={updating || !draft.name?.trim()} data-cy="librarySaveButton">
-                <FontAwesomeIcon icon="save" spin={updating} /> <Translate contentKey="entity.action.save">Save</Translate>
-              </Button>
+                <FormGroup>
+                  <Label for={`library-${config.type}-description`}>
+                    <Translate contentKey={`processComposerApp.${config.type}.description`}>Description</Translate>
+                  </Label>
+                  <Input
+                    id={`library-${config.type}-description`}
+                    name="description"
+                    type="textarea"
+                    rows={3}
+                    value={draft.description ?? ''}
+                    onChange={event => handleFieldChange('description', event.target.value)}
+                    data-cy="libraryDescriptionInput"
+                  />
+                </FormGroup>
+
+                {config.showOptional && (
+                  <FormGroup check className="mb-3">
+                    <Input
+                      id={`library-${config.type}-optional`}
+                      name="optional"
+                      type="checkbox"
+                      checked={Boolean(draft.optional)}
+                      onChange={event => handleFieldChange('optional', event.target.checked)}
+                      data-cy="libraryOptionalInput"
+                    />
+                    <Label check for={`library-${config.type}-optional`}>
+                      <Translate contentKey="processComposerApp.artifacts.optional">Optional</Translate>
+                    </Label>
+                  </FormGroup>
+                )}
+
+                {isCreating && isAdmin && (
+                  <FormGroup check className="mb-3">
+                    <Input
+                      id={`library-${config.type}-system-template`}
+                      name="systemTemplate"
+                      type="checkbox"
+                      checked={Boolean(draft.systemTemplate)}
+                      onChange={event => handleFieldChange('systemTemplate' as keyof T, event.target.checked)}
+                      data-cy="librarySystemTemplateInput"
+                    />
+                    <Label check for={`library-${config.type}-system-template`}>
+                      <Translate contentKey="processComposerApp.library.saveAsSystemTemplate">Salvar como modelo de sistema</Translate>
+                    </Label>
+                  </FormGroup>
+                )}
+
+                {!readOnly && (
+                  <Button color="primary" type="submit" disabled={updating || !draft.name?.trim()} data-cy="librarySaveButton">
+                    <FontAwesomeIcon icon="save" spin={updating} /> <Translate contentKey="entity.action.save">Save</Translate>
+                  </Button>
+                )}
+              </fieldset>
             </Form>
+
+            {!isCreating && detailEntity.createdBy && (
+              <p className="text-muted small mt-2 mb-0">
+                <Translate contentKey="processComposerApp.library.audit.createdBy" interpolate={{ user: detailEntity.createdBy }}>
+                  Criado por {detailEntity.createdBy}
+                </Translate>
+              </p>
+            )}
 
             {!isCreating && (
               <div className="library-master-detail__used-in">

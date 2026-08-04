@@ -28,4 +28,10 @@ public interface ArtifactsRepository extends ArtifactsRepositoryWithBagRelations
     default Page<Artifacts> findAllWithEagerRelationships(Pageable pageable) {
         return this.fetchBagRelationships(this.findAll(pageable));
     }
+
+    @Query("SELECT a FROM Artifacts a WHERE a.owner IS NULL OR a.owner.id = :userId")
+    List<Artifacts> findAllVisibleToUser(@Param("userId") Long userId);
+
+    @Query("SELECT a FROM Artifacts a WHERE a.id = :id AND (a.owner IS NULL OR a.owner.id = :userId)")
+    Optional<Artifacts> findVisibleToUser(@Param("id") Long id, @Param("userId") Long userId);
 }

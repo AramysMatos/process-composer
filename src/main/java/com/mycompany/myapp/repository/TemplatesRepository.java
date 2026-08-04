@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -25,4 +26,10 @@ public interface TemplatesRepository extends TemplatesRepositoryWithBagRelations
     default Page<Templates> findAllWithEagerRelationships(Pageable pageable) {
         return this.fetchBagRelationships(this.findAll(pageable));
     }
+
+    @Query("SELECT t FROM Templates t WHERE t.owner IS NULL OR t.owner.id = :userId")
+    List<Templates> findAllVisibleToUser(@Param("userId") Long userId);
+
+    @Query("SELECT t FROM Templates t WHERE t.id = :id AND (t.owner IS NULL OR t.owner.id = :userId)")
+    Optional<Templates> findVisibleToUser(@Param("id") Long id, @Param("userId") Long userId);
 }

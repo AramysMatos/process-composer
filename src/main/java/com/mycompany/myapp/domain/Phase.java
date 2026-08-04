@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "phase")
 @SuppressWarnings("common-java:DuplicatedBlocks")
-public class Phase implements Serializable {
+public class Phase extends AbstractOwnedAuditingEntity<Long> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -52,6 +52,7 @@ public class Phase implements Serializable {
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
+    @Override
     public Long getId() {
         return this.id;
     }

@@ -10,6 +10,12 @@
       "createTitle": "Novo item",
       "notFound": "Nenhum item encontrado",
       "selectItem": "Selecione um item da lista ou crie um novo",
+      "systemTemplate": "Modelo",
+      "clone": "Clonar",
+      "saveAsSystemTemplate": "Salvar como modelo de sistema",
+      "audit": {
+        "createdBy": "Criado por {{user}}"
+      },
       "tabs": {
         "roles": "Papéis",
         "tools": "Ferramentas",

@@ -1,8 +1,12 @@
 package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Phase;
+import com.mycompany.myapp.domain.Process;
 import com.mycompany.myapp.repository.PhaseRepository;
+import com.mycompany.myapp.repository.ProcessRepository;
 import com.mycompany.myapp.service.ActivityDeletionService;
+import com.mycompany.myapp.service.EntityAccessService;
+import com.mycompany.myapp.service.ReferenceAccessValidator;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,11 +39,23 @@ public class PhaseResource {
     private String applicationName;
 
     private final PhaseRepository phaseRepository;
+    private final ProcessRepository processRepository;
     private final ActivityDeletionService activityDeletionService;
+    private final EntityAccessService entityAccessService;
+    private final ReferenceAccessValidator referenceAccessValidator;
 
-    public PhaseResource(PhaseRepository phaseRepository, ActivityDeletionService activityDeletionService) {
+    public PhaseResource(
+        PhaseRepository phaseRepository,
+        ProcessRepository processRepository,
+        ActivityDeletionService activityDeletionService,
+        EntityAccessService entityAccessService,
+        ReferenceAccessValidator referenceAccessValidator
+    ) {
         this.phaseRepository = phaseRepository;
+        this.processRepository = processRepository;
         this.activityDeletionService = activityDeletionService;
+        this.entityAccessService = entityAccessService;
+        this.referenceAccessValidator = referenceAccessValidator;
     }
 
     /**
@@ -55,6 +71,8 @@ public class PhaseResource {
         if (phase.getId() != null) {
             throw new BadRequestAlertException("A new phase cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        entityAccessService.prepareForCreate(phase);
+        referenceAccessValidator.validatePhaseReferences(phase);
         Phase result = phaseRepository.save(phase);
         return ResponseEntity
             .created(new URI("/api/phases/" + result.getId()))
@@ -83,9 +101,12 @@ public class PhaseResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!phaseRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
+        Phase existing = phaseRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
+        entityAccessService.preserveOwnerOnUpdate(existing, phase);
+        referenceAccessValidator.validatePhaseReferences(phase);
 
         Phase result = phaseRepository.save(phase);
         return ResponseEntity
@@ -116,13 +137,11 @@ public class PhaseResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!phaseRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         Optional<Phase> result = phaseRepository
             .findById(phase.getId())
             .map(existingPhase -> {
+                entityAccessService.assertCanWrite(existingPhase);
+                referenceAccessValidator.validatePhaseReferences(phase);
                 if (phase.getName() != null) {
                     existingPhase.setName(phase.getName());
                 }
@@ -153,15 +172,22 @@ public class PhaseResource {
         @RequestParam(required = false) Long processId
     ) {
         log.debug("REST request to get all Phases (library={}, processId={}, eagerload={})", library, processId, eagerload);
+        Long userId = entityAccessService.getCurrentUserId();
+        boolean admin = entityAccessService.isAdmin();
+
         List<Phase> phases;
         if (Boolean.TRUE.equals(library)) {
-            phases = phaseRepository.findByProcessIsNull();
+            phases = admin ? phaseRepository.findByProcessIsNull() : phaseRepository.findLibraryVisibleToUser(userId);
         } else if (processId != null) {
-            phases = phaseRepository.findByProcess_Id(processId);
+            Process process = processRepository
+                .findById(processId)
+                .orElseThrow(() -> new BadRequestAlertException("Entity not found", "process", "idnotfound"));
+            entityAccessService.assertCanRead(process);
+            phases = admin ? phaseRepository.findByProcess_Id(processId) : phaseRepository.findByProcessIdVisibleToUser(processId, userId);
         } else if (eagerload) {
-            return phaseRepository.findAllWithEagerRelationships();
+            phases = admin ? phaseRepository.findAllWithEagerRelationships() : phaseRepository.findAllVisibleToUser(userId);
         } else {
-            return phaseRepository.findAll();
+            return admin ? phaseRepository.findAll() : phaseRepository.findAllVisibleToUser(userId);
         }
 
         if (eagerload) {
@@ -183,6 +209,7 @@ public class PhaseResource {
     public ResponseEntity<Phase> getPhase(@PathVariable Long id) {
         log.debug("REST request to get Phase : {}", id);
         Optional<Phase> phase = phaseRepository.findOneWithEagerRelationships(id);
+        phase.ifPresent(entityAccessService::assertCanRead);
         return ResponseUtil.wrapOrNotFound(phase);
     }
 
@@ -195,6 +222,10 @@ public class PhaseResource {
     @DeleteMapping("/phases/{id}")
     public ResponseEntity<Void> deletePhase(@PathVariable Long id) {
         log.debug("REST request to delete Phase : {}", id);
+        Phase existing = phaseRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        entityAccessService.assertCanWrite(existing);
         activityDeletionService.deleteActivitiesByPhaseId(id);
         phaseRepository.deleteById(id);
         return ResponseEntity
