@@ -23,7 +23,7 @@ import { Translate, translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getActivityEntities } from 'app/entities/activity/activity.reducer';
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
-import { deleteEntity as deleteProcess } from 'app/entities/process/process.reducer';
+import { deleteEntity as deleteProcess, getEntity as getProcessEntity } from 'app/entities/process/process.reducer';
 import { duplicateProcess } from 'app/modules/process-design/duplicate-process';
 import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
@@ -37,6 +37,7 @@ import { EntityDeleteButton } from 'app/modules/process-design/components/entity
 import { EntityEditButton } from 'app/modules/process-design/components/entity-edit-button';
 import { EntitySaveToLibraryButton } from 'app/modules/process-design/components/entity-save-to-library-button';
 import { PhaseDetailDrawer } from 'app/modules/process-design/components/phase-detail-drawer/phase-detail-drawer';
+import { ProcessDetailDrawer } from 'app/modules/process-design/components/process-detail-drawer/process-detail-drawer';
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
@@ -84,6 +85,7 @@ export const ProcessOverview = () => {
   const [deleteProcessTarget, setDeleteProcessTarget] = useState(false);
   const [deletingProcess, setDeletingProcess] = useState(false);
   const [duplicatingProcess, setDuplicatingProcess] = useState(false);
+  const [processEditDrawerOpen, setProcessEditDrawerOpen] = useState(false);
   const accordionInitializedRef = React.useRef(false);
 
   const phases = useMemo(
@@ -275,6 +277,20 @@ export const ProcessOverview = () => {
       setDeletingProcess(false);
     }
   }, [dispatch, navigate, processId]);
+
+  const handleOpenProcessEdit = useCallback(() => {
+    setProcessEditDrawerOpen(true);
+  }, []);
+
+  const handleCloseProcessEdit = useCallback(() => {
+    setProcessEditDrawerOpen(false);
+  }, []);
+
+  const handleProcessSaved = useCallback(() => {
+    if (isValidProcessId) {
+      dispatch(getProcessEntity(processId));
+    }
+  }, [dispatch, isValidProcessId, processId]);
 
   const handleDuplicateProcess = useCallback(async () => {
     if (!processId || duplicatingProcess) {
@@ -476,6 +492,17 @@ export const ProcessOverview = () => {
             data-cy={`processOverviewMenu-${processId}`}
             items={[
               {
+                key: 'edit',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="pencil-alt" className="me-2" />
+                    <Translate contentKey="processComposerApp.processDesign.list.actions.edit">Edit process</Translate>
+                  </>
+                ),
+                onClick: handleOpenProcessEdit,
+                'data-cy': `processEdit-${processId}`,
+              },
+              {
                 key: 'duplicate',
                 label: (
                   <>
@@ -593,6 +620,13 @@ export const ProcessOverview = () => {
           )}
         </section>
       </div>
+
+      <ProcessDetailDrawer
+        processId={processId}
+        isOpen={processEditDrawerOpen}
+        onClose={handleCloseProcessEdit}
+        onSaved={handleProcessSaved}
+      />
 
       <PhaseDetailDrawer
         phaseId={drawerPhaseId}

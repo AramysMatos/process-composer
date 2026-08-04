@@ -1,19 +1,21 @@
 import './project-overview.scss';
 
-import React, { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { Alert, Spinner } from 'reactstrap';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getEntity as getProject } from 'app/entities/project/project.reducer';
+import { deleteEntity as deleteProject, getEntity as getProject } from 'app/entities/project/project.reducer';
 import { getEntities as getTasks } from 'app/entities/task/task.reducer';
+import { ProjectDetailDrawer } from 'app/modules/execution/components/project-detail-drawer/project-detail-drawer';
 import { ExecutionInsightsPanel } from 'app/modules/execution/execution-insights-panel';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
 
 export const ProjectOverview = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { id } = useParams<'id'>();
 
   const projectId = Number(id);
@@ -22,6 +24,10 @@ export const ProjectOverview = () => {
   const project = useAppSelector(state => state.project.entity);
   const projectLoading = useAppSelector(state => state.project.loading);
   const tasksLoading = useAppSelector(state => state.task.loading);
+
+  const [projectEditDrawerOpen, setProjectEditDrawerOpen] = useState(false);
+  const [deleteProjectTarget, setDeleteProjectTarget] = useState(false);
+  const [deletingProject, setDeletingProject] = useState(false);
 
   useEffect(() => {
     if (!isValidProjectId) {
@@ -38,6 +44,47 @@ export const ProjectOverview = () => {
   const loading = projectLoading || tasksLoading;
   const processId = project.process?.id;
   const processName = project.process?.processName;
+
+  const handleOpenProjectEdit = useCallback(() => {
+    setProjectEditDrawerOpen(true);
+  }, []);
+
+  const handleCloseProjectEdit = useCallback(() => {
+    setProjectEditDrawerOpen(false);
+  }, []);
+
+  const handleProjectSaved = useCallback(() => {
+    if (isValidProjectId) {
+      dispatch(getProject(projectId));
+    }
+  }, [dispatch, isValidProjectId, projectId]);
+
+  const handleRequestDeleteProject = useCallback(() => {
+    setDeleteProjectTarget(true);
+  }, []);
+
+  const handleCancelDeleteProject = useCallback(() => {
+    if (!deletingProject) {
+      setDeleteProjectTarget(false);
+    }
+  }, [deletingProject]);
+
+  const handleConfirmDeleteProject = useCallback(async () => {
+    if (!projectId) {
+      return;
+    }
+
+    setDeletingProject(true);
+    try {
+      await dispatch(deleteProject(projectId)).unwrap();
+      setDeleteProjectTarget(false);
+      navigate('/projetos');
+    } catch {
+      // Modal stays open so the user can retry or cancel.
+    } finally {
+      setDeletingProject(false);
+    }
+  }, [dispatch, navigate, projectId]);
 
   if (!isValidProjectId) {
     return (
@@ -80,6 +127,23 @@ export const ProjectOverview = () => {
         <>
           <div className="project-overview__title-row">
             <h1 className="h2 mb-0">{project.name}</h1>
+            <div className="project-overview__actions d-flex gap-2 flex-wrap">
+              <Button color="primary" size="sm" onClick={handleOpenProjectEdit} data-cy={`projectEdit-${projectId}`}>
+                <FontAwesomeIcon icon="pencil-alt" className="me-1" />
+                <Translate contentKey="processComposerApp.execution.tasks.detailPanel.edit">Edit</Translate>
+              </Button>
+              <Button
+                color="danger"
+                outline
+                size="sm"
+                onClick={handleRequestDeleteProject}
+                disabled={deletingProject}
+                data-cy={`projectDelete-${projectId}`}
+              >
+                <FontAwesomeIcon icon="trash" className="me-1" />
+                <Translate contentKey="entity.action.delete">Delete</Translate>
+              </Button>
+            </div>
           </div>
 
           {project.description && <p className="project-overview__description">{project.description}</p>}
@@ -131,6 +195,39 @@ export const ProjectOverview = () => {
           <ExecutionInsightsPanel projectId={projectId} processId={processId} />
         </>
       )}
+
+      <ProjectDetailDrawer
+        projectId={projectId}
+        isOpen={projectEditDrawerOpen}
+        onClose={handleCloseProjectEdit}
+        onSaved={handleProjectSaved}
+      />
+
+      <Modal isOpen={deleteProjectTarget} toggle={handleCancelDeleteProject}>
+        <ModalHeader toggle={handleCancelDeleteProject} data-cy="projectOverviewDeleteDialogHeading">
+          <Translate contentKey="entity.delete.title">Confirm delete operation</Translate>
+        </ModalHeader>
+        <ModalBody>
+          <Translate contentKey="processComposerApp.execution.list.delete.confirm" interpolate={{ name: projectName }}>
+            {`Are you sure you want to delete the project "${projectName}"?`}
+          </Translate>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={handleCancelDeleteProject} disabled={deletingProject}>
+            <FontAwesomeIcon icon="ban" /> <Translate contentKey="entity.action.cancel">Cancel</Translate>
+          </Button>
+          <Button
+            color="danger"
+            onClick={() => {
+              void handleConfirmDeleteProject();
+            }}
+            disabled={deletingProject}
+            data-cy="projectOverviewConfirmDeleteButton"
+          >
+            <FontAwesomeIcon icon="trash" /> <Translate contentKey="entity.action.delete">Delete</Translate>
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 };

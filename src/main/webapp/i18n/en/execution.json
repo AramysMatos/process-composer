@@ -55,11 +55,18 @@
         "notFound": "No projects found",
         "taskCount": "{{count}} tasks",
         "actions": {
+          "editProject": "Edit project",
           "deleteProject": "Delete project"
         },
         "delete": {
           "confirm": "Are you sure you want to delete the project \"{{name}}\"?"
         }
+      },
+      "projectDrawer": {
+        "title": "Project details",
+        "saveSuccess": "Project saved successfully.",
+        "saveError": "Could not save the project.",
+        "saving": "Saving..."
       },
       "overview": {
         "breadcrumbProjects": "Projects",

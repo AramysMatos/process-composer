@@ -14,6 +14,7 @@
           "phases": "Most phases"
         },
         "actions": {
+          "edit": "Edit process",
           "duplicate": "Duplicate process",
           "exportYaml": "Export YAML"
         },
@@ -105,6 +106,7 @@
         "deleteActivity": "Delete activity"
       },
       "edit": {
+        "editProcess": "Edit process",
         "editPhase": "Edit phase",
         "editActivity": "Edit activity"
       },
@@ -120,6 +122,11 @@
         "title": "Phase details",
         "saveSuccess": "Phase saved successfully.",
         "saveError": "Could not save the phase."
+      },
+      "processDrawer": {
+        "title": "Process details",
+        "saveSuccess": "Process saved successfully.",
+        "saveError": "Could not save the process."
       },
       "canvas": {
         "contentAriaLabel": "Activity canvas",

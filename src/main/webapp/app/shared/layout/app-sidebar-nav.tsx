@@ -172,7 +172,7 @@ export const AppSidebarNav = ({
           <ProcessComposerLogoIcon className="app-sidebar__brand-logo" />
         </span>
         <span className="app-sidebar__brand-text">
-          <Translate contentKey="global.title">Process Composer</Translate>
+          <Translate contentKey="global.title">Composer</Translate>
         </span>
       </RouterNavLink>
 

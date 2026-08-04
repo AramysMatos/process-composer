@@ -55,11 +55,18 @@
         "notFound": "Nenhum projeto encontrado",
         "taskCount": "{{count}} tarefas",
         "actions": {
+          "editProject": "Editar projeto",
           "deleteProject": "Excluir projeto"
         },
         "delete": {
           "confirm": "Tem certeza de que deseja excluir o projeto \"{{name}}\"?"
         }
+      },
+      "projectDrawer": {
+        "title": "Detalhes do projeto",
+        "saveSuccess": "Projeto salvo com sucesso.",
+        "saveError": "Não foi possível salvar o projeto.",
+        "saving": "Salvando..."
       },
       "overview": {
         "breadcrumbProjects": "Projetos",
