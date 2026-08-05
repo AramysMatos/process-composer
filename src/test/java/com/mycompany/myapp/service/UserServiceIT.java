@@ -150,6 +150,54 @@ class UserServiceIT {
 
     @Test
     @Transactional
+    void assertThatPoliUfrjEmailIsAutoActivatedOnRegistration() {
+        AdminUserDTO userDTO = new AdminUserDTO();
+        userDTO.setLogin("poli-user");
+        userDTO.setEmail("aluno@poli.ufrj.br");
+        userDTO.setFirstName("Poli");
+        userDTO.setLastName("User");
+        userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
+
+        User registeredUser = userService.registerUser(userDTO, "password");
+
+        assertThat(registeredUser.isActivated()).isTrue();
+        assertThat(registeredUser.getActivationKey()).isNull();
+    }
+
+    @Test
+    @Transactional
+    void assertThatCosUfrjEmailIsAutoActivatedOnRegistration() {
+        AdminUserDTO userDTO = new AdminUserDTO();
+        userDTO.setLogin("cos-user");
+        userDTO.setEmail("aluno@cos.ufrj.br");
+        userDTO.setFirstName("Cos");
+        userDTO.setLastName("User");
+        userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
+
+        User registeredUser = userService.registerUser(userDTO, "password");
+
+        assertThat(registeredUser.isActivated()).isTrue();
+        assertThat(registeredUser.getActivationKey()).isNull();
+    }
+
+    @Test
+    @Transactional
+    void assertThatExternalEmailRequiresActivationOnRegistration() {
+        AdminUserDTO userDTO = new AdminUserDTO();
+        userDTO.setLogin("external-user");
+        userDTO.setEmail("aluno@example.com");
+        userDTO.setFirstName("External");
+        userDTO.setLastName("User");
+        userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
+
+        User registeredUser = userService.registerUser(userDTO, "password");
+
+        assertThat(registeredUser.isActivated()).isFalse();
+        assertThat(registeredUser.getActivationKey()).isNotNull();
+    }
+
+    @Test
+    @Transactional
     void assertThatNotActivatedUsersWithNotNullActivationKeyCreatedBefore3DaysAreDeleted() {
         Instant now = Instant.now();
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
