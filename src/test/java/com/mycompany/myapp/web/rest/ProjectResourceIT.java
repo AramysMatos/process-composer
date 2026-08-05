@@ -525,36 +525,8 @@ class ProjectResourceIT {
 
     @Test
     @Transactional
-    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
-    void getAllProjectsAsAdminFilterSystemOnly() throws Exception {
-        User user = userRepository.findOneByLogin("user").orElseThrow();
-
-        Project ownedProject = createEntity(em).name("Owned Project");
-        ownedProject.setOwner(user);
-        projectRepository.saveAndFlush(ownedProject);
-
-        Project systemProject = createEntity(em).name("System Project");
-        systemProject.setOwner(null);
-        projectRepository.saveAndFlush(systemProject);
-
-        restProjectMockMvc
-            .perform(get(ENTITY_API_URL + "?systemOnly=true"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[*].name").value(hasItem("System Project")))
-            .andExpect(jsonPath("$[*].name").value(org.hamcrest.Matchers.not(hasItem("Owned Project"))));
-    }
-
-    @Test
-    @Transactional
-    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
-    void getAllProjectsAsAdminRejectsConflictingFilters() throws Exception {
-        restProjectMockMvc.perform(get(ENTITY_API_URL + "?systemOnly=true&ownerId=1")).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @Transactional
     @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
-    void getAllProjectsAsUserIgnoresOwnerFilter() throws Exception {
+    void getAllProjectsAsUserSeesOnlyOwnProjects() throws Exception {
         User user = userRepository.findOneByLogin("user").orElseThrow();
         User admin = userRepository.findOneByLogin("admin").orElseThrow();
 
@@ -566,15 +538,15 @@ class ProjectResourceIT {
         adminProject.setOwner(admin);
         projectRepository.saveAndFlush(adminProject);
 
-        Project systemProject = createEntity(em).name("System Project");
-        systemProject.setOwner(null);
-        projectRepository.saveAndFlush(systemProject);
+        Project legacyProjectWithoutOwner = createEntity(em).name("Legacy Project");
+        legacyProjectWithoutOwner.setOwner(null);
+        projectRepository.saveAndFlush(legacyProjectWithoutOwner);
 
         restProjectMockMvc
             .perform(get(ENTITY_API_URL + "?ownerId=" + admin.getId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[*].name").value(hasItem("User Project")))
-            .andExpect(jsonPath("$[*].name").value(hasItem("System Project")))
-            .andExpect(jsonPath("$[*].name").value(org.hamcrest.Matchers.not(hasItem("Admin Project"))));
+            .andExpect(jsonPath("$[*].name").value(org.hamcrest.Matchers.not(hasItem("Admin Project"))))
+            .andExpect(jsonPath("$[*].name").value(org.hamcrest.Matchers.not(hasItem("Legacy Project"))));
     }
 }

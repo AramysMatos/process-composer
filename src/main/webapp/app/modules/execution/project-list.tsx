@@ -39,7 +39,7 @@ import { IProject } from 'app/shared/model/project.model';
 
 const LIST_PAGE_SIZE = 12;
 
-type OwnerFilterValue = 'all' | 'system' | string;
+type OwnerFilterValue = 'all' | string;
 
 type ProjectDeleteTarget = {
   id: number;
@@ -48,9 +48,6 @@ type ProjectDeleteTarget = {
 
 const parseOwnerFilterFromSearch = (search: string): OwnerFilterValue => {
   const params = new URLSearchParams(search);
-  if (params.get('systemOnly') === 'true') {
-    return 'system';
-  }
   const ownerId = params.get('ownerId');
   if (ownerId) {
     return ownerId;
@@ -58,10 +55,7 @@ const parseOwnerFilterFromSearch = (search: string): OwnerFilterValue => {
   return 'all';
 };
 
-const toOwnerFilterParams = (ownerFilter: OwnerFilterValue): Pick<IProjectQueryParams, 'ownerId' | 'systemOnly'> => {
-  if (ownerFilter === 'system') {
-    return { systemOnly: true };
-  }
+const toOwnerFilterParams = (ownerFilter: OwnerFilterValue): Pick<IProjectQueryParams, 'ownerId'> => {
   if (ownerFilter !== 'all') {
     return { ownerId: Number(ownerFilter) };
   }
@@ -72,9 +66,7 @@ const buildListSearch = (activePage: number, sort: string, order: string, ownerF
   const params = new URLSearchParams();
   params.set('page', String(activePage));
   params.set(SORT, `${sort},${order}`);
-  if (ownerFilter === 'system') {
-    params.set('systemOnly', 'true');
-  } else if (ownerFilter !== 'all') {
+  if (ownerFilter !== 'all') {
     params.set('ownerId', ownerFilter);
   }
   return `?${params.toString()}`;
@@ -270,7 +262,6 @@ export const ProjectList = () => {
               data-cy="projectOwnerFilterSelect"
             >
               <option value="all">{translate('processComposerApp.execution.list.ownerFilter.all', 'All')}</option>
-              <option value="system">{translate('processComposerApp.execution.list.ownerFilter.system', 'System template')}</option>
               {users.map(user => (
                 <option key={user.id} value={String(user.id)}>
                   {user.login}

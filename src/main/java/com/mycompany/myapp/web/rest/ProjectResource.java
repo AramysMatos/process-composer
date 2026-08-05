@@ -66,7 +66,7 @@ public class ProjectResource {
         if (project.getId() != null) {
             throw new BadRequestAlertException("A new project cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        entityAccessService.prepareForCreate(project);
+        entityAccessService.prepareForCreate(project, false);
         referenceAccessValidator.validateProjectReferences(project);
         Project result = projectRepository.save(project);
         return ResponseEntity
@@ -174,17 +174,10 @@ public class ProjectResource {
     @GetMapping("/projects")
     public List<Project> getAllProjects(
         @RequestParam(required = false, defaultValue = "false") boolean eagerload,
-        @RequestParam(required = false) Long ownerId,
-        @RequestParam(required = false) Boolean systemOnly
+        @RequestParam(required = false) Long ownerId
     ) {
         log.debug("REST request to get all Projects");
         if (entityAccessService.isAdmin()) {
-            if (Boolean.TRUE.equals(systemOnly) && ownerId != null) {
-                throw new BadRequestAlertException("Cannot combine systemOnly and ownerId filters", ENTITY_NAME, "invalidfilter");
-            }
-            if (Boolean.TRUE.equals(systemOnly)) {
-                return projectRepository.findAllSystemTemplates();
-            }
             if (ownerId != null) {
                 return projectRepository.findAllByOwnerId(ownerId);
             }

@@ -21,10 +21,9 @@ export interface IProjectQueryParams {
   size?: number;
   sort?: string;
   ownerId?: number;
-  systemOnly?: boolean;
 }
 
-const buildListRequestUrl = ({ page, size, sort, ownerId, systemOnly }: IProjectQueryParams) => {
+const buildListRequestUrl = ({ page, size, sort, ownerId }: IProjectQueryParams) => {
   const params = new URLSearchParams();
   if (page !== undefined) {
     params.set('page', String(page));
@@ -37,9 +36,6 @@ const buildListRequestUrl = ({ page, size, sort, ownerId, systemOnly }: IProject
   }
   if (ownerId !== undefined) {
     params.set('ownerId', String(ownerId));
-  }
-  if (systemOnly) {
-    params.set('systemOnly', 'true');
   }
   params.set('cacheBuster', String(new Date().getTime()));
   const query = params.toString();
