@@ -24,7 +24,7 @@ public class Tools extends AbstractOwnedAuditingEntity<Long> implements Serializ
     @Column(name = "name")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @ManyToMany(mappedBy = "tools")

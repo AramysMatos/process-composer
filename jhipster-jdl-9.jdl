@@ -1,43 +1,43 @@
 
 entity Tools {
 	name String
-    description String
+    description Text
 }
 
 entity Guidelines {
 	name String
-    description String
+    description Text
 }
 
 entity Roles {
 	name String
-    description String
+    description Text
 }
 
 entity Artifacts {
 	name String
-    description String
+    description Text
     optional Boolean
 }
 
 entity Templates {
 	name String
-    description String
+    description Text
 }
 
 entity Process {
 	processName String
-    processDescription String
+    processDescription Text
 }
 
 entity Phase {
 	name String
-    description String
+    description Text
 }
 
 entity Project {
 	name String
-    description String
+    description Text
     gitHubToken String
     gitHubRepository String
     gitHubNodeId String    
@@ -45,14 +45,14 @@ entity Project {
 
 entity Task {
 	name String
-    description String
+    description Text
     gitHubUrl String
     gitHubNodeId String 
 }
 
 entity Activity {
 	name String
-    description String
+    description Text
     inputCriterion String
     
 }

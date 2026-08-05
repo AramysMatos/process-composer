@@ -11,7 +11,7 @@
     },
     {
       "fieldName": "description",
-      "fieldType": "String"
+      "fieldType": "Text"
     },
     {
       "fieldName": "optional",

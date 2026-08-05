@@ -24,7 +24,7 @@ public class Guidelines extends AbstractOwnedAuditingEntity<Long> implements Ser
     @Column(name = "name")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @ManyToMany(mappedBy = "guidelines")

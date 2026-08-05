@@ -24,7 +24,7 @@ public class Process extends AbstractOwnedAuditingEntity<Long> implements Serial
     @Column(name = "process_name")
     private String processName;
 
-    @Column(name = "process_description")
+    @Column(name = "process_description", columnDefinition = "TEXT")
     private String processDescription;
 
     @OneToMany(mappedBy = "process")

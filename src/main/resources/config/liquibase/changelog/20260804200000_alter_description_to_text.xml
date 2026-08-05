@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20260804200000-1" author="process-composer">
+        <modifyDataType tableName="tools" columnName="description" newDataType="text"/>
+        <modifyDataType tableName="guidelines" columnName="description" newDataType="text"/>
+        <modifyDataType tableName="roles" columnName="description" newDataType="text"/>
+        <modifyDataType tableName="artifacts" columnName="description" newDataType="text"/>
+        <modifyDataType tableName="templates" columnName="description" newDataType="text"/>
+        <modifyDataType tableName="process" columnName="process_description" newDataType="text"/>
+        <modifyDataType tableName="phase" columnName="description" newDataType="text"/>
+        <modifyDataType tableName="project" columnName="description" newDataType="text"/>
+        <modifyDataType tableName="task" columnName="description" newDataType="text"/>
+        <modifyDataType tableName="activity" columnName="description" newDataType="text"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -11,7 +11,7 @@
     },
     {
       "fieldName": "processDescription",
-      "fieldType": "String"
+      "fieldType": "Text"
     }
   ],
   "fluentMethods": true,

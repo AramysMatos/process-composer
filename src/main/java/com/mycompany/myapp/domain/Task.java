@@ -24,7 +24,7 @@ public class Task extends AbstractOwnedAuditingEntity<Long> implements Serializa
     @Column(name = "name")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "git_hub_url")

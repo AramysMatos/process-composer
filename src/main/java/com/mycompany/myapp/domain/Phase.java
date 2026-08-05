@@ -24,7 +24,7 @@ public class Phase extends AbstractOwnedAuditingEntity<Long> implements Serializ
     @Column(name = "name")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @OneToMany(mappedBy = "phase")

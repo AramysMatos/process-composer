@@ -27,7 +27,7 @@ public class Project extends AbstractOwnedAuditingEntity<Long> implements Serial
     @Column(name = "name")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Convert(converter = EncryptedStringConverter.class)
