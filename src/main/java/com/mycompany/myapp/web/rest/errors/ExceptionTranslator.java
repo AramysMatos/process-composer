@@ -150,6 +150,22 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
     }
 
     @ExceptionHandler
+    public ResponseEntity<Problem> handleEntityNotFoundException(
+        com.mycompany.myapp.service.EntityNotFoundException ex,
+        NativeWebRequest request
+    ) {
+        return handleBadRequestAlertException(new BadRequestAlertException(ex.getMessage(), ex.getEntityName(), ex.getErrorKey()), request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleInvalidOperationException(
+        com.mycompany.myapp.service.InvalidOperationException ex,
+        NativeWebRequest request
+    ) {
+        return handleBadRequestAlertException(new BadRequestAlertException(ex.getMessage(), ex.getEntityName(), ex.getErrorKey()), request);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex, NativeWebRequest request) {
         return create(
             ex,

@@ -2,7 +2,6 @@ package com.mycompany.myapp.service;
 
 import com.mycompany.myapp.domain.Task;
 import com.mycompany.myapp.repository.TaskRepository;
-import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.util.HashSet;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -24,9 +23,7 @@ public class TaskDeletionService {
     }
 
     public void deleteTask(Long id) {
-        Task task = taskRepository
-            .findOneWithEagerRelationships(id)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        Task task = taskRepository.findOneWithEagerRelationships(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_NAME));
         clearActivityRelationships(task);
         taskRepository.delete(task);
     }

@@ -3,6 +3,7 @@ package com.mycompany.myapp.web.rest;
 import com.mycompany.myapp.domain.Project;
 import com.mycompany.myapp.repository.ProjectRepository;
 import com.mycompany.myapp.service.EntityAccessService;
+import com.mycompany.myapp.service.ProjectGitHubTokenService;
 import com.mycompany.myapp.service.ReferenceAccessValidator;
 import com.mycompany.myapp.service.TaskDeletionService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
@@ -40,17 +41,20 @@ public class ProjectResource {
     private final TaskDeletionService taskDeletionService;
     private final EntityAccessService entityAccessService;
     private final ReferenceAccessValidator referenceAccessValidator;
+    private final ProjectGitHubTokenService projectGitHubTokenService;
 
     public ProjectResource(
         ProjectRepository projectRepository,
         TaskDeletionService taskDeletionService,
         EntityAccessService entityAccessService,
-        ReferenceAccessValidator referenceAccessValidator
+        ReferenceAccessValidator referenceAccessValidator,
+        ProjectGitHubTokenService projectGitHubTokenService
     ) {
         this.projectRepository = projectRepository;
         this.taskDeletionService = taskDeletionService;
         this.entityAccessService = entityAccessService;
         this.referenceAccessValidator = referenceAccessValidator;
+        this.projectGitHubTokenService = projectGitHubTokenService;
     }
 
     /**
@@ -68,6 +72,7 @@ public class ProjectResource {
         }
         entityAccessService.prepareForCreate(project, false);
         referenceAccessValidator.validateProjectReferences(project);
+        projectGitHubTokenService.prepareForPersist(project);
         Project result = projectRepository.save(project);
         return ResponseEntity
             .created(new URI("/api/projects/" + result.getId()))
@@ -102,6 +107,7 @@ public class ProjectResource {
         entityAccessService.assertCanWrite(existing);
         entityAccessService.preserveOwnerOnUpdate(existing, project);
         referenceAccessValidator.validateProjectReferences(project);
+        projectGitHubTokenService.prepareForPersist(project);
 
         Project result = projectRepository.save(project);
         return ResponseEntity
@@ -146,7 +152,7 @@ public class ProjectResource {
                     existingProject.setDescription(project.getDescription());
                 }
                 if (project.getGitHubToken() != null) {
-                    existingProject.setGitHubToken(project.getGitHubToken());
+                    projectGitHubTokenService.storeToken(existingProject, project.getGitHubToken());
                 }
                 if (project.getGitHubRepository() != null) {
                     existingProject.setGitHubRepository(project.getGitHubRepository());

@@ -10,7 +10,6 @@ import com.mycompany.myapp.repository.GuidelinesRepository;
 import com.mycompany.myapp.repository.RolesRepository;
 import com.mycompany.myapp.repository.TemplatesRepository;
 import com.mycompany.myapp.repository.ToolsRepository;
-import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.util.HashSet;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,18 +42,14 @@ public class LibraryEntityDeletionService {
     }
 
     public void deleteRole(Long id) {
-        Roles role = rolesRepository
-            .findOneWithEagerRelationships(id)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", "roles", "idnotfound"));
+        Roles role = rolesRepository.findOneWithEagerRelationships(id).orElseThrow(() -> new EntityNotFoundException("roles"));
         new HashSet<>(role.getParticipantActivities()).forEach(role::removeParticipantActivities);
         new HashSet<>(role.getResponsibleActivities()).forEach(role::removeResponsibleActivities);
         rolesRepository.delete(role);
     }
 
     public void deleteTool(Long id) {
-        Tools tool = toolsRepository
-            .findOneWithEagerRelationships(id)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", "tools", "idnotfound"));
+        Tools tool = toolsRepository.findOneWithEagerRelationships(id).orElseThrow(() -> new EntityNotFoundException("tools"));
         new HashSet<>(tool.getActivities()).forEach(tool::removeActivities);
         toolsRepository.delete(tool);
     }
@@ -62,7 +57,7 @@ public class LibraryEntityDeletionService {
     public void deleteGuideline(Long id) {
         Guidelines guideline = guidelinesRepository
             .findOneWithEagerRelationships(id)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", "guidelines", "idnotfound"));
+            .orElseThrow(() -> new EntityNotFoundException("guidelines"));
         new HashSet<>(guideline.getActivities()).forEach(guideline::removeActivities);
         guidelinesRepository.delete(guideline);
     }
@@ -70,7 +65,7 @@ public class LibraryEntityDeletionService {
     public void deleteArtifact(Long id) {
         Artifacts artifact = artifactsRepository
             .findOneWithEagerRelationships(id)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", "artifacts", "idnotfound"));
+            .orElseThrow(() -> new EntityNotFoundException("artifacts"));
         new HashSet<>(artifact.getTemplates()).forEach(artifact::removeTemplates);
         new HashSet<>(artifact.getDependentActivities()).forEach(artifact::removeDependentActivities);
         new HashSet<>(artifact.getProducingActivities()).forEach(artifact::removeProducingActivities);
@@ -80,7 +75,7 @@ public class LibraryEntityDeletionService {
     public void deleteTemplate(Long id) {
         Templates template = templatesRepository
             .findOneWithEagerRelationships(id)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", "templates", "idnotfound"));
+            .orElseThrow(() -> new EntityNotFoundException("templates"));
         new HashSet<>(template.getArtifacts()).forEach(template::removeArtifacts);
         new HashSet<>(template.getActivities()).forEach(template::removeActivities);
         templatesRepository.delete(template);

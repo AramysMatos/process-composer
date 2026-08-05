@@ -31,9 +31,11 @@ public class GitHubService {
     private static final Pattern REPOSITORY_PATTERN = Pattern.compile("^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$");
 
     private final RestTemplate restTemplate;
+    private final ProjectGitHubTokenService projectGitHubTokenService;
 
-    public GitHubService(RestTemplate restTemplate) {
+    public GitHubService(RestTemplate restTemplate, ProjectGitHubTokenService projectGitHubTokenService) {
         this.restTemplate = restTemplate;
+        this.projectGitHubTokenService = projectGitHubTokenService;
     }
 
     public void validateConnection(Project project) {
@@ -67,7 +69,7 @@ public class GitHubService {
         String normalizedToken = requireTokenValue(token);
         String normalizedRepository = requireRepositoryValue(repository);
         validateConnection(normalizedToken, normalizedRepository);
-        project.setGitHubToken(normalizedToken);
+        projectGitHubTokenService.storeToken(project, normalizedToken);
         project.setGitHubRepository(normalizedRepository);
     }
 
@@ -133,7 +135,7 @@ public class GitHubService {
     }
 
     private String requireToken(Project project) {
-        return requireTokenValue(project.getGitHubToken());
+        return requireTokenValue(projectGitHubTokenService.readToken(project));
     }
 
     private String requireRepository(Project project) {

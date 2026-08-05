@@ -5,7 +5,6 @@ import com.mycompany.myapp.domain.Process;
 import com.mycompany.myapp.repository.PhaseRepository;
 import com.mycompany.myapp.repository.ProcessRepository;
 import com.mycompany.myapp.repository.ProjectRepository;
-import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,12 +36,10 @@ public class ProcessDeletionService {
     }
 
     public void deleteProcess(Long id) {
-        Process process = processRepository
-            .findById(id)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        Process process = processRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_NAME));
 
         if (projectRepository.existsByProcess_Id(id)) {
-            throw new BadRequestAlertException("Process is linked to projects", ENTITY_NAME, "processhasprojects");
+            throw new InvalidOperationException("Process is linked to projects", ENTITY_NAME, "processhasprojects");
         }
 
         List<Phase> phases = phaseRepository.findByProcess_Id(id);

@@ -2,7 +2,6 @@ package com.mycompany.myapp.service;
 
 import com.mycompany.myapp.domain.Activity;
 import com.mycompany.myapp.repository.ActivityRepository;
-import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -27,9 +26,7 @@ public class ActivityDeletionService {
     }
 
     public void deleteActivity(Long id) {
-        Activity activity = activityRepository
-            .findById(id)
-            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        Activity activity = activityRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ENTITY_NAME));
         unlinkActivityHierarchy(Set.of(activity.getId()));
         clearOtherRelationships(activity);
         activityRepository.delete(activity);

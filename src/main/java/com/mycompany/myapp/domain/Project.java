@@ -3,7 +3,6 @@ package com.mycompany.myapp.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.mycompany.myapp.security.EncryptedStringConverter;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +29,6 @@ public class Project extends AbstractOwnedAuditingEntity<Long> implements Serial
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Convert(converter = EncryptedStringConverter.class)
     @JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "git_hub_token", length = 512)
     private String gitHubToken;

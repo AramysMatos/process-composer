@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.mycompany.myapp.domain.Project;
+import com.mycompany.myapp.security.GitHubTokenEncryptionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -20,12 +21,14 @@ class GitHubServiceTest {
     private RestTemplate restTemplate;
     private MockRestServiceServer mockServer;
     private GitHubService gitHubService;
+    private ProjectGitHubTokenService projectGitHubTokenService;
 
     @BeforeEach
     void setUp() {
         restTemplate = new RestTemplate();
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        gitHubService = new GitHubService(restTemplate);
+        projectGitHubTokenService = new ProjectGitHubTokenService(new GitHubTokenEncryptionService("test-github-token-encryption-key-32b"));
+        gitHubService = new GitHubService(restTemplate, projectGitHubTokenService);
     }
 
     @Test
@@ -40,14 +43,16 @@ class GitHubServiceTest {
 
         gitHubService.connectProject(project, "new-token", "owner/new-repo");
 
-        assertThat(project.getGitHubToken()).isEqualTo("new-token");
+        assertThat(projectGitHubTokenService.readToken(project)).isEqualTo("new-token");
         assertThat(project.getGitHubRepository()).isEqualTo("owner/new-repo");
         mockServer.verify();
     }
 
     @Test
     void connectProject_doesNotPersistCredentialsWhenValidationFails() {
-        Project project = new Project().id(1L).gitHubToken("still-valid-token").gitHubRepository("owner/repo");
+        Project project = new Project().id(1L);
+        projectGitHubTokenService.storeToken(project, "still-valid-token");
+        project.setGitHubRepository("owner/repo");
 
         mockServer
             .expect(MockRestRequestMatchers.requestTo("https://api.github.com/repos/owner/repo"))
@@ -58,7 +63,7 @@ class GitHubServiceTest {
             .isInstanceOf(ResponseStatusException.class)
             .hasMessageContaining("Token do GitHub inválido");
 
-        assertThat(project.getGitHubToken()).isEqualTo("still-valid-token");
+        assertThat(projectGitHubTokenService.readToken(project)).isEqualTo("still-valid-token");
         assertThat(project.getGitHubRepository()).isEqualTo("owner/repo");
         mockServer.verify();
     }
