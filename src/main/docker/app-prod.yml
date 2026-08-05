@@ -1,0 +1,47 @@
+# Production Docker Compose for GCP VM deployment.
+# Image is pulled from GHCR (built locally via scripts/build-and-push.sh).
+# Secrets: copy .env.example to .env in this directory and fill values (never commit .env).
+version: '3.8'
+
+services:
+  process_composer-app:
+    image: ${GHCR_IMAGE:-ghcr.io/YOUR_GITHUB_USER/process-composer:latest}
+    env_file:
+      - .env
+    environment:
+      - _JAVA_OPTIONS=${JAVA_OPTIONS:--Xmx512m -Xms256m}
+      - SPRING_PROFILES_ACTIVE=prod
+      - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=false
+      - SPRING_DATASOURCE_URL=jdbc:mysql://process_composer-mysql:3306/process_composer?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_LIQUIBASE_URL=jdbc:mysql://process_composer-mysql:3306/process_composer?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - JHIPSTER_CACHE_REDIS_SERVER=redis://process_composer-redis:6379
+      - JHIPSTER_CACHE_REDIS_CLUSTER=false
+      - JHIPSTER_SLEEP=30
+    ports:
+      # Bind to localhost only; Caddy on the host reverse-proxies to this port.
+      - 127.0.0.1:8080:8080
+    depends_on:
+      - process_composer-mysql
+      - process_composer-redis
+    restart: unless-stopped
+
+  process_composer-mysql:
+    image: mysql:8.0.30
+    volumes:
+      - ./config/mysql:/etc/mysql/conf.d
+      - process_composer_mysql_data:/var/lib/mysql
+    env_file:
+      - .env
+    environment:
+      - MYSQL_DATABASE=process_composer
+    # No public port — only reachable inside the compose network.
+    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8mb4 --explicit_defaults_for_timestamp
+    restart: unless-stopped
+
+  process_composer-redis:
+    image: redis:6.2.7
+    # No public port — only reachable inside the compose network.
+    restart: unless-stopped
+
+volumes:
+  process_composer_mysql_data:

@@ -4,6 +4,7 @@
 /src/main/webapp/content/css/main.css
 /target/classes/static/**
 /src/test/javascript/coverage/
+/src/main/docker/.env
 
 ######################
 # Node
@@ -14,6 +15,11 @@ node_modules/
 npm-debug.log.*
 /.awcache/*
 /.cache-loader/*
+
+######################
+# Node
+######################
+/.cursor/
 
 ######################
 # SASS

@@ -1,0 +1,13 @@
+# Copy to /etc/caddy/Caddyfile on the GCP VM.
+# Replace with your nip.io hostname (IP 34.56.78.90 -> 34-56-78-90.nip.io).
+#
+# Install Caddy on Ubuntu:
+#   sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+#   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+#   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+#   sudo apt update && sudo apt install -y caddy
+#   sudo systemctl reload caddy
+
+34-56-78-90.nip.io {
+    reverse_proxy localhost:8080
+}
