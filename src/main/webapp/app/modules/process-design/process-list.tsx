@@ -504,37 +504,37 @@ export const ProcessList = () => {
                       <CardText className="text-muted small process-list__description">{process.processDescription}</CardText>
                     )}
 
-                    {(showSystemBadge || showOwnerLabel) && (
+                    {showOwnerLabel && (
                       <CardText className="small mb-2">
-                        {showSystemBadge && (
-                          <Badge color="info">
-                            <Translate contentKey="processComposerApp.library.systemTemplate">Modelo</Translate>
-                          </Badge>
-                        )}
-                        {showOwnerLabel && (
-                          <span className="text-muted">
-                            <Translate contentKey="processComposerApp.processDesign.list.owner.label" interpolate={{ login: ownerLogin }}>
-                              {`Owner: ${ownerLogin}`}
-                            </Translate>
-                          </span>
-                        )}
+                        <span className="text-muted">
+                          <Translate contentKey="processComposerApp.processDesign.list.owner.label" interpolate={{ login: ownerLogin }}>
+                            {`Owner: ${ownerLogin}`}
+                          </Translate>
+                        </span>
                       </CardText>
                     )}
 
-                    <CardText className="text-muted small mb-0">
-                      <Translate
-                        contentKey="home.dashboard.process.phaseCount"
-                        interpolate={{ count: countPhasesForProcess(process.id, phases) }}
-                      >
-                        {`${countPhasesForProcess(process.id, phases)} phases`}
-                      </Translate>
-                      {' · '}
-                      <Translate
-                        contentKey="home.dashboard.process.activityCount"
-                        interpolate={{ count: countActivitiesForProcess(process.id, phases, activities) }}
-                      >
-                        {`${countActivitiesForProcess(process.id, phases, activities)} activities`}
-                      </Translate>
+                    <CardText className="text-muted small mb-0 d-flex flex-wrap align-items-center gap-2">
+                      <span>
+                        <Translate
+                          contentKey="home.dashboard.process.phaseCount"
+                          interpolate={{ count: countPhasesForProcess(process.id, phases) }}
+                        >
+                          {`${countPhasesForProcess(process.id, phases)} phases`}
+                        </Translate>
+                        {' · '}
+                        <Translate
+                          contentKey="home.dashboard.process.activityCount"
+                          interpolate={{ count: countActivitiesForProcess(process.id, phases, activities) }}
+                        >
+                          {`${countActivitiesForProcess(process.id, phases, activities)} activities`}
+                        </Translate>
+                      </span>
+                      {showSystemBadge && (
+                        <Badge color="info" className="mb-0">
+                          <Translate contentKey="processComposerApp.library.systemTemplate">Modelo</Translate>
+                        </Badge>
+                      )}
                     </CardText>
 
                     <div className="process-list__card-actions d-flex flex-wrap gap-2">

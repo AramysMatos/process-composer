@@ -36,7 +36,6 @@ import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-u
 import { isGitHubConnected } from 'app/modules/execution/execution.utils';
 import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { IProject } from 'app/shared/model/project.model';
-import { isSystemTemplate } from 'app/shared/model/owned-entity.model';
 
 const LIST_PAGE_SIZE = 12;
 
@@ -306,81 +305,79 @@ export const ProjectList = () => {
         <Row className="g-3 project-list__grid">
           {displayedProjects.map(project => {
             const ownerLogin = getProjectOwnerLogin(project);
-            const showSystemBadge = isSystemTemplate(project);
-            const showOwnerLabel = isAdmin && !showSystemBadge && ownerLogin;
+            const showOwnerLabel = isAdmin && ownerLogin;
+            const githubConnected = isGitHubConnected(project);
+            const taskCount = countTasksForProject(project.id);
 
             return (
               <Col key={project.id} xs={12} md={6} xl={4}>
                 <Card className="project-list__card shadow-sm" data-cy={`projectListCard-${project.id}`}>
                   <CardBody className="project-list__card-body">
-                    <div className="project-list__card-header">
-                      <CardTitle tag="h2" className="h5 text-body mb-0">
-                        {project.name}
-                      </CardTitle>
-                      <CardActionsMenu
-                        data-cy={`projectListCardMenu-${project.id}`}
-                        items={[
-                          {
-                            key: 'delete',
-                            label: (
-                              <>
-                                <FontAwesomeIcon icon="trash" className="me-2" />
-                                <Translate contentKey="processComposerApp.execution.list.actions.deleteProject">Delete project</Translate>
-                              </>
-                            ),
-                            onClick: () => handleRequestDelete(project),
-                            danger: true,
-                            disabled: deleting,
-                            'data-cy': `projectDelete-${project.id}`,
-                          },
-                        ]}
-                      />
+                    <div className="project-list__card-intro">
+                      <div className="project-list__card-header">
+                        <CardTitle tag="h2" className="h5 text-body mb-0">
+                          {project.name}
+                        </CardTitle>
+                        <CardActionsMenu
+                          data-cy={`projectListCardMenu-${project.id}`}
+                          items={[
+                            {
+                              key: 'delete',
+                              label: (
+                                <>
+                                  <FontAwesomeIcon icon="trash" className="me-2" />
+                                  <Translate contentKey="processComposerApp.execution.list.actions.deleteProject">Delete project</Translate>
+                                </>
+                              ),
+                              onClick: () => handleRequestDelete(project),
+                              danger: true,
+                              disabled: deleting,
+                              'data-cy': `projectDelete-${project.id}`,
+                            },
+                          ]}
+                        />
+                      </div>
+
+                      {project.description && (
+                        <CardText className="text-muted small project-list__description mb-0">{project.description}</CardText>
+                      )}
                     </div>
 
-                    {project.description && (
-                      <CardText className="text-muted small project-list__description">{project.description}</CardText>
-                    )}
+                    <div className="project-list__card-meta">
+                      <div className="project-list__meta-item">
+                        <FontAwesomeIcon icon="code-branch" className="project-list__meta-icon" aria-hidden="true" />
+                        <span>
+                          <Translate contentKey="home.dashboard.project.sourceProcess">Source process</Translate>:{' '}
+                          <span className="fw-semibold">{project.process?.processName ?? '—'}</span>
+                        </span>
+                      </div>
+                      <div className="project-list__meta-item">
+                        <FontAwesomeIcon icon="tasks" className="project-list__meta-icon" aria-hidden="true" />
+                        <span className="d-flex flex-wrap align-items-center gap-2">
+                          <Translate contentKey="processComposerApp.execution.list.taskCount" interpolate={{ count: taskCount }}>
+                            {`${taskCount} tasks`}
+                          </Translate>
+                          {showOwnerLabel && (
+                            <span>
+                              <Translate contentKey="processComposerApp.execution.list.owner.label" interpolate={{ login: ownerLogin }}>
+                                {`Owner: ${ownerLogin}`}
+                              </Translate>
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    </div>
 
-                    {(showSystemBadge || showOwnerLabel) && (
-                      <CardText className="small mb-2">
-                        {showSystemBadge && (
-                          <Badge color="info">
-                            <Translate contentKey="processComposerApp.library.systemTemplate">Modelo</Translate>
-                          </Badge>
-                        )}
-                        {showOwnerLabel && (
-                          <span className="text-muted">
-                            <Translate contentKey="processComposerApp.execution.list.owner.label" interpolate={{ login: ownerLogin }}>
-                              {`Owner: ${ownerLogin}`}
-                            </Translate>
-                          </span>
-                        )}
-                      </CardText>
-                    )}
-
-                    <CardText className="text-muted small mb-2">
-                      <Translate contentKey="home.dashboard.project.sourceProcess">Source process</Translate>:{' '}
-                      <span className="fw-semibold">{project.process?.processName ?? '—'}</span>
-                    </CardText>
-
-                    <CardText className="text-muted small mb-2">
-                      <Translate
-                        contentKey="processComposerApp.execution.list.taskCount"
-                        interpolate={{ count: countTasksForProject(project.id) }}
-                      >
-                        {`${countTasksForProject(project.id)} tasks`}
-                      </Translate>
-                    </CardText>
-
-                    <Badge color={isGitHubConnected(project) ? 'success' : 'secondary'} pill className="project-list__card-badge">
-                      {isGitHubConnected(project) ? (
+                    <Badge color={githubConnected ? 'success' : 'secondary'} pill className="project-list__card-badge">
+                      {githubConnected && <FontAwesomeIcon icon={['fab', 'github']} className="me-1" aria-hidden="true" />}
+                      {githubConnected ? (
                         <Translate contentKey="home.dashboard.project.githubConnected">GitHub connected</Translate>
                       ) : (
                         <Translate contentKey="home.dashboard.project.githubNotConnected">GitHub not connected</Translate>
                       )}
                     </Badge>
 
-                    <div className="project-list__card-actions d-flex flex-wrap gap-2">
+                    <div className="project-list__card-footer">
                       <Button tag={Link} to={`/projetos/${project.id}`} color="info" size="sm" data-cy={`projectOpen-${project.id}`}>
                         <FontAwesomeIcon icon="eye" /> <Translate contentKey="home.dashboard.process.open">Open</Translate>
                       </Button>

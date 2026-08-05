@@ -13,6 +13,7 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons/faChevronUp';
 import { faCircle } from '@fortawesome/free-solid-svg-icons/faCircle';
+import { faCodeBranch } from '@fortawesome/free-solid-svg-icons/faCodeBranch';
 import { faCloud } from '@fortawesome/free-solid-svg-icons/faCloud';
 import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
 import { faEllipsisV } from '@fortawesome/free-solid-svg-icons/faEllipsisV';
@@ -73,6 +74,7 @@ export const loadIcons = () => {
     faChevronUp,
     faCheckSquare,
     faCircle,
+    faCodeBranch,
     faCloud,
     faCopy,
     faCogs,
