@@ -3,6 +3,7 @@ import './process-list.scss';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
+  Badge,
   Button,
   Card,
   CardBody,
@@ -24,25 +25,66 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { JhiItemCount, JhiPagination, Translate, getSortState, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { getUsersAsAdmin } from 'app/modules/administration/user-management/user-management.reducer';
 import { getEntities as getActivities } from 'app/entities/activity/activity.reducer';
 import { getEntities as getPhases } from 'app/entities/phase/phase.reducer';
-import { deleteEntity as deleteProcess, getEntities as getProcesses } from 'app/entities/process/process.reducer';
+import { deleteEntity as deleteProcess, getEntities as getProcesses, IProcessQueryParams } from 'app/entities/process/process.reducer';
 import { duplicateProcess } from 'app/modules/process-design/duplicate-process';
+import { AUTHORITIES } from 'app/config/constants';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { countActivitiesForProcess, countPhasesForProcess } from 'app/shared/util/process-stats.utils';
 import { SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { IProcess } from 'app/shared/model/process.model';
+import { isSystemTemplate } from 'app/shared/model/owned-entity.model';
 
 const LIST_PAGE_SIZE = 12;
 const SEARCH_FETCH_SIZE = 1000;
 
 type ProcessSortOption = 'recent' | 'name' | 'phases';
+type OwnerFilterValue = 'all' | 'system' | string;
 
 type ProcessDeleteTarget = {
   id: number;
   name: string;
 };
+
+const parseOwnerFilterFromSearch = (search: string): OwnerFilterValue => {
+  const params = new URLSearchParams(search);
+  if (params.get('systemOnly') === 'true') {
+    return 'system';
+  }
+  const ownerId = params.get('ownerId');
+  if (ownerId) {
+    return ownerId;
+  }
+  return 'all';
+};
+
+const toOwnerFilterParams = (ownerFilter: OwnerFilterValue): Pick<IProcessQueryParams, 'ownerId' | 'systemOnly'> => {
+  if (ownerFilter === 'system') {
+    return { systemOnly: true };
+  }
+  if (ownerFilter !== 'all') {
+    return { ownerId: Number(ownerFilter) };
+  }
+  return {};
+};
+
+const buildListSearch = (activePage: number, sort: string, order: string, ownerFilter: OwnerFilterValue): string => {
+  const params = new URLSearchParams();
+  params.set('page', String(activePage));
+  params.set(SORT, `${sort},${order}`);
+  if (ownerFilter === 'system') {
+    params.set('systemOnly', 'true');
+  } else if (ownerFilter !== 'all') {
+    params.set('ownerId', ownerFilter);
+  }
+  return `?${params.toString()}`;
+};
+
+const getProcessOwnerLogin = (process: IProcess): string | null => process.owner?.login ?? process.createdBy ?? null;
 
 const SORT_OPTIONS: Array<{ value: ProcessSortOption; labelKey: string; defaultLabel: string }> = [
   { value: 'recent', labelKey: 'processComposerApp.processDesign.list.sort.recent', defaultLabel: 'Most recent' },
@@ -76,6 +118,7 @@ export const ProcessList = () => {
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [ownerFilter, setOwnerFilter] = useState<OwnerFilterValue>(() => parseOwnerFilterFromSearch(location.search));
   const [deleteTarget, setDeleteTarget] = useState<ProcessDeleteTarget | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [duplicatingProcessId, setDuplicatingProcessId] = useState<number | null>(null);
@@ -88,6 +131,10 @@ export const ProcessList = () => {
   const activities = useAppSelector(state => state.activity.entities);
   const loading = useAppSelector(state => state.process.loading);
   const totalItemsFromStore = useAppSelector(state => state.process.totalItems);
+  const account = useAppSelector(state => state.authentication.account);
+  const users = useAppSelector(state => state.userManagement.users);
+  const isAdmin = hasAnyAuthority(account.authorities, [AUTHORITIES.ADMIN]);
+  const ownerFilterParams = useMemo(() => (isAdmin ? toOwnerFilterParams(ownerFilter) : {}), [isAdmin, ownerFilter]);
 
   const trimmedSearch = searchQuery.trim();
   const isSearching = trimmedSearch.length > 0;
@@ -100,6 +147,12 @@ export const ProcessList = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    if (isAdmin) {
+      dispatch(getUsersAsAdmin({ page: 0, size: 1000, sort: 'login,asc' }));
+    }
+  }, [dispatch, isAdmin]);
+
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const page = params.get('page');
     const sortParam = params.get(SORT);
@@ -108,6 +161,7 @@ export const ProcessList = () => {
     }
 
     const sortSplit = sortParam.split(',');
+    const nextOwnerFilter = parseOwnerFilterFromSearch(location.search);
     setPagination(current => {
       if (current.activePage === +page && current.sort === sortSplit[0] && current.order === sortSplit[1]) {
         return current;
@@ -120,6 +174,7 @@ export const ProcessList = () => {
         order: sortSplit[1],
       };
     });
+    setOwnerFilter(current => (current === nextOwnerFilter ? current : nextOwnerFilter));
   }, [location.search]);
 
   useEffect(() => {
@@ -135,6 +190,7 @@ export const ProcessList = () => {
           page: 0,
           size: SEARCH_FETCH_SIZE,
           sort: serverSort,
+          ...ownerFilterParams,
         })
       );
       return;
@@ -145,11 +201,13 @@ export const ProcessList = () => {
         page: pagination.activePage - 1,
         size: pagination.itemsPerPage,
         sort: serverSort,
+        ...ownerFilterParams,
       })
     );
   }, [
     dispatch,
     needsClientSideCollection,
+    ownerFilterParams,
     pagination.activePage,
     pagination.itemsPerPage,
     pagination.order,
@@ -163,11 +221,11 @@ export const ProcessList = () => {
       return;
     }
 
-    const endURL = `?page=${pagination.activePage}&sort=${pagination.sort},${pagination.order}`;
+    const endURL = buildListSearch(pagination.activePage, pagination.sort, pagination.order, ownerFilter);
     if (location.search !== endURL) {
       navigate(`${location.pathname}${endURL}`, { replace: true });
     }
-  }, [isSearching, location.pathname, location.search, navigate, pagination.activePage, pagination.order, pagination.sort]);
+  }, [isSearching, location.pathname, location.search, navigate, ownerFilter, pagination.activePage, pagination.order, pagination.sort]);
 
   const filteredProcesses = useMemo(() => {
     let result = processes;
@@ -210,6 +268,14 @@ export const ProcessList = () => {
     }));
   };
 
+  const handleOwnerFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setOwnerFilter(event.target.value as OwnerFilterValue);
+    setPagination(current => ({
+      ...current,
+      activePage: 1,
+    }));
+  };
+
   const refreshProcesses = useCallback(() => {
     const serverSort = sortOption === 'phases' ? 'id,desc' : `${pagination.sort},${pagination.order}`;
 
@@ -219,6 +285,7 @@ export const ProcessList = () => {
           page: 0,
           size: SEARCH_FETCH_SIZE,
           sort: serverSort,
+          ...ownerFilterParams,
         })
       );
       return;
@@ -229,9 +296,19 @@ export const ProcessList = () => {
         page: pagination.activePage - 1,
         size: pagination.itemsPerPage,
         sort: serverSort,
+        ...ownerFilterParams,
       })
     );
-  }, [dispatch, needsClientSideCollection, pagination.activePage, pagination.itemsPerPage, pagination.order, pagination.sort, sortOption]);
+  }, [
+    dispatch,
+    needsClientSideCollection,
+    ownerFilterParams,
+    pagination.activePage,
+    pagination.itemsPerPage,
+    pagination.order,
+    pagination.sort,
+    sortOption,
+  ]);
 
   const handleRequestDelete = (process: IProcess) => {
     if (!process.id) {
@@ -323,6 +400,29 @@ export const ProcessList = () => {
             ))}
           </Input>
         </div>
+
+        {isAdmin && (
+          <div className="process-list__owner-filter">
+            <Label for="processOwnerFilterSelect" className="process-list__sort-label visually-hidden">
+              <Translate contentKey="processComposerApp.processDesign.list.ownerFilter.label">Owner</Translate>
+            </Label>
+            <Input
+              id="processOwnerFilterSelect"
+              type="select"
+              value={ownerFilter}
+              onChange={handleOwnerFilterChange}
+              data-cy="processOwnerFilterSelect"
+            >
+              <option value="all">{translate('processComposerApp.processDesign.list.ownerFilter.all', 'All')}</option>
+              <option value="system">{translate('processComposerApp.processDesign.list.ownerFilter.system', 'System template')}</option>
+              {users.map(user => (
+                <option key={user.id} value={String(user.id)}>
+                  {user.login}
+                </option>
+              ))}
+            </Input>
+          </div>
+        )}
       </div>
 
       {loading && (
@@ -341,6 +441,9 @@ export const ProcessList = () => {
         <Row className="g-3 process-list__grid">
           {displayedProcesses.map(process => {
             const isDuplicating = duplicatingProcessId === process.id;
+            const ownerLogin = getProcessOwnerLogin(process);
+            const showSystemBadge = isSystemTemplate(process);
+            const showOwnerLabel = isAdmin && !showSystemBadge && ownerLogin;
 
             return (
               <Col key={process.id} xs={12} md={6} xl={4}>
@@ -399,6 +502,23 @@ export const ProcessList = () => {
 
                     {process.processDescription && (
                       <CardText className="text-muted small process-list__description">{process.processDescription}</CardText>
+                    )}
+
+                    {(showSystemBadge || showOwnerLabel) && (
+                      <CardText className="small mb-2">
+                        {showSystemBadge && (
+                          <Badge color="info">
+                            <Translate contentKey="processComposerApp.library.systemTemplate">Modelo</Translate>
+                          </Badge>
+                        )}
+                        {showOwnerLabel && (
+                          <span className="text-muted">
+                            <Translate contentKey="processComposerApp.processDesign.list.owner.label" interpolate={{ login: ownerLogin }}>
+                              {`Owner: ${ownerLogin}`}
+                            </Translate>
+                          </span>
+                        )}
+                      </CardText>
                     )}
 
                     <CardText className="text-muted small mb-0">

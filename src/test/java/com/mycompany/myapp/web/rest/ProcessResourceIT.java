@@ -9,9 +9,12 @@ import com.mycompany.myapp.IntegrationTest;
 import com.mycompany.myapp.domain.Activity;
 import com.mycompany.myapp.domain.Phase;
 import com.mycompany.myapp.domain.Process;
+import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.repository.ActivityRepository;
 import com.mycompany.myapp.repository.PhaseRepository;
 import com.mycompany.myapp.repository.ProcessRepository;
+import com.mycompany.myapp.repository.UserRepository;
+import com.mycompany.myapp.security.AuthoritiesConstants;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -47,6 +50,9 @@ class ProcessResourceIT {
 
     @Autowired
     private ProcessRepository processRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private PhaseRepository phaseRepository;
@@ -403,5 +409,102 @@ class ProcessResourceIT {
         assertThat(processRepository.findAll()).hasSize(databaseSizeBeforeDelete - 1);
         assertThat(phaseRepository.findAll()).hasSize(phaseCountBeforeDelete - 1);
         assertThat(activityRepository.findAll()).hasSize(activityCountBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    void getAllProcessesAsAdminIncludesOwnerInfo() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        Process ownedProcess = createEntity(em).processName("Owned Process");
+        ownedProcess.setOwner(user);
+        processRepository.saveAndFlush(ownedProcess);
+
+        Process systemProcess = createEntity(em).processName("System Process");
+        systemProcess.setOwner(null);
+        processRepository.saveAndFlush(systemProcess);
+
+        restProcessMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].ownerId").value(hasItem(user.getId().intValue())))
+            .andExpect(jsonPath("$.[*].owner.login").value(hasItem("user")));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    void getAllProcessesAsAdminFilterByOwnerId() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        User admin = userRepository.findOneByLogin("admin").orElseThrow();
+
+        Process userProcess = createEntity(em).processName("User Process");
+        userProcess.setOwner(user);
+        processRepository.saveAndFlush(userProcess);
+
+        Process adminProcess = createEntity(em).processName("Admin Process");
+        adminProcess.setOwner(admin);
+        processRepository.saveAndFlush(adminProcess);
+
+        restProcessMockMvc
+            .perform(get(ENTITY_API_URL + "?ownerId=" + user.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].processName").value(hasItem("User Process")))
+            .andExpect(jsonPath("$.[*].processName").value(org.hamcrest.Matchers.not(hasItem("Admin Process"))));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    void getAllProcessesAsAdminFilterSystemOnly() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+
+        Process ownedProcess = createEntity(em).processName("Owned Process");
+        ownedProcess.setOwner(user);
+        processRepository.saveAndFlush(ownedProcess);
+
+        Process systemProcess = createEntity(em).processName("System Process");
+        systemProcess.setOwner(null);
+        processRepository.saveAndFlush(systemProcess);
+
+        restProcessMockMvc
+            .perform(get(ENTITY_API_URL + "?systemOnly=true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].processName").value(hasItem("System Process")))
+            .andExpect(jsonPath("$.[*].processName").value(org.hamcrest.Matchers.not(hasItem("Owned Process"))));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    void getAllProcessesAsAdminRejectsConflictingFilters() throws Exception {
+        restProcessMockMvc.perform(get(ENTITY_API_URL + "?systemOnly=true&ownerId=1")).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void getAllProcessesAsUserIgnoresOwnerFilter() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        User admin = userRepository.findOneByLogin("admin").orElseThrow();
+
+        Process userProcess = createEntity(em).processName("User Process");
+        userProcess.setOwner(user);
+        processRepository.saveAndFlush(userProcess);
+
+        Process adminProcess = createEntity(em).processName("Admin Process");
+        adminProcess.setOwner(admin);
+        processRepository.saveAndFlush(adminProcess);
+
+        Process systemProcess = createEntity(em).processName("System Process");
+        systemProcess.setOwner(null);
+        processRepository.saveAndFlush(systemProcess);
+
+        restProcessMockMvc
+            .perform(get(ENTITY_API_URL + "?ownerId=" + admin.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].processName").value(hasItem("User Process")))
+            .andExpect(jsonPath("$.[*].processName").value(hasItem("System Process")))
+            .andExpect(jsonPath("$.[*].processName").value(org.hamcrest.Matchers.not(hasItem("Admin Process"))));
     }
 }

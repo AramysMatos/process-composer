@@ -9,8 +9,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.mycompany.myapp.IntegrationTest;
 import com.mycompany.myapp.domain.Project;
 import com.mycompany.myapp.domain.Task;
+import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.repository.ProjectRepository;
 import com.mycompany.myapp.repository.TaskRepository;
+import com.mycompany.myapp.repository.UserRepository;
+import com.mycompany.myapp.security.AuthoritiesConstants;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -63,6 +66,9 @@ class ProjectResourceIT {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private TaskRepository taskRepository;
@@ -473,5 +479,102 @@ class ProjectResourceIT {
 
         assertThat(projectRepository.findAll()).hasSize(databaseSizeBeforeDelete - 1);
         assertThat(taskRepository.findAll()).hasSize(taskCountBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    void getAllProjectsAsAdminIncludesOwnerInfo() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        Project ownedProject = createEntity(em).name("Owned Project");
+        ownedProject.setOwner(user);
+        projectRepository.saveAndFlush(ownedProject);
+
+        Project systemProject = createEntity(em).name("System Project");
+        systemProject.setOwner(null);
+        projectRepository.saveAndFlush(systemProject);
+
+        restProjectMockMvc
+            .perform(get(ENTITY_API_URL))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[*].ownerId").value(hasItem(user.getId().intValue())))
+            .andExpect(jsonPath("$[*].owner.login").value(hasItem("user")));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    void getAllProjectsAsAdminFilterByOwnerId() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        User admin = userRepository.findOneByLogin("admin").orElseThrow();
+
+        Project userProject = createEntity(em).name("User Project");
+        userProject.setOwner(user);
+        projectRepository.saveAndFlush(userProject);
+
+        Project adminProject = createEntity(em).name("Admin Project");
+        adminProject.setOwner(admin);
+        projectRepository.saveAndFlush(adminProject);
+
+        restProjectMockMvc
+            .perform(get(ENTITY_API_URL + "?ownerId=" + user.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[*].name").value(hasItem("User Project")))
+            .andExpect(jsonPath("$[*].name").value(org.hamcrest.Matchers.not(hasItem("Admin Project"))));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    void getAllProjectsAsAdminFilterSystemOnly() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+
+        Project ownedProject = createEntity(em).name("Owned Project");
+        ownedProject.setOwner(user);
+        projectRepository.saveAndFlush(ownedProject);
+
+        Project systemProject = createEntity(em).name("System Project");
+        systemProject.setOwner(null);
+        projectRepository.saveAndFlush(systemProject);
+
+        restProjectMockMvc
+            .perform(get(ENTITY_API_URL + "?systemOnly=true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[*].name").value(hasItem("System Project")))
+            .andExpect(jsonPath("$[*].name").value(org.hamcrest.Matchers.not(hasItem("Owned Project"))));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    void getAllProjectsAsAdminRejectsConflictingFilters() throws Exception {
+        restProjectMockMvc.perform(get(ENTITY_API_URL + "?systemOnly=true&ownerId=1")).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void getAllProjectsAsUserIgnoresOwnerFilter() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        User admin = userRepository.findOneByLogin("admin").orElseThrow();
+
+        Project userProject = createEntity(em).name("User Project");
+        userProject.setOwner(user);
+        projectRepository.saveAndFlush(userProject);
+
+        Project adminProject = createEntity(em).name("Admin Project");
+        adminProject.setOwner(admin);
+        projectRepository.saveAndFlush(adminProject);
+
+        Project systemProject = createEntity(em).name("System Project");
+        systemProject.setOwner(null);
+        projectRepository.saveAndFlush(systemProject);
+
+        restProjectMockMvc
+            .perform(get(ENTITY_API_URL + "?ownerId=" + admin.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[*].name").value(hasItem("User Project")))
+            .andExpect(jsonPath("$[*].name").value(hasItem("System Project")))
+            .andExpect(jsonPath("$[*].name").value(org.hamcrest.Matchers.not(hasItem("Admin Project"))));
     }
 }

@@ -9,7 +9,24 @@
   }
 
   &__search {
+    flex: 1 1 16rem;
     max-width: 28rem;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__owner-filter {
+    flex: 0 0 auto;
+    min-width: 12rem;
+  }
+
+  &__filter-label {
+    margin-bottom: 0;
   }
 
   &__card {

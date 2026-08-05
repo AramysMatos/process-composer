@@ -159,11 +159,24 @@ public class ProcessResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of processes in body.
      */
     @GetMapping("/processes")
-    public ResponseEntity<List<Process>> getAllProcesses(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<Process>> getAllProcesses(
+        @org.springdoc.api.annotations.ParameterObject Pageable pageable,
+        @RequestParam(required = false) Long ownerId,
+        @RequestParam(required = false) Boolean systemOnly
+    ) {
         log.debug("REST request to get a page of Processes");
         Page<Process> page;
         if (entityAccessService.isAdmin()) {
-            page = processRepository.findAll(pageable);
+            if (Boolean.TRUE.equals(systemOnly) && ownerId != null) {
+                throw new BadRequestAlertException("Cannot combine systemOnly and ownerId filters", ENTITY_NAME, "invalidfilter");
+            }
+            if (Boolean.TRUE.equals(systemOnly)) {
+                page = processRepository.findAllSystemTemplates(pageable);
+            } else if (ownerId != null) {
+                page = processRepository.findAllByOwnerId(ownerId, pageable);
+            } else {
+                page = processRepository.findAllWithOwner(pageable);
+            }
         } else {
             page = processRepository.findAllVisibleToUser(entityAccessService.getCurrentUserId(), pageable);
         }

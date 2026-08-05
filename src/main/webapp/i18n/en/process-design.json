@@ -13,6 +13,14 @@
           "name": "Name (A-Z)",
           "phases": "Most phases"
         },
+        "ownerFilter": {
+          "label": "Owner",
+          "all": "All",
+          "system": "System template"
+        },
+        "owner": {
+          "label": "Owner: {{login}}"
+        },
         "actions": {
           "edit": "Edit process",
           "duplicate": "Duplicate process",

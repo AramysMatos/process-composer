@@ -13,6 +13,14 @@
           "name": "Nome (A-Z)",
           "phases": "Mais fases"
         },
+        "ownerFilter": {
+          "label": "Proprietário",
+          "all": "Todos",
+          "system": "Modelo do sistema"
+        },
+        "owner": {
+          "label": "Proprietário: {{login}}"
+        },
         "actions": {
           "edit": "Editar processo",
           "duplicate": "Duplicar processo",

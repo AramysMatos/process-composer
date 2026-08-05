@@ -45,4 +45,16 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("SELECT p FROM Project p WHERE p.id = :id AND (p.owner IS NULL OR p.owner.id = :userId)")
     Optional<Project> findVisibleToUser(@Param("id") Long id, @Param("userId") Long userId);
+
+    @EntityGraph(attributePaths = { "owner", "process" })
+    @Query("SELECT p FROM Project p")
+    List<Project> findAllWithOwner();
+
+    @EntityGraph(attributePaths = { "owner", "process" })
+    @Query("SELECT p FROM Project p WHERE p.owner.id = :ownerId")
+    List<Project> findAllByOwnerId(@Param("ownerId") Long ownerId);
+
+    @EntityGraph(attributePaths = { "owner", "process" })
+    @Query("SELECT p FROM Project p WHERE p.owner IS NULL")
+    List<Project> findAllSystemTemplates();
 }

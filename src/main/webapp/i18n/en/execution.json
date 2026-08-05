@@ -54,6 +54,14 @@
         "createLabel": "New Project",
         "notFound": "No projects found",
         "taskCount": "{{count}} tasks",
+        "ownerFilter": {
+          "label": "Owner",
+          "all": "All",
+          "system": "System template"
+        },
+        "owner": {
+          "label": "Owner: {{login}}"
+        },
         "actions": {
           "editProject": "Edit project",
           "deleteProject": "Delete project"

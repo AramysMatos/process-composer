@@ -64,8 +64,13 @@ Home dashboard
     padding: 1rem;
   }
 
-  &__summary-card-actions,
   &__summary-card-badge {
+    align-self: flex-start;
+    margin-top: auto;
+    padding-top: 0.75rem;
+  }
+
+  &__summary-card-actions {
     margin-top: auto;
     padding-top: 0.75rem;
   }

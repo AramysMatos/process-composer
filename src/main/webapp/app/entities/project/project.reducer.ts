@@ -2,7 +2,7 @@ import axios from 'axios';
 import { createAsyncThunk, isFulfilled, isPending, isRejected } from '@reduxjs/toolkit';
 
 import { cleanEntity } from 'app/shared/util/entity-utils';
-import { IQueryParams, createEntitySlice, EntityState, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
+import { createEntitySlice, EntityState, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 import { IProject, defaultValue } from 'app/shared/model/project.model';
 
 const initialState: EntityState<IProject> = {
@@ -16,10 +16,40 @@ const initialState: EntityState<IProject> = {
 
 const apiUrl = 'api/projects';
 
+export interface IProjectQueryParams {
+  page?: number;
+  size?: number;
+  sort?: string;
+  ownerId?: number;
+  systemOnly?: boolean;
+}
+
+const buildListRequestUrl = ({ page, size, sort, ownerId, systemOnly }: IProjectQueryParams) => {
+  const params = new URLSearchParams();
+  if (page !== undefined) {
+    params.set('page', String(page));
+  }
+  if (size !== undefined) {
+    params.set('size', String(size));
+  }
+  if (sort) {
+    params.set('sort', sort);
+  }
+  if (ownerId !== undefined) {
+    params.set('ownerId', String(ownerId));
+  }
+  if (systemOnly) {
+    params.set('systemOnly', 'true');
+  }
+  params.set('cacheBuster', String(new Date().getTime()));
+  const query = params.toString();
+  return query ? `${apiUrl}?${query}` : apiUrl;
+};
+
 // Actions
 
-export const getEntities = createAsyncThunk('project/fetch_entity_list', async ({ page, size, sort }: IQueryParams) => {
-  const requestUrl = `${apiUrl}${sort ? `?page=${page}&size=${size}&sort=${sort}&` : '?'}cacheBuster=${new Date().getTime()}`;
+export const getEntities = createAsyncThunk('project/fetch_entity_list', async (query: IProjectQueryParams = {}) => {
+  const requestUrl = buildListRequestUrl(query);
   return axios.get<IProject[]>(requestUrl);
 });
 

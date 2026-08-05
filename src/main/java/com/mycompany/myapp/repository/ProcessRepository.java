@@ -26,4 +26,19 @@ public interface ProcessRepository extends JpaRepository<Process, Long> {
 
     @Query("SELECT p FROM Process p WHERE p.id = :id AND (p.owner IS NULL OR p.owner.id = :userId)")
     Optional<Process> findVisibleToUser(@Param("id") Long id, @Param("userId") Long userId);
+
+    @EntityGraph(attributePaths = "owner")
+    @Query(value = "SELECT p FROM Process p", countQuery = "SELECT count(p) FROM Process p")
+    Page<Process> findAllWithOwner(Pageable pageable);
+
+    @EntityGraph(attributePaths = "owner")
+    @Query(
+        value = "SELECT p FROM Process p WHERE p.owner.id = :ownerId",
+        countQuery = "SELECT count(p) FROM Process p WHERE p.owner.id = :ownerId"
+    )
+    Page<Process> findAllByOwnerId(@Param("ownerId") Long ownerId, Pageable pageable);
+
+    @EntityGraph(attributePaths = "owner")
+    @Query(value = "SELECT p FROM Process p WHERE p.owner IS NULL", countQuery = "SELECT count(p) FROM Process p WHERE p.owner IS NULL")
+    Page<Process> findAllSystemTemplates(Pageable pageable);
 }

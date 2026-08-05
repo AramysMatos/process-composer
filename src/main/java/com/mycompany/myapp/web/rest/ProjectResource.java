@@ -172,13 +172,26 @@ public class ProjectResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of projects in body.
      */
     @GetMapping("/projects")
-    public List<Project> getAllProjects(@RequestParam(required = false, defaultValue = "false") boolean eagerload) {
+    public List<Project> getAllProjects(
+        @RequestParam(required = false, defaultValue = "false") boolean eagerload,
+        @RequestParam(required = false) Long ownerId,
+        @RequestParam(required = false) Boolean systemOnly
+    ) {
         log.debug("REST request to get all Projects");
         if (entityAccessService.isAdmin()) {
+            if (Boolean.TRUE.equals(systemOnly) && ownerId != null) {
+                throw new BadRequestAlertException("Cannot combine systemOnly and ownerId filters", ENTITY_NAME, "invalidfilter");
+            }
+            if (Boolean.TRUE.equals(systemOnly)) {
+                return projectRepository.findAllSystemTemplates();
+            }
+            if (ownerId != null) {
+                return projectRepository.findAllByOwnerId(ownerId);
+            }
             if (eagerload) {
                 return projectRepository.findAllWithEagerRelationships();
             }
-            return projectRepository.findAll();
+            return projectRepository.findAllWithOwner();
         }
         List<Project> projects = projectRepository.findAllVisibleToUser(entityAccessService.getCurrentUserId());
         if (eagerload) {
