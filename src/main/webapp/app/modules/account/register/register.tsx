@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Translate, translate, ValidatedField, ValidatedForm, isEmail } from 'react-jhipster';
 import { Button } from 'reactstrap';
 import { toast } from 'react-toastify';
@@ -13,7 +13,9 @@ import { handleRegister, reset } from './register.reducer';
 export const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
+  const registrationSuccess = useAppSelector(state => state.register.registrationSuccess);
 
   useEffect(
     () => () => {
@@ -33,10 +35,12 @@ export const RegisterPage = () => {
   const successMessage = useAppSelector(state => state.register.successMessage);
 
   useEffect(() => {
-    if (successMessage) {
+    if (registrationSuccess && successMessage) {
       toast.success(translate(successMessage));
+      dispatch(reset());
+      navigate('/login', { replace: true });
     }
-  }, [successMessage]);
+  }, [registrationSuccess, successMessage, dispatch, navigate]);
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;

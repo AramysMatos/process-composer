@@ -21,7 +21,10 @@
           "pattern": "O usuário é inválido."
         }
       },
-      "success": "<strong>Cadastro realizado com sucesso!</strong> Favor verificar seu e-mail para confirmar a conta.",
+      "success": {
+        "autoActivated": "<strong>Cadastro realizado com sucesso!</strong> Você já pode entrar com suas credenciais.",
+        "pending": "<strong>Cadastro realizado com sucesso!</strong> Aguarde a ativação da sua conta por um administrador."
+      },
       "error": {
         "fail": "<strong>Erro ao realizar o cadastro!</strong> Favor tentar novamente mais tarde.",
         "userexists": "<strong>Usuário já registrado!</strong> Favor escolher outro.",

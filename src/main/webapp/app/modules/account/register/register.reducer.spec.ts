@@ -40,16 +40,29 @@ describe('Creating account tests', () => {
     });
   });
 
-  it('should handle CREATE_ACCOUNT success', () => {
+  it('should handle CREATE_ACCOUNT success for auto-activated users', () => {
     expect(
       register(undefined, {
         type: handleRegister.fulfilled.type,
-        payload: 'fake payload',
+        payload: { autoActivated: true },
       })
     ).toEqual({
       ...initialState,
       registrationSuccess: true,
-      successMessage: 'register.messages.success',
+      successMessage: 'register.messages.success.autoActivated',
+    });
+  });
+
+  it('should handle CREATE_ACCOUNT success for pending users', () => {
+    expect(
+      register(undefined, {
+        type: handleRegister.fulfilled.type,
+        payload: { autoActivated: false },
+      })
+    ).toEqual({
+      ...initialState,
+      registrationSuccess: true,
+      successMessage: 'register.messages.success.pending',
     });
   });
 
@@ -70,7 +83,7 @@ describe('Creating account tests', () => {
   describe('Actions', () => {
     let store;
 
-    const resolvedObject = { value: 'whatever' };
+    const resolvedObject = { data: { autoActivated: false } };
     beforeEach(() => {
       const mockStore = configureStore([thunk]);
       store = mockStore({});
@@ -84,7 +97,7 @@ describe('Creating account tests', () => {
         },
         {
           type: handleRegister.fulfilled.type,
-          payload: resolvedObject,
+          payload: resolvedObject.data,
         },
       ];
       await store.dispatch(handleRegister({ login: '', email: '', password: '' }));

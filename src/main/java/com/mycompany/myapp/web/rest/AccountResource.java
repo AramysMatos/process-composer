@@ -10,6 +10,7 @@ import com.mycompany.myapp.service.dto.PasswordChangeDTO;
 import com.mycompany.myapp.web.rest.errors.*;
 import com.mycompany.myapp.web.rest.vm.KeyAndPasswordVM;
 import com.mycompany.myapp.web.rest.vm.ManagedUserVM;
+import com.mycompany.myapp.web.rest.vm.RegisterResultVM;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -57,7 +58,7 @@ public class AccountResource {
      */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
+    public RegisterResultVM registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
         if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
             throw new InvalidPasswordException();
         }
@@ -65,6 +66,7 @@ public class AccountResource {
         if (!user.isActivated()) {
             mailService.sendActivationEmail(user);
         }
+        return new RegisterResultVM(user.isActivated());
     }
 
     /**

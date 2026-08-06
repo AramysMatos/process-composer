@@ -21,7 +21,10 @@
           "pattern": "Your username is invalid."
         }
       },
-      "success": "<strong>Registration saved!</strong> Please check your email for confirmation.",
+      "success": {
+        "autoActivated": "<strong>Registration saved!</strong> You can now sign in with your credentials.",
+        "pending": "<strong>Registration saved!</strong> Please wait for an administrator to activate your account."
+      },
       "error": {
         "fail": "<strong>Registration failed!</strong> Please try again later.",
         "userexists": "<strong>Login name already registered!</strong> Please choose another one.",

@@ -15,9 +15,16 @@ export type RegisterState = Readonly<typeof initialState>;
 
 // Actions
 
+export type RegisterResult = {
+  autoActivated: boolean;
+};
+
 export const handleRegister = createAsyncThunk(
   'register/create_account',
-  async (data: { login: string; email: string; password: string; langKey?: string }) => axios.post<any>('api/register', data),
+  async (data: { login: string; email: string; password: string; langKey?: string }) => {
+    const response = await axios.post<RegisterResult>('api/register', data);
+    return response.data;
+  },
   { serializeError: serializeAxiosError }
 );
 
@@ -39,10 +46,10 @@ export const RegisterSlice = createSlice({
         registrationFailure: true,
         errorMessage: action.error.message,
       }))
-      .addCase(handleRegister.fulfilled, () => ({
+      .addCase(handleRegister.fulfilled, (state, action) => ({
         ...initialState,
         registrationSuccess: true,
-        successMessage: 'register.messages.success',
+        successMessage: action.payload.autoActivated ? 'register.messages.success.autoActivated' : 'register.messages.success.pending',
       }));
   },
 });
