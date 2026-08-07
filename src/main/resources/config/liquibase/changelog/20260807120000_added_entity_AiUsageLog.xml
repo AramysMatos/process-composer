@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20260807120000-1" author="dev">
+        <createTable tableName="ai_usage_log">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint"/>
+            <column name="feature" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="input_tokens" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="output_tokens" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="${datetimeType}"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20260807120000-2" author="dev">
+        <addForeignKeyConstraint
+            baseTableName="ai_usage_log"
+            baseColumnNames="user_id"
+            constraintName="fk_ai_usage_log__user_id"
+            referencedTableName="jhi_user"
+            referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="20260807120000-3" author="dev">
+        <createIndex indexName="idx_ai_usage_log_user_created" tableName="ai_usage_log">
+            <column name="user_id"/>
+            <column name="created_at"/>
+        </createIndex>
+        <createIndex indexName="idx_ai_usage_log_created" tableName="ai_usage_log">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

@@ -112,3 +112,13 @@ jhipster:
 # ===================================================================
 
 # application:
+
+application:
+  ai:
+    vertex:
+      model: gemini-2.5-flash-lite
+    limits:
+      max-input-chars: 4000
+      max-output-tokens: 2048
+      daily-tokens-per-user: 20000
+      daily-tokens-global: 300000

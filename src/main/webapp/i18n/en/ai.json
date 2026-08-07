@@ -1,0 +1,17 @@
+{
+  "ai": {
+    "disabled": "AI features are disabled on this platform.",
+    "unavailable": "AI service is temporarily unavailable.",
+    "vertex": {
+      "not-configured": "Vertex AI is not configured (missing GOOGLE_CLOUD_PROJECT)."
+    },
+    "quota": {
+      "exceeded": "Daily AI token quota exceeded.",
+      "user": "Your daily AI token quota has been reached.",
+      "global": "The platform daily AI token quota has been reached."
+    },
+    "invalid-response": "AI returned an invalid response.",
+    "promptRequired": "Prompt is required.",
+    "promptTooLong": "Prompt exceeds the maximum allowed length."
+  }
+}

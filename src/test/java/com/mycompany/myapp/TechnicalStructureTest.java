@@ -32,6 +32,9 @@ class TechnicalStructureTest {
         .ignoreDependency(belongToAnyOf(ProcessComposerApp.class), alwaysTrue())
         .ignoreDependency(alwaysTrue(), belongToAnyOf(
             com.mycompany.myapp.config.Constants.class,
-            com.mycompany.myapp.config.ApplicationProperties.class
+            com.mycompany.myapp.config.ApplicationProperties.class,
+            com.mycompany.myapp.config.PlatformSettingRegistry.class,
+            com.mycompany.myapp.config.PlatformSettingDefinition.class,
+            com.mycompany.myapp.config.PlatformSettingKeys.class
         ));
 }

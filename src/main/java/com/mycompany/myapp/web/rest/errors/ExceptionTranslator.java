@@ -175,6 +175,22 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
     }
 
     @ExceptionHandler
+    public ResponseEntity<Problem> handleAiUnavailableException(
+        com.mycompany.myapp.service.ai.exception.AiUnavailableException ex,
+        NativeWebRequest request
+    ) {
+        return create(ex, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleAiQuotaExceededException(
+        com.mycompany.myapp.service.ai.exception.AiQuotaExceededException ex,
+        NativeWebRequest request
+    ) {
+        return create(ex, request);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<Problem> handleConcurrencyFailure(ConcurrencyFailureException ex, NativeWebRequest request) {
         Problem problem = Problem.builder().withStatus(Status.CONFLICT).with(MESSAGE_KEY, ErrorConstants.ERR_CONCURRENCY_FAILURE).build();
         return create(ex, problem, request);

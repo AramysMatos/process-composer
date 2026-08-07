@@ -32,6 +32,7 @@
     <include file="config/liquibase/changelog/20260804120000_add_owner_and_audit.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20260804200000_alter_description_to_text.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20260807100000_added_entity_PlatformSetting.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20260807120000_added_entity_AiUsageLog.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

@@ -131,3 +131,9 @@ jhipster:
 # ===================================================================
 
 # application:
+
+application:
+  ai:
+    vertex:
+      project-id: ${GOOGLE_CLOUD_PROJECT:}
+      location: ${GOOGLE_CLOUD_LOCATION:us-central1}

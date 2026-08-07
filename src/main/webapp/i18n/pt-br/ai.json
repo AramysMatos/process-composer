@@ -1,0 +1,17 @@
+{
+  "ai": {
+    "disabled": "Recursos de IA estão desabilitados nesta plataforma.",
+    "unavailable": "Serviço de IA temporariamente indisponível.",
+    "vertex": {
+      "not-configured": "Vertex AI não está configurado (GOOGLE_CLOUD_PROJECT ausente)."
+    },
+    "quota": {
+      "exceeded": "Cota diária de tokens de IA excedida.",
+      "user": "Sua cota diária de tokens de IA foi atingida.",
+      "global": "A cota diária global de tokens de IA foi atingida."
+    },
+    "invalid-response": "A IA retornou uma resposta inválida.",
+    "promptRequired": "O prompt é obrigatório.",
+    "promptTooLong": "O prompt excede o tamanho máximo permitido."
+  }
+}

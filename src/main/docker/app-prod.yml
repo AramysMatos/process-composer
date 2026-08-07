@@ -17,6 +17,8 @@ services:
       - JHIPSTER_CACHE_REDIS_SERVER=redis://process_composer-redis:6379
       - JHIPSTER_CACHE_REDIS_CLUSTER=false
       - JHIPSTER_SLEEP=30
+      - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
+      - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION:-us-central1}
     ports:
       # Bind to localhost only; Caddy on the host reverse-proxies to this port.
       - 127.0.0.1:8080:8080
