@@ -23,6 +23,7 @@ import {
   ScrollText,
   Settings,
   Settings2,
+  SlidersHorizontal,
   UserPlus,
   Users,
 } from 'lucide-react';
@@ -143,6 +144,12 @@ export const AppSidebarNav = ({
       icon: Settings,
       labelKey: 'global.menu.admin.configuration',
       defaultLabel: 'Configuration',
+    },
+    {
+      to: '/admin/platform-settings',
+      icon: SlidersHorizontal,
+      labelKey: 'global.menu.admin.platformSettings',
+      defaultLabel: 'Platform settings',
     },
     {
       to: '/admin/logs',

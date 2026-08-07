@@ -19,6 +19,9 @@ const adminMenuItems = () => (
     <MenuItem icon="cogs" to="/admin/configuration">
       <Translate contentKey="global.menu.admin.configuration">Configuration</Translate>
     </MenuItem>
+    <MenuItem icon="sliders-h" to="/admin/platform-settings">
+      <Translate contentKey="global.menu.admin.platformSettings">Platform settings</Translate>
+    </MenuItem>
     <MenuItem icon="tasks" to="/admin/logs">
       <Translate contentKey="global.menu.admin.logs">Logs</Translate>
     </MenuItem>

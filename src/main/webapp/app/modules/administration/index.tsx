@@ -7,6 +7,7 @@ import Logs from './logs/logs';
 import Health from './health/health';
 import Metrics from './metrics/metrics';
 import Configuration from './configuration/configuration';
+import PlatformSettings from './platform-settings/platform-settings';
 import Docs from './docs/docs';
 
 const AdministrationRoutes = () => (
@@ -16,6 +17,7 @@ const AdministrationRoutes = () => (
       <Route path="health" element={<Health />} />
       <Route path="metrics" element={<Metrics />} />
       <Route path="configuration" element={<Configuration />} />
+      <Route path="platform-settings" element={<PlatformSettings />} />
       <Route path="logs" element={<Logs />} />
       <Route path="docs" element={<Docs />} />
     </ErrorBoundaryRoutes>

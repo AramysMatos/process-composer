@@ -6,6 +6,7 @@ import authentication from './authentication';
 import applicationProfile from './application-profile';
 
 import administration from 'app/modules/administration/administration.reducer';
+import platformSettings from 'app/modules/administration/platform-settings/platform-settings.reducer';
 import userManagement from 'app/modules/administration/user-management/user-management.reducer';
 import register from 'app/modules/account/register/register.reducer';
 import activate from 'app/modules/account/activate/activate.reducer';
@@ -21,6 +22,7 @@ const rootReducer: ReducersMapObject = {
   locale,
   applicationProfile,
   administration,
+  platformSettings,
   userManagement,
   register,
   activate,

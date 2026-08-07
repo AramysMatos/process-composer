@@ -71,6 +71,7 @@ public class CacheConfiguration {
         return cm -> {
             createCache(cm, com.mycompany.myapp.repository.UserRepository.USERS_BY_LOGIN_CACHE, jcacheConfiguration);
             createCache(cm, com.mycompany.myapp.repository.UserRepository.USERS_BY_EMAIL_CACHE, jcacheConfiguration);
+            createCache(cm, com.mycompany.myapp.service.PlatformSettingService.PLATFORM_SETTING_CACHE, jcacheConfiguration);
             // jhipster-needle-redis-add-entry
         };
     }

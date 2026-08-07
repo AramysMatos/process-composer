@@ -1,0 +1,21 @@
+{
+  "platformSettings": {
+    "title": "Platform settings",
+    "updatedBy": "Last updated by {{user}} on {{date}}",
+    "featureFlags": {
+      "title": "Feature flags"
+    },
+    "flags": {
+      "ai": {
+        "enabled": "AI mode enabled",
+        "enabledHelp": "When disabled, no AI features will be available to users."
+      }
+    },
+    "otherSettings": {
+      "title": "Other settings",
+      "empty": "No additional settings registered yet.",
+      "key": "Key",
+      "value": "Value"
+    }
+  }
+}

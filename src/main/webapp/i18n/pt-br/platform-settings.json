@@ -1,0 +1,21 @@
+{
+  "platformSettings": {
+    "title": "Configurações da plataforma",
+    "updatedBy": "Última alteração por {{user}} em {{date}}",
+    "featureFlags": {
+      "title": "Feature flags"
+    },
+    "flags": {
+      "ai": {
+        "enabled": "Modo IA ativo",
+        "enabledHelp": "Quando desativado, nenhuma funcionalidade de IA estará disponível para os usuários."
+      }
+    },
+    "otherSettings": {
+      "title": "Outras configurações",
+      "empty": "Nenhuma configuração adicional registrada.",
+      "key": "Chave",
+      "value": "Valor"
+    }
+  }
+}

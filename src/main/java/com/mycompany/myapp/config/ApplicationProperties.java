@@ -12,9 +12,27 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ApplicationProperties {
 
     private final GitHub github = new GitHub();
+    private final PlatformSettings platformSettings = new PlatformSettings();
 
     public GitHub getGithub() {
         return github;
+    }
+
+    public PlatformSettings getPlatformSettings() {
+        return platformSettings;
+    }
+
+    public static class PlatformSettings {
+
+        private java.util.Map<String, String> defaults = new java.util.HashMap<>();
+
+        public java.util.Map<String, String> getDefaults() {
+            return defaults;
+        }
+
+        public void setDefaults(java.util.Map<String, String> defaults) {
+            this.defaults = defaults;
+        }
     }
 
     public static class GitHub {

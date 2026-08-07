@@ -41,6 +41,7 @@
         "metrics": "Metrics",
         "health": "Health",
         "configuration": "Configuration",
+        "platformSettings": "Platform settings",
         "logs": "Logs",
         "apidocs": "API",
         "database": "Database",

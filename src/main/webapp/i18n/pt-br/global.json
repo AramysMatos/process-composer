@@ -41,6 +41,7 @@
         "metrics": "Métricas",
         "health": "Estado do Sistema",
         "configuration": "Configuração",
+        "platformSettings": "Configurações da plataforma",
         "logs": "Logs",
         "apidocs": "API",
         "database": "Banco de dados",
