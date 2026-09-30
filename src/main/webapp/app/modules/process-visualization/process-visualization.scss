@@ -371,3 +371,24 @@
     }
   }
 }
+
+.process-visualization-yaml-upload {
+  &__main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem 3rem;
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 28rem;
+    border-radius: 0.5rem;
+  }
+
+  &__file-input {
+    width: 100%;
+    max-width: 100%;
+  }
+}

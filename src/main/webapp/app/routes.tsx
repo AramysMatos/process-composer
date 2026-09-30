@@ -10,6 +10,7 @@ import PasswordResetFinish from 'app/modules/account/password-reset/finish/passw
 import Logout from 'app/modules/login/logout';
 import HomeDashboard from 'app/modules/home/home-dashboard';
 import ProcessDesignRoutes from 'app/modules/process-design/routes';
+import ProcessYamlVisualizationRoutes from 'app/modules/process-visualization/yaml-visualization-routes';
 import LibraryRoutes from 'app/modules/library/routes';
 import ExecutionRoutes from 'app/modules/execution/routes';
 import EntitiesRoutes from 'app/entities/routes';
@@ -73,6 +74,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>
               <ProcessDesignRoutes />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="visualizar-yaml/*"
+          element={
+            <PrivateRoute hasAnyAuthorities={[AUTHORITIES.USER]}>
+              <ProcessYamlVisualizationRoutes />
             </PrivateRoute>
           }
         />

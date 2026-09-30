@@ -60,6 +60,8 @@ export interface ActivityCanvasProps {
   onSelectActivity: (activityId: number) => void;
   selectedActivityId?: number;
   readOnly?: boolean;
+  embeddedActivities?: IActivity[];
+  embeddedPhases?: IPhase[];
 }
 
 const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
@@ -156,7 +158,14 @@ const buildGraphNodesAndEdges = (
   return { nodes, edges: Array.from(edgeMap.values()) };
 };
 
-const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId, readOnly = false }: ActivityCanvasProps) => {
+const ActivityCanvasInner = ({
+  processId,
+  onSelectActivity,
+  selectedActivityId,
+  readOnly = false,
+  embeddedActivities,
+  embeddedPhases,
+}: ActivityCanvasProps) => {
   const dispatch = useAppDispatch();
   const { fitView } = useReactFlow();
 
@@ -198,14 +207,19 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId, 
   );
 
   useEffect(() => {
+    if (embeddedActivities !== undefined) {
+      return;
+    }
     dispatch(getPhaseEntities({}));
     dispatch(getActivityEntities({ eagerload: true }));
-  }, [dispatch, processId]);
+  }, [dispatch, embeddedActivities, processId]);
 
-  const phases = useMemo(
-    () => sortById<IPhase>(phaseEntities.filter(phase => phase.process?.id === processId)),
-    [phaseEntities, processId]
-  );
+  const phases = useMemo(() => {
+    if (embeddedPhases !== undefined) {
+      return sortById<IPhase>(embeddedPhases);
+    }
+    return sortById<IPhase>(phaseEntities.filter(phase => phase.process?.id === processId));
+  }, [embeddedPhases, phaseEntities, processId]);
 
   const orderedPhaseIds = useMemo(() => phases.map(phase => phase.id).filter((id): id is number => id !== undefined), [phases]);
 
@@ -227,13 +241,14 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId, 
     return map;
   }, [phases]);
 
-  const processActivities = useMemo(
-    () =>
-      sortById<IActivity>(
-        activityEntities.filter(activity => activity.phase?.id !== undefined && orderedPhaseIds.includes(activity.phase.id))
-      ),
-    [activityEntities, orderedPhaseIds]
-  );
+  const processActivities = useMemo(() => {
+    if (embeddedActivities !== undefined) {
+      return sortById<IActivity>(embeddedActivities);
+    }
+    return sortById<IActivity>(
+      activityEntities.filter(activity => activity.phase?.id !== undefined && orderedPhaseIds.includes(activity.phase.id))
+    );
+  }, [activityEntities, embeddedActivities, orderedPhaseIds]);
 
   const activitiesById = useMemo(() => {
     const map = new Map<number, IActivity>();
@@ -474,7 +489,7 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId, 
     }
   };
 
-  const loading = phaseLoading || activityLoading;
+  const loading = embeddedActivities !== undefined ? false : phaseLoading || activityLoading;
 
   if (loading) {
     return (

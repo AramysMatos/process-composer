@@ -74,7 +74,7 @@ export const DependenciesTab = ({ draft, processId, phaseId, onChange, disabled 
 
       <FormGroup className="activity-tab-section">
         <Label className="activity-tab-section__label" for="activity-drawer-sub-activities">
-          <Translate contentKey="processComposerApp.processDesign.drawer.dependencies.subActivities">Sub-activities</Translate>
+          <Translate contentKey="processComposerApp.processDesign.drawer.dependencies.subActivities">Successor activities</Translate>
         </Label>
         <EntityComboboxCreatable
           id="activity-drawer-sub-activities"

@@ -6,6 +6,7 @@
         "subtitle": "Navegue e gerencie todas as definições de processo",
         "searchPlaceholder": "Buscar por nome...",
         "createLabel": "Novo Processo",
+        "openYamlVisualization": "Visualizar a partir de YAML",
         "notFound": "Nenhum processo encontrado",
         "sort": {
           "label": "Ordenar por",
@@ -229,7 +230,7 @@
         },
         "dependencies": {
           "predecessors": "Atividades predecessoras",
-          "subActivities": "Subatividades"
+          "subActivities": "Atividades sucessoras"
         }
       },
       "visualization": {
@@ -283,6 +284,18 @@
           "template": "Modelo",
           "requiredArtifact": "Artefato obrigatório",
           "producedArtifact": "Artefato produzido"
+        },
+        "yaml": {
+          "openSite": "Abrir site de visualização",
+          "downloadStaticSite": "Baixar site estático (ZIP)",
+          "uploadTitle": "Abrir processo a partir de YAML",
+          "uploadSubtitle": "Envie um arquivo YAML exportado do ModusComposer para navegar no site de visualização somente leitura.",
+          "fileLabel": "Arquivo YAML",
+          "pasteButton": "Colar YAML",
+          "pastePrompt": "Cole o conteúdo YAML do processo:",
+          "parseError": "Não foi possível ler este arquivo YAML.",
+          "openingFile": "Abrindo {{name}}...",
+          "backToUpload": "Voltar ao upload YAML"
         }
       }
     }

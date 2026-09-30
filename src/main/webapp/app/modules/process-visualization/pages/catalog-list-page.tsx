@@ -4,8 +4,8 @@ import { Translate } from 'react-jhipster';
 
 import { LibraryEntityType } from 'app/modules/library/library.config';
 import { useProcessVisualization } from 'app/modules/process-visualization/process-visualization-context';
-import { catalogTypeToIndexKey, sortedIndexedEntities } from 'app/modules/process-visualization/process-visualization-indexes';
 import { processVisualizationEntityPath } from 'app/modules/process-visualization/process-visualization-paths';
+import { sortedUnifiedIndexedEntities } from 'app/modules/process-visualization/process-visualization-unified.model';
 import { useVisualizationCatalogFromPath } from 'app/modules/process-visualization/use-visualization-catalog-from-path';
 
 const CATALOG_TITLE_KEYS: Record<LibraryEntityType, string> = {
@@ -18,14 +18,13 @@ const CATALOG_TITLE_KEYS: Record<LibraryEntityType, string> = {
 
 export const CatalogListPage = () => {
   const catalog = useVisualizationCatalogFromPath();
-  const { processId, indexes } = useProcessVisualization();
+  const { basePath, indexes } = useProcessVisualization();
 
   if (!catalog) {
     return null;
   }
 
-  const indexKey = catalogTypeToIndexKey(catalog);
-  const entries = sortedIndexedEntities(indexes[indexKey]);
+  const entries = sortedUnifiedIndexedEntities(indexes[catalog]);
 
   return (
     <div className="process-visualization-page" data-cy={`visualization-catalog-${catalog}`}>
@@ -39,9 +38,9 @@ export const CatalogListPage = () => {
       ) : (
         <ul className="process-visualization-catalog-list">
           {entries.map(entry => (
-            <li key={entry.entity.id} className="process-visualization-catalog-list__item">
+            <li key={entry.entity.ref} className="process-visualization-catalog-list__item">
               <Link
-                to={processVisualizationEntityPath(processId, catalog, entry.entity.id as number)}
+                to={processVisualizationEntityPath(basePath, catalog, entry.entity.ref)}
                 className="process-visualization-catalog-list__link"
               >
                 {entry.entity.name}

@@ -6,34 +6,12 @@ import { getEntities as getActivityEntities } from 'app/entities/activity/activi
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
 import { getEntity as getProcessEntity } from 'app/entities/process/process.reducer';
 import { IArtifacts } from 'app/shared/model/artifacts.model';
-import { IProcess } from 'app/shared/model/process.model';
 import {
-  buildProcessVisualizationIndexes,
-  ProcessVisualizationIndexes,
-} from 'app/modules/process-visualization/process-visualization-indexes';
-import {
-  filterActivitiesForPhases,
-  filterPhasesForProcess,
-  groupActivitiesByPhaseId,
-  hydrateActivitiesWithArtifacts,
-} from 'app/modules/process-visualization/process-visualization-data.utils';
-import { IActivity } from 'app/shared/model/activity.model';
-import { IPhase } from 'app/shared/model/phase.model';
+  buildUnifiedFromApiStores,
+  ProcessVisualizationUnifiedData,
+} from 'app/modules/process-visualization/process-visualization-unified.model';
 
-export interface ProcessVisualizationData {
-  processId: number;
-  process: IProcess;
-  phases: IPhase[];
-  activities: IActivity[];
-  activitiesByPhaseId: Map<number, IActivity[]>;
-  indexes: ProcessVisualizationIndexes;
-  loading: boolean;
-  processMatches: boolean;
-  artifactsError: boolean;
-  error: boolean;
-}
-
-export function useProcessVisualizationData(processId: number): ProcessVisualizationData {
+export function useProcessVisualizationData(processId: number): ProcessVisualizationUnifiedData {
   const dispatch = useAppDispatch();
   const isValidProcessId = Number.isFinite(processId) && processId > 0;
 
@@ -88,36 +66,22 @@ export function useProcessVisualizationData(processId: number): ProcessVisualiza
     };
   }, [isValidProcessId, processId]);
 
-  const phases = useMemo(
-    () => (isValidProcessId ? filterPhasesForProcess(processId, phaseEntities) : []),
-    [isValidProcessId, phaseEntities, processId]
-  );
-
-  const activities = useMemo(() => {
-    if (!isValidProcessId) {
-      return [];
-    }
-    const filtered = filterActivitiesForPhases(phases, activityEntities);
-    return hydrateActivitiesWithArtifacts(filtered, artifacts);
-  }, [activityEntities, artifacts, isValidProcessId, phases]);
-
-  const activitiesByPhaseId = useMemo(() => groupActivitiesByPhaseId(phases, activities), [activities, phases]);
-
-  const indexes = useMemo(() => buildProcessVisualizationIndexes(activities), [activities]);
-
   const loading = processLoading || phaseLoading || activityLoading || artifactsLoading;
   const processMatches = process.id === processId;
 
-  return {
-    processId,
-    process,
-    phases,
-    activities,
-    activitiesByPhaseId,
-    indexes,
-    loading,
-    processMatches,
-    artifactsError,
-    error: Boolean(processError) && !processLoading,
-  };
+  return useMemo(
+    () =>
+      buildUnifiedFromApiStores(
+        processId,
+        process,
+        phaseEntities,
+        activityEntities,
+        artifacts,
+        loading,
+        processMatches,
+        artifactsError,
+        Boolean(processError) && !processLoading
+      ),
+    [activityEntities, artifacts, artifactsError, loading, phaseEntities, process, processError, processId, processLoading, processMatches]
+  );
 }

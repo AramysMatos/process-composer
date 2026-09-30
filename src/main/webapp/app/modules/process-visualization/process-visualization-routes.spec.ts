@@ -6,6 +6,8 @@ describe('process-visualization-routes', () => {
     expect(isProcessVisualizationRoute('/processos/42/visualizar/activities/7')).toBe(true);
     expect(isProcessVisualizationRoute('/processos/42/canvas')).toBe(false);
     expect(isProcessVisualizationRoute('/processos/42')).toBe(false);
+    expect(isProcessVisualizationRoute('/visualizar-yaml')).toBe(true);
+    expect(isProcessVisualizationRoute('/visualizar-yaml/activities/foo')).toBe(true);
   });
 
   it('parses process id from path', () => {

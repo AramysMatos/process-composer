@@ -17,7 +17,7 @@ const CATALOG_LINKS = [
   { slug: 'templates' as const, key: 'processComposerApp.processDesign.visualization.nav.templates' },
 ];
 
-export const ProcessVisualizationNav = ({ processId }: { processId: number }) => (
+export const ProcessVisualizationNav = ({ basePath }: { basePath: string }) => (
   <nav className="process-visualization-nav" aria-label="Process visualization">
     <div className="process-visualization-nav__section">
       <div className="process-visualization-nav__label">
@@ -25,19 +25,19 @@ export const ProcessVisualizationNav = ({ processId }: { processId: number }) =>
       </div>
       <NavLink
         end
-        to={processVisualizationOverviewPath(processId)}
+        to={processVisualizationOverviewPath(basePath)}
         className={({ isActive }) => `process-visualization-nav__link${isActive ? ' active' : ''}`}
       >
         <Translate contentKey="processComposerApp.processDesign.visualization.nav.overview">Overview</Translate>
       </NavLink>
       <NavLink
-        to={processVisualizationActivitiesPath(processId)}
+        to={processVisualizationActivitiesPath(basePath)}
         className={({ isActive }) => `process-visualization-nav__link${isActive ? ' active' : ''}`}
       >
         <Translate contentKey="processComposerApp.processDesign.visualization.nav.activities">Activities</Translate>
       </NavLink>
       <NavLink
-        to={processVisualizationCanvasPath(processId)}
+        to={processVisualizationCanvasPath(basePath)}
         className={({ isActive }) => `process-visualization-nav__link${isActive ? ' active' : ''}`}
       >
         <Translate contentKey="processComposerApp.processDesign.visualization.nav.canvas">Canvas</Translate>
@@ -50,7 +50,7 @@ export const ProcessVisualizationNav = ({ processId }: { processId: number }) =>
       {CATALOG_LINKS.map(item => (
         <NavLink
           key={item.slug}
-          to={processVisualizationCatalogPath(processId, item.slug)}
+          to={processVisualizationCatalogPath(basePath, item.slug)}
           className={({ isActive }) => `process-visualization-nav__link${isActive ? ' active' : ''}`}
         >
           <Translate contentKey={item.key}>{item.slug}</Translate>

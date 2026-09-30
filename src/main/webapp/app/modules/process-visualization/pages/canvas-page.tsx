@@ -7,8 +7,11 @@ import { useProcessVisualization } from 'app/modules/process-visualization/proce
 import { processVisualizationActivityPath } from 'app/modules/process-visualization/process-visualization-paths';
 
 export const CanvasPage = () => {
-  const { processId } = useProcessVisualization();
+  const { source, processId, basePath, canvasActivities, canvasPhases, canvasActivityRefBySyntheticId } = useProcessVisualization();
   const navigate = useNavigate();
+
+  const apiProcessId = processId ?? 0;
+  const useEmbedded = source === 'yaml' && canvasActivities !== undefined && canvasPhases !== undefined;
 
   return (
     <div className="process-visualization-canvas-page" data-cy="visualization-canvas">
@@ -22,9 +25,20 @@ export const CanvasPage = () => {
       </div>
       <div className="process-visualization-canvas-page__canvas-area">
         <ActivityCanvas
-          processId={processId}
+          processId={apiProcessId}
           readOnly
-          onSelectActivity={activityId => navigate(processVisualizationActivityPath(processId, activityId))}
+          embeddedActivities={useEmbedded ? canvasActivities : undefined}
+          embeddedPhases={useEmbedded ? canvasPhases : undefined}
+          onSelectActivity={activityId => {
+            if (source === 'yaml' && canvasActivityRefBySyntheticId) {
+              const activityRef = canvasActivityRefBySyntheticId.get(activityId);
+              if (activityRef) {
+                navigate(processVisualizationActivityPath(basePath, activityRef));
+              }
+              return;
+            }
+            navigate(processVisualizationActivityPath(basePath, String(activityId)));
+          }}
         />
       </div>
     </div>

@@ -6,6 +6,7 @@
         "subtitle": "Browse and manage all process definitions",
         "searchPlaceholder": "Search by name...",
         "createLabel": "New Process",
+        "openYamlVisualization": "View from YAML",
         "notFound": "No processes found",
         "sort": {
           "label": "Sort by",
@@ -229,7 +230,7 @@
         },
         "dependencies": {
           "predecessors": "Predecessor activities",
-          "subActivities": "Sub-activities"
+          "subActivities": "Successor activities"
         }
       },
       "visualization": {
@@ -283,6 +284,18 @@
           "template": "Template",
           "requiredArtifact": "Required artifact",
           "producedArtifact": "Produced artifact"
+        },
+        "yaml": {
+          "openSite": "Open visualization site",
+          "downloadStaticSite": "Download static site (ZIP)",
+          "uploadTitle": "Open process from YAML",
+          "uploadSubtitle": "Upload a YAML file exported from ModusComposer to browse the read-only visualization site.",
+          "fileLabel": "YAML file",
+          "pasteButton": "Paste YAML",
+          "pastePrompt": "Paste the process YAML content:",
+          "parseError": "Could not read this YAML file.",
+          "openingFile": "Opening {{name}}...",
+          "backToUpload": "Back to YAML upload"
         }
       }
     }

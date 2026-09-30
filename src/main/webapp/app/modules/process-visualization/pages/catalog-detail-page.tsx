@@ -5,10 +5,10 @@ import { Translate, translate } from 'react-jhipster';
 
 import {
   useVisualizationCatalogFromPath,
-  useVisualizationEntityIdParam,
+  useVisualizationEntityRefParam,
 } from 'app/modules/process-visualization/use-visualization-catalog-from-path';
 import { useProcessVisualization } from 'app/modules/process-visualization/process-visualization-context';
-import { ActivityEntityRelationKind, catalogTypeToIndexKey } from 'app/modules/process-visualization/process-visualization-indexes';
+import { ActivityEntityRelationKind } from 'app/modules/process-visualization/process-visualization-indexes';
 import { PrintButton } from 'app/modules/process-visualization/components/print-button';
 import { ProcessDocBlock } from 'app/modules/process-visualization/components/process-doc-block';
 import {
@@ -28,15 +28,15 @@ const RELATION_LABEL_KEYS: Record<ActivityEntityRelationKind, string> = {
 
 export const CatalogDetailPage = () => {
   const catalog = useVisualizationCatalogFromPath();
-  const numericEntityId = useVisualizationEntityIdParam();
-  const { processId, indexes } = useProcessVisualization();
+  const entityRef = useVisualizationEntityRefParam();
+  const { basePath, indexes } = useProcessVisualization();
 
   const entry = useMemo(() => {
-    if (!catalog || numericEntityId === undefined) {
+    if (!catalog || !entityRef) {
       return undefined;
     }
-    return indexes[catalogTypeToIndexKey(catalog)].get(numericEntityId);
-  }, [catalog, indexes, numericEntityId]);
+    return indexes[catalog].get(entityRef);
+  }, [catalog, entityRef, indexes]);
 
   if (!catalog) {
     return null;
@@ -48,14 +48,14 @@ export const CatalogDetailPage = () => {
         <Alert color="warning">
           <Translate contentKey="processComposerApp.processDesign.visualization.entityNotFound">Item not found in this process.</Translate>
         </Alert>
-        <Link to={processVisualizationCatalogPath(processId, catalog)}>
+        <Link to={processVisualizationCatalogPath(basePath, catalog)}>
           <Translate contentKey="processComposerApp.processDesign.visualization.backToCatalog">Back to list</Translate>
         </Link>
       </div>
     );
   }
 
-  const optional = 'optional' in entry.entity ? entry.entity.optional : undefined;
+  const optional = entry.entity.optional;
 
   return (
     <div className="process-visualization-page" data-cy="visualization-entity-detail">
@@ -63,7 +63,7 @@ export const CatalogDetailPage = () => {
         <PrintButton />
       </div>
       <nav className="small text-muted mb-2">
-        <Link to={processVisualizationCatalogPath(processId, catalog)}>
+        <Link to={processVisualizationCatalogPath(basePath, catalog)}>
           <Translate contentKey={`processComposerApp.processDesign.visualization.nav.${catalog}`}>{catalog}</Translate>
         </Link>
         {' › '}
@@ -95,9 +95,9 @@ export const CatalogDetailPage = () => {
         </thead>
         <tbody>
           {entry.refs.map(ref => (
-            <tr key={`${ref.activityId}-${ref.relationKind}`}>
+            <tr key={`${ref.activityRef}-${ref.relationKind}`}>
               <td>
-                <Link to={processVisualizationActivityPath(processId, ref.activityId)}>{ref.activityName}</Link>
+                <Link to={processVisualizationActivityPath(basePath, ref.activityRef)}>{ref.activityName}</Link>
               </td>
               <td>
                 <Translate contentKey={RELATION_LABEL_KEYS[ref.relationKind]}>{ref.relationKind}</Translate>

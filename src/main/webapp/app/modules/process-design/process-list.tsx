@@ -38,6 +38,7 @@ import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-u
 import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { IProcess } from 'app/shared/model/process.model';
 import { isSystemTemplate } from 'app/shared/model/owned-entity.model';
+import { YAML_VISUALIZATION_BASE_PATH } from 'app/modules/process-visualization/process-visualization-paths';
 
 const LIST_PAGE_SIZE = 12;
 const SEARCH_FETCH_SIZE = 1000;
@@ -368,9 +369,16 @@ export const ProcessList = () => {
             <Translate contentKey="processComposerApp.processDesign.list.subtitle">Browse and manage all process definitions</Translate>
           </p>
         </div>
-        <Button tag={Link} to="/processos/novo" color="primary" data-cy="createProcessButton">
-          <FontAwesomeIcon icon="plus" /> <Translate contentKey="processComposerApp.processDesign.list.createLabel">New Process</Translate>
-        </Button>
+        <div className="process-list__header-actions d-flex flex-wrap gap-2">
+          <Button tag={Link} to={`${YAML_VISUALIZATION_BASE_PATH}/upload`} color="secondary" outline data-cy="openYamlVisualizationUpload">
+            <FontAwesomeIcon icon="eye" className="me-1" />
+            <Translate contentKey="processComposerApp.processDesign.list.openYamlVisualization">View from YAML</Translate>
+          </Button>
+          <Button tag={Link} to="/processos/novo" color="primary" data-cy="createProcessButton">
+            <FontAwesomeIcon icon="plus" />{' '}
+            <Translate contentKey="processComposerApp.processDesign.list.createLabel">New Process</Translate>
+          </Button>
+        </div>
       </div>
 
       <div className="process-list__toolbar mb-4">

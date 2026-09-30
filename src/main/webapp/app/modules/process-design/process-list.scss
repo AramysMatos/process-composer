@@ -8,6 +8,11 @@
     flex-wrap: wrap;
   }
 
+  &__header-actions {
+    flex-shrink: 0;
+    align-items: center;
+  }
+
   &__toolbar {
     display: flex;
     flex-wrap: wrap;

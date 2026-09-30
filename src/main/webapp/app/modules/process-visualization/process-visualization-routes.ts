@@ -1,7 +1,8 @@
 const PROCESS_VISUALIZATION_PATH = /^\/processos\/\d+\/visualizar(\/.*)?$/;
+const YAML_VISUALIZATION_PATH = /^\/visualizar-yaml(\/.*)?$/;
 
 export function isProcessVisualizationRoute(pathname: string): boolean {
-  return PROCESS_VISUALIZATION_PATH.test(pathname);
+  return PROCESS_VISUALIZATION_PATH.test(pathname) || YAML_VISUALIZATION_PATH.test(pathname);
 }
 
 export function parseProcessVisualizationProcessId(pathname: string): number | undefined {

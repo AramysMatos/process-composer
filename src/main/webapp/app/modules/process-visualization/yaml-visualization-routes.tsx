@@ -1,7 +1,9 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-import ProcessVisualizationLayout from 'app/modules/process-visualization/process-visualization-layout';
+import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
+import ProcessYamlVisualizationLayout from 'app/modules/process-visualization/process-yaml-visualization-layout';
+import YamlVisualizationUploadPage from 'app/modules/process-visualization/pages/yaml-visualization-upload';
 import OverviewPage from 'app/modules/process-visualization/pages/overview-page';
 import ActivitiesListPage from 'app/modules/process-visualization/pages/activities-list-page';
 import ActivityVisualizationPage from 'app/modules/process-visualization/pages/activity-visualization-page';
@@ -9,10 +11,10 @@ import CatalogListPage from 'app/modules/process-visualization/pages/catalog-lis
 import CatalogDetailPage from 'app/modules/process-visualization/pages/catalog-detail-page';
 import CanvasPage from 'app/modules/process-visualization/pages/canvas-page';
 
-/** Nested routes — register under process-design ErrorBoundaryRoutes. */
-export const processVisualizationRouteElements = (
-  <>
-    <Route path=":id/visualizar" element={<ProcessVisualizationLayout />}>
+const ProcessYamlVisualizationRoutes = () => (
+  <ErrorBoundaryRoutes>
+    <Route path="upload" element={<YamlVisualizationUploadPage />} />
+    <Route element={<ProcessYamlVisualizationLayout />}>
       <Route index element={<OverviewPage />} />
       <Route path="activities" element={<ActivitiesListPage />} />
       <Route path="activities/:activityRef" element={<ActivityVisualizationPage />} />
@@ -28,7 +30,7 @@ export const processVisualizationRouteElements = (
       <Route path="templates" element={<CatalogListPage />} />
       <Route path="templates/:entityRef" element={<CatalogDetailPage />} />
     </Route>
-  </>
+  </ErrorBoundaryRoutes>
 );
 
-export default processVisualizationRouteElements;
+export default ProcessYamlVisualizationRoutes;

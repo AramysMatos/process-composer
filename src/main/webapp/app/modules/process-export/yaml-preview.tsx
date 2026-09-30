@@ -2,7 +2,7 @@ import './yaml-preview.scss';
 
 import axios from 'axios';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Alert, Button, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
@@ -16,6 +16,10 @@ import { IArtifacts } from 'app/shared/model/artifacts.model';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
 import { buildProcessYaml } from 'app/modules/process-export/build-process-yaml';
 import { YamlSyntaxViewer } from 'app/modules/process-export/yaml-syntax-viewer';
+import { parseProcessYaml } from 'app/modules/process-visualization/parse-process-yaml';
+import { saveYamlSnapshotToSession } from 'app/modules/process-visualization/process-visualization-yaml-storage';
+import { YAML_VISUALIZATION_BASE_PATH } from 'app/modules/process-visualization/process-visualization-paths';
+import { downloadProcessSiteZip } from 'app/modules/process-visualization/generate-process-site-zip';
 
 const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
 
@@ -43,6 +47,7 @@ const hydrateActivitiesWithArtifacts = (activities: IActivity[], artifacts: IArt
 
 export const YamlPreview = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { id } = useParams<'id'>();
 
   const processId = Number(id);
@@ -142,6 +147,31 @@ export const YamlPreview = () => {
     URL.revokeObjectURL(url);
   }, [process.processName, yamlContent]);
 
+  const handleOpenVisualization = useCallback(() => {
+    if (!yamlContent) {
+      return;
+    }
+    try {
+      const snapshot = parseProcessYaml(yamlContent);
+      saveYamlSnapshotToSession(snapshot);
+      navigate(YAML_VISUALIZATION_BASE_PATH);
+    } catch {
+      // parse errors are unlikely for generated YAML
+    }
+  }, [navigate, yamlContent]);
+
+  const handleDownloadStaticSite = useCallback(async () => {
+    if (!yamlContent) {
+      return;
+    }
+    try {
+      const snapshot = parseProcessYaml(yamlContent);
+      await downloadProcessSiteZip(yamlContent, snapshot);
+    } catch {
+      // ignore
+    }
+  }, [yamlContent]);
+
   if (!isValidProcessId) {
     return (
       <div className="yaml-preview" data-cy="yaml-preview">
@@ -201,10 +231,32 @@ export const YamlPreview = () => {
             </Alert>
           )}
 
-          <div className="yaml-preview__actions">
+          <div className="yaml-preview__actions d-flex flex-wrap gap-2">
             <Button color="primary" onClick={handleDownload} disabled={!yamlContent} data-cy="yaml-download-button">
               <FontAwesomeIcon icon="download" className="me-2" />
               <Translate contentKey="processComposerApp.processExport.download">Download .yaml file</Translate>
+            </Button>
+            <Button
+              color="success"
+              outline
+              onClick={handleOpenVisualization}
+              disabled={!yamlContent}
+              data-cy="yaml-open-visualization-button"
+            >
+              <FontAwesomeIcon icon="eye" className="me-2" />
+              <Translate contentKey="processComposerApp.processDesign.visualization.yaml.openSite">Open visualization site</Translate>
+            </Button>
+            <Button
+              color="secondary"
+              outline
+              onClick={() => void handleDownloadStaticSite()}
+              disabled={!yamlContent}
+              data-cy="yaml-download-site-button"
+            >
+              <FontAwesomeIcon icon="box" className="me-2" />
+              <Translate contentKey="processComposerApp.processDesign.visualization.yaml.downloadStaticSite">
+                Download static site (ZIP)
+              </Translate>
             </Button>
           </div>
 
