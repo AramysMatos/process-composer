@@ -24,7 +24,8 @@
         "actions": {
           "edit": "Edit process",
           "duplicate": "Duplicate process",
-          "exportYaml": "Export YAML"
+          "exportYaml": "Export YAML",
+          "visualize": "View process site"
         },
         "delete": {
           "confirm": "Are you sure you want to delete the process \"{{name}}\"?"
@@ -229,6 +230,59 @@
         "dependencies": {
           "predecessors": "Predecessor activities",
           "subActivities": "Sub-activities"
+        }
+      },
+      "visualization": {
+        "print": "Print",
+        "empty": "—",
+        "optional": "Optional",
+        "openEditor": "Open in editor",
+        "loadingProcess": "Loading process...",
+        "processNotFound": "Process not found or access denied.",
+        "backToProcesses": "Back to processes",
+        "invalidProcess": "Invalid process.",
+        "activityNotFound": "Activity not found.",
+        "backToOverview": "Back to overview",
+        "entityNotFound": "Item not found in this process.",
+        "backToCatalog": "Back to list",
+        "catalogEmpty": "No items used in this process.",
+        "usedInActivities": "{{count}} activities",
+        "usedInTitle": "Used in activities",
+        "activityColumn": "Activity",
+        "relationColumn": "Relation",
+        "phasesTitle": "Phases and activities",
+        "activityCountLabel": "activities",
+        "noActivitiesInPhase": "No activities in this phase.",
+        "searchActivities": "Search activities...",
+        "shortcutCanvas": "View diagram",
+        "shortcutCatalog": "Browse catalog",
+        "canvasHint": "Click an activity to open its sheet.",
+        "nav": {
+          "main": "Main",
+          "overview": "Overview",
+          "activities": "Activities",
+          "canvas": "Canvas",
+          "catalogs": "Catalogs",
+          "roles": "Roles",
+          "tools": "Tools",
+          "guidelines": "Guidelines",
+          "artifacts": "Artifacts",
+          "templates": "Templates"
+        },
+        "stats": {
+          "phases": "{{count}} phases",
+          "activities": "{{count}} activities",
+          "roles": "{{count}} roles",
+          "tools": "{{count}} tools"
+        },
+        "relation": {
+          "participantRole": "Participant",
+          "responsibleRole": "Responsible",
+          "tool": "Tool",
+          "guideline": "Guideline",
+          "template": "Template",
+          "requiredArtifact": "Required artifact",
+          "producedArtifact": "Produced artifact"
         }
       }
     }

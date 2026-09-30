@@ -473,6 +473,19 @@ export const ProcessList = () => {
                             'data-cy': `processDuplicate-${process.id}`,
                           },
                           {
+                            key: 'visualize',
+                            label: (
+                              <>
+                                <FontAwesomeIcon icon="book" className="me-2" />
+                                <Translate contentKey="processComposerApp.processDesign.list.actions.visualize">
+                                  View process site
+                                </Translate>
+                              </>
+                            ),
+                            onClick: () => window.open(`/processos/${process.id}/visualizar`, '_blank', 'noopener,noreferrer'),
+                            'data-cy': `processVisualize-${process.id}`,
+                          },
+                          {
                             key: 'export',
                             label: (
                               <>

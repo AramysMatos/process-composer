@@ -34,6 +34,7 @@ import { faLock } from '@fortawesome/free-solid-svg-icons/faLock';
 import { faMagic } from '@fortawesome/free-solid-svg-icons/faMagic';
 import { faObjectGroup } from '@fortawesome/free-solid-svg-icons/faObjectGroup';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
+import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle';
 import { faProjectDiagram } from '@fortawesome/free-solid-svg-icons/faProjectDiagram';
@@ -100,6 +101,7 @@ export const loadIcons = () => {
     faObjectGroup,
     faPencilAlt,
     faPlus,
+    faPrint,
     faPlusCircle,
     faProjectDiagram,
     faRoad,

@@ -13,6 +13,7 @@ import { getProfile } from 'app/shared/reducers/application-profile';
 import Header from 'app/shared/layout/header/header';
 import AppSidebarNav, { useSidebarCollapsed } from 'app/shared/layout/app-sidebar-nav';
 import { isAuthPublicRoute } from 'app/shared/layout/auth-split/auth-public-routes';
+import { isProcessVisualizationRoute } from 'app/modules/process-visualization/process-visualization-routes';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import ErrorBoundary from 'app/shared/error/error-boundary';
 import { AUTHORITIES } from 'app/config/constants';
@@ -25,6 +26,7 @@ const AppLayout = () => {
   const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useSidebarCollapsed();
   const authPublicPage = isAuthPublicRoute(location.pathname);
+  const visualizationPage = isProcessVisualizationRoute(location.pathname);
 
   useEffect(() => {
     dispatch(getSession());
@@ -38,7 +40,7 @@ const AppLayout = () => {
   const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
   const isOpenAPIEnabled = useAppSelector(state => state.applicationProfile.isOpenAPIEnabled);
 
-  if (authPublicPage) {
+  if (authPublicPage || visualizationPage) {
     return (
       <>
         <ToastContainer position={toast.POSITION.TOP_LEFT} className="toastify-container" toastClassName="toastify-toast" />

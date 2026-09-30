@@ -283,6 +283,17 @@ export const ProcessCanvas = () => {
                 'data-cy': `processDuplicate-${processId}`,
               },
               {
+                key: 'visualize',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="book" className="me-2" />
+                    <Translate contentKey="processComposerApp.processDesign.list.actions.visualize">View process site</Translate>
+                  </>
+                ),
+                onClick: () => window.open(`/processos/${processId}/visualizar`, '_blank', 'noopener,noreferrer'),
+                'data-cy': `processVisualize-${processId}`,
+              },
+              {
                 key: 'export',
                 label: (
                   <>

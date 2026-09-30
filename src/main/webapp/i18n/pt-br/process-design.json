@@ -24,7 +24,8 @@
         "actions": {
           "edit": "Editar processo",
           "duplicate": "Duplicar processo",
-          "exportYaml": "Exportar YAML"
+          "exportYaml": "Exportar YAML",
+          "visualize": "Visualizar processo"
         },
         "delete": {
           "confirm": "Tem certeza de que deseja excluir o processo \"{{name}}\"?"
@@ -229,6 +230,59 @@
         "dependencies": {
           "predecessors": "Atividades predecessoras",
           "subActivities": "Subatividades"
+        }
+      },
+      "visualization": {
+        "print": "Imprimir",
+        "empty": "—",
+        "optional": "Opcional",
+        "openEditor": "Abrir no editor",
+        "loadingProcess": "Carregando processo...",
+        "processNotFound": "Processo não encontrado ou acesso negado.",
+        "backToProcesses": "Voltar para processos",
+        "invalidProcess": "Processo inválido.",
+        "activityNotFound": "Atividade não encontrada.",
+        "backToOverview": "Voltar à visão geral",
+        "entityNotFound": "Item não encontrado neste processo.",
+        "backToCatalog": "Voltar à lista",
+        "catalogEmpty": "Nenhum item usado neste processo.",
+        "usedInActivities": "{{count}} atividades",
+        "usedInTitle": "Usado nas atividades",
+        "activityColumn": "Atividade",
+        "relationColumn": "Relação",
+        "phasesTitle": "Fases e atividades",
+        "activityCountLabel": "atividades",
+        "noActivitiesInPhase": "Nenhuma atividade nesta fase.",
+        "searchActivities": "Buscar atividades...",
+        "shortcutCanvas": "Ver diagrama",
+        "shortcutCatalog": "Ver catálogo",
+        "canvasHint": "Clique em uma atividade para abrir a ficha.",
+        "nav": {
+          "main": "Principal",
+          "overview": "Visão geral",
+          "activities": "Atividades",
+          "canvas": "Canvas",
+          "catalogs": "Catálogos",
+          "roles": "Papéis",
+          "tools": "Ferramentas",
+          "guidelines": "Diretrizes",
+          "artifacts": "Artefatos",
+          "templates": "Modelos"
+        },
+        "stats": {
+          "phases": "{{count}} fases",
+          "activities": "{{count}} atividades",
+          "roles": "{{count}} papéis",
+          "tools": "{{count}} ferramentas"
+        },
+        "relation": {
+          "participantRole": "Participante",
+          "responsibleRole": "Responsável",
+          "tool": "Ferramenta",
+          "guideline": "Diretriz",
+          "template": "Modelo",
+          "requiredArtifact": "Artefato obrigatório",
+          "producedArtifact": "Artefato produzido"
         }
       }
     }

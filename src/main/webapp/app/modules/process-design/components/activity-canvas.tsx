@@ -59,6 +59,7 @@ export interface ActivityCanvasProps {
   processId: number;
   onSelectActivity: (activityId: number) => void;
   selectedActivityId?: number;
+  readOnly?: boolean;
 }
 
 const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
@@ -91,7 +92,8 @@ const buildGraphNodesAndEdges = (
   activities: IActivity[],
   phaseColorById: Map<number, string>,
   phaseNameById: Map<number, string>,
-  selectedActivityId?: number
+  selectedActivityId?: number,
+  readOnly = false
 ): { nodes: Node<ActivityNodeData>[]; edges: Edge[] } => {
   const nodes: Node<ActivityNodeData>[] = activities
     .filter(activity => activity.id !== undefined)
@@ -130,7 +132,7 @@ const buildGraphNodesAndEdges = (
         source: String(parentId),
         target: String(childId),
         type: EDGE_TYPE,
-        deletable: true,
+        deletable: !readOnly,
         selectable: true,
         focusable: true,
         markerEnd: { type: MarkerType.ArrowClosed },
@@ -154,7 +156,7 @@ const buildGraphNodesAndEdges = (
   return { nodes, edges: Array.from(edgeMap.values()) };
 };
 
-const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }: ActivityCanvasProps) => {
+const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId, readOnly = false }: ActivityCanvasProps) => {
   const dispatch = useAppDispatch();
   const { fitView } = useReactFlow();
 
@@ -187,10 +189,12 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }
       }
       nodePositionsRef.current.clear();
       shouldFitViewRef.current = true;
-      saveCanvasLayoutMode(processId, nextMode);
+      if (!readOnly) {
+        saveCanvasLayoutMode(processId, nextMode);
+      }
       setLayoutMode(nextMode);
     },
-    [layoutMode, processId]
+    [layoutMode, processId, readOnly]
   );
 
   useEffect(() => {
@@ -264,7 +268,8 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }
       processActivities,
       phaseColorById,
       phaseNameById,
-      selectedActivityId
+      selectedActivityId,
+      readOnly
     );
 
     const currentNodeIds = new Set(baseNodes.map(node => node.id));
@@ -296,6 +301,7 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }
     phaseIdByActivityId,
     layoutMode,
     selectedActivityId,
+    readOnly,
     setNodes,
     setEdges,
     fitView,
@@ -533,85 +539,91 @@ const ActivityCanvasInner = ({ processId, onSelectActivity, selectedActivityId }
             onEdgesChange={onEdgesChange}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
-            onConnect={handleConnect}
-            onEdgesDelete={handleEdgesDelete}
-            isValidConnection={isValidConnection}
+            onConnect={readOnly ? undefined : handleConnect}
+            onEdgesDelete={readOnly ? undefined : handleEdgesDelete}
+            isValidConnection={readOnly ? undefined : isValidConnection}
             onNodeClick={(_, node) => onSelectActivity(Number(node.id))}
-            defaultEdgeOptions={{ deletable: true, type: EDGE_TYPE }}
+            defaultEdgeOptions={{ deletable: !readOnly, type: EDGE_TYPE }}
+            nodesDraggable={!readOnly}
+            nodesConnectable={!readOnly}
             elementsSelectable
-            edgesFocusable
-            deleteKeyCode={['Backspace', 'Delete']}
+            edgesFocusable={!readOnly}
+            deleteKeyCode={readOnly ? null : ['Backspace', 'Delete']}
           >
             <Background gap={16} size={1} />
             <Controls />
             <MiniMap zoomable pannable />
           </ReactFlow>
 
-          <Button
-            type="button"
-            color="primary"
-            className="activity-canvas__fab"
-            onClick={() => {
-              setSubmitError(null);
-              setNewActivityPhaseId(orderedPhaseIds[0] ?? '');
-              setCreateModalOpen(true);
-            }}
-            data-cy="create-activity-fab"
-          >
-            <FontAwesomeIcon icon="plus" className="me-1" />
-            <Translate contentKey="processComposerApp.processDesign.canvas.newActivity">New activity</Translate>
-          </Button>
+          {!readOnly && (
+            <Button
+              type="button"
+              color="primary"
+              className="activity-canvas__fab"
+              onClick={() => {
+                setSubmitError(null);
+                setNewActivityPhaseId(orderedPhaseIds[0] ?? '');
+                setCreateModalOpen(true);
+              }}
+              data-cy="create-activity-fab"
+            >
+              <FontAwesomeIcon icon="plus" className="me-1" />
+              <Translate contentKey="processComposerApp.processDesign.canvas.newActivity">New activity</Translate>
+            </Button>
+          )}
         </>
       )}
 
-      <Modal isOpen={createModalOpen} toggle={() => setCreateModalOpen(false)}>
-        <Form onSubmit={handleCreateActivity}>
-          <ModalHeader toggle={() => setCreateModalOpen(false)}>
-            <Translate contentKey="processComposerApp.processDesign.canvas.createTitle">New activity</Translate>
-          </ModalHeader>
-          <ModalBody>
-            <FormGroup>
-              <Label for="new-activity-name">
-                <Translate contentKey="processComposerApp.processDesign.canvas.activityName">Activity name</Translate>
-              </Label>
-              <Input
-                id="new-activity-name"
-                value={newActivityName}
-                onChange={event => setNewActivityName(event.target.value)}
-                data-cy="new-activity-name"
-                required
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label for="new-activity-phase">
-                <Translate contentKey="processComposerApp.processDesign.canvas.targetPhase">Target phase</Translate>
-              </Label>
-              <Input
-                id="new-activity-phase"
-                type="select"
-                value={newActivityPhaseId}
-                onChange={event => setNewActivityPhaseId(event.target.value === '' ? '' : Number(event.target.value))}
-                data-cy="new-activity-phase"
-                required
-              >
-                {phases.map(phase => (
-                  <option key={phase.id} value={phase.id}>
-                    {phase.name}
-                  </option>
-                ))}
-              </Input>
-            </FormGroup>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="secondary" type="button" onClick={() => setCreateModalOpen(false)}>
-              <Translate contentKey="entity.action.cancel">Cancel</Translate>
-            </Button>
-            <Button color="primary" type="submit" disabled={activityUpdating} data-cy="confirm-create-activity">
-              <Translate contentKey="entity.action.save">Save</Translate>
-            </Button>
-          </ModalFooter>
-        </Form>
-      </Modal>
+      {!readOnly && (
+        <Modal isOpen={createModalOpen} toggle={() => setCreateModalOpen(false)}>
+          <Form onSubmit={handleCreateActivity}>
+            <ModalHeader toggle={() => setCreateModalOpen(false)}>
+              <Translate contentKey="processComposerApp.processDesign.canvas.createTitle">New activity</Translate>
+            </ModalHeader>
+            <ModalBody>
+              <FormGroup>
+                <Label for="new-activity-name">
+                  <Translate contentKey="processComposerApp.processDesign.canvas.activityName">Activity name</Translate>
+                </Label>
+                <Input
+                  id="new-activity-name"
+                  value={newActivityName}
+                  onChange={event => setNewActivityName(event.target.value)}
+                  data-cy="new-activity-name"
+                  required
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label for="new-activity-phase">
+                  <Translate contentKey="processComposerApp.processDesign.canvas.targetPhase">Target phase</Translate>
+                </Label>
+                <Input
+                  id="new-activity-phase"
+                  type="select"
+                  value={newActivityPhaseId}
+                  onChange={event => setNewActivityPhaseId(event.target.value === '' ? '' : Number(event.target.value))}
+                  data-cy="new-activity-phase"
+                  required
+                >
+                  {phases.map(phase => (
+                    <option key={phase.id} value={phase.id}>
+                      {phase.name}
+                    </option>
+                  ))}
+                </Input>
+              </FormGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="secondary" type="button" onClick={() => setCreateModalOpen(false)}>
+                <Translate contentKey="entity.action.cancel">Cancel</Translate>
+              </Button>
+              <Button color="primary" type="submit" disabled={activityUpdating} data-cy="confirm-create-activity">
+                <Translate contentKey="entity.action.save">Save</Translate>
+              </Button>
+            </ModalFooter>
+          </Form>
+        </Modal>
+      )}
     </div>
   );
 };

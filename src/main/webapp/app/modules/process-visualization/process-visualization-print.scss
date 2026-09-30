@@ -1,0 +1,33 @@
+@media print {
+  .process-visualization-nav,
+  .process-visualization-site__header-actions,
+  .process-visualization-toolbar,
+  .activity-canvas__fab,
+  .activity-canvas__layout-toggle,
+  .react-flow__controls,
+  .react-flow__minimap {
+    display: none !important;
+  }
+
+  .process-visualization-site {
+    background: #fff;
+  }
+
+  .process-visualization-site__body {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+
+  .process-visualization-page,
+  .activity-visualization-sheet {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  .process-doc-block,
+  .activity-relation-grid__cell {
+    break-inside: avoid;
+  }
+}
