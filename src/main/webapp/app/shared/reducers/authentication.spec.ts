@@ -221,14 +221,14 @@ describe('Authentication reducer tests', () => {
       const mockStore = configureStore([thunk]);
       store = mockStore({ authentication: { account: { langKey: 'en' } } });
     });
-    it('clears the session token on clearAuthToken', async () => {
+    it('stores the token in local storage on login without remember me', async () => {
       const AUTH_TOKEN_KEY = 'jhi-authenticationToken';
       const loginResponse = { headers: { authorization: 'Bearer TestToken' } };
       axios.post = sinon.stub().returns(Promise.resolve(loginResponse));
 
       await store.dispatch(login('test', 'test'));
-      expect(Storage.session.get(AUTH_TOKEN_KEY)).toBe('TestToken');
-      expect(Storage.local.get(AUTH_TOKEN_KEY)).toBe(undefined);
+      expect(Storage.local.get(AUTH_TOKEN_KEY)).toBe('TestToken');
+      expect(Storage.session.get(AUTH_TOKEN_KEY)).toBe(undefined);
       clearAuthToken();
       expect(Storage.session.get(AUTH_TOKEN_KEY)).toBe(undefined);
       expect(Storage.local.get(AUTH_TOKEN_KEY)).toBe(undefined);

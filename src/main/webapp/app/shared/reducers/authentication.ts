@@ -61,11 +61,9 @@ export const login: (username: string, password: string, rememberMe?: boolean) =
     const bearerToken = response?.headers?.authorization;
     if (bearerToken && bearerToken.slice(0, 7) === 'Bearer ') {
       const jwt = bearerToken.slice(7, bearerToken.length);
-      if (rememberMe) {
-        Storage.local.set(AUTH_TOKEN_KEY, jwt);
-      } else {
-        Storage.session.set(AUTH_TOKEN_KEY, jwt);
-      }
+      // localStorage is shared across tabs; sessionStorage is not (new tab would lose the session).
+      Storage.local.set(AUTH_TOKEN_KEY, jwt);
+      Storage.session.remove(AUTH_TOKEN_KEY);
     }
     dispatch(getSession());
   };
