@@ -1,7 +1,7 @@
 import JSZip from 'jszip';
 
+import { buildStaticProcessSiteFiles } from 'app/modules/process-visualization/build-static-process-site';
 import { ProcessSnapshot } from 'app/modules/process-visualization/process-snapshot.model';
-import { buildStaticProcessSiteHtml } from 'app/modules/process-visualization/generate-static-process-site-html';
 
 const slugifyFileName = (value: string): string =>
   value
@@ -14,21 +14,34 @@ const slugifyFileName = (value: string): string =>
 
 export const generateProcessSiteZip = async (yamlContent: string, snapshot: ProcessSnapshot): Promise<Blob> => {
   const zip = new JSZip();
-  const baseName = slugifyFileName(snapshot.processName || 'process');
 
   zip.file('process.yaml', yamlContent);
   zip.file('process-snapshot.json', JSON.stringify(snapshot, null, 2));
-  zip.file('index.html', buildStaticProcessSiteHtml(snapshot));
+
+  const siteFiles = buildStaticProcessSiteFiles(snapshot);
+  siteFiles.forEach((content, path) => {
+    zip.file(path, content);
+  });
+
   zip.file(
     'README.txt',
     [
       'ModusComposer — site estático do processo',
       '',
-      'index.html — visão geral offline (dados embutidos).',
-      'process.yaml — definição exportada.',
+      'Abra index.html no navegador (funciona offline com file://).',
       '',
-      'Para a experiência completa (canvas, catálogos), abra process.yaml em ModusComposer:',
-      'Visualizar YAML (/visualizar-yaml/upload) ou use "Abrir site de visualização" na exportação.',
+      'Estrutura:',
+      '  index.html              — visão geral',
+      '  activities/index.html   — lista de atividades',
+      '  activities/*.html       — ficha de cada atividade',
+      '  roles|tools|guidelines|artifacts|templates/',
+      '      index.html          — lista do catálogo',
+      '      *.html              — detalhe de cada item',
+      '  assets/site.css         — estilos compartilhados',
+      '  process.yaml            — definição exportada',
+      '',
+      'Para canvas e experiência completa, importe process.yaml no ModusComposer',
+      '(Processos → Visualizar a partir de YAML).',
       '',
     ].join('\n')
   );

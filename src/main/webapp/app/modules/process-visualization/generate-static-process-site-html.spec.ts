@@ -1,4 +1,6 @@
+import { buildStaticProcessSiteFiles } from './build-static-process-site';
 import { buildStaticProcessSiteHtml } from './generate-static-process-site-html';
+import { buildSlugRegistry } from './static-site-paths';
 import { ProcessSnapshot } from './process-snapshot.model';
 
 const minimalSnapshot: ProcessSnapshot = {
@@ -36,16 +38,39 @@ const minimalSnapshot: ProcessSnapshot = {
   },
 };
 
-describe('generate-static-process-site-html', () => {
-  it('includes catalog descriptions and activity relation links', () => {
-    const html = buildStaticProcessSiteHtml(minimalSnapshot);
+describe('build-static-process-site', () => {
+  it('generates multipage site with shared css', () => {
+    const files = buildStaticProcessSiteFiles(minimalSnapshot);
 
-    expect(html).toContain('Papel de desenvolvimento');
-    expect(html).toContain('Controle de versão');
-    expect(html).toContain('Doc de especificação');
-    expect(html).toContain('Ferramentas');
-    expect(html).toContain('href="#catalog-tools-tool_git"');
-    expect(html).toContain('Usado nas atividades');
-    expect(html).toContain('Participante');
+    expect(files.has('index.html')).toBe(true);
+    expect(files.has('assets/site.css')).toBe(true);
+    expect(files.has('activities/index.html')).toBe(true);
+    expect(files.has('activities/act-1.html')).toBe(true);
+    expect(files.has('roles/index.html')).toBe(true);
+    expect(files.has('roles/role-dev.html')).toBe(true);
+    expect(files.has('tools/tool-git.html')).toBe(true);
+
+    const activityPage = files.get('activities/act-1.html') ?? '';
+    expect(activityPage).toContain('href="../roles/role-dev.html"');
+    expect(activityPage).toContain('href="../tools/tool-git.html"');
+    expect(activityPage).toContain('href="../assets/site.css"');
+    expect(activityPage).toContain('relation-grid');
+
+    const rolePage = files.get('roles/role-dev.html') ?? '';
+    expect(rolePage).toContain('href="../assets/site.css"');
+    expect(rolePage).toContain('Papel de desenvolvimento');
+    expect(rolePage).toContain('Usado nas atividades');
+    expect(rolePage).toContain('Participante');
+  });
+
+  it('buildStaticProcessSiteHtml returns overview page only', () => {
+    const html = buildStaticProcessSiteHtml(minimalSnapshot);
+    expect(html).toContain('Processo teste');
+    expect(html).not.toContain('href="#catalog');
+  });
+
+  it('resolves slug collisions with hash suffix', () => {
+    const registry = buildSlugRegistry(['foo bar', 'foo-bar']);
+    expect(registry.get('foo bar')).not.toBe(registry.get('foo-bar'));
   });
 });

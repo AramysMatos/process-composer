@@ -1,4 +1,4 @@
-import { load } from 'js-yaml';
+import { dump, load } from 'js-yaml';
 
 import { ProcessSnapshot, SnapshotActivity, SnapshotCatalogItem, SnapshotPhase } from './process-snapshot.model';
 
@@ -121,3 +121,66 @@ export const parseProcessYaml = (yamlContent: string): ProcessSnapshot => {
 export const serializeProcessSnapshot = (snapshot: ProcessSnapshot): string => JSON.stringify(snapshot);
 
 export const deserializeProcessSnapshot = (json: string): ProcessSnapshot => JSON.parse(json) as ProcessSnapshot;
+
+const dumpCatalog = (items: Record<string, SnapshotCatalogItem>): Record<string, Record<string, unknown>> => {
+  const section: Record<string, Record<string, unknown>> = {};
+  Object.values(items).forEach(item => {
+    section[item.key] = {
+      name: item.name,
+      description: item.description,
+      ...(item.optional ? { optional: true } : {}),
+    };
+  });
+  return section;
+};
+
+/** Reconstructs export-compatible YAML from a snapshot (for static ZIP when only snapshot is available). */
+export const dumpProcessSnapshotYaml = (snapshot: ProcessSnapshot): string => {
+  const activitiesSection: Record<string, Record<string, unknown>> = {};
+  snapshot.activities.forEach(activity => {
+    const predecessor =
+      activity.predecessorKeys.length === 0
+        ? undefined
+        : activity.predecessorKeys.length === 1
+        ? activity.predecessorKeys[0]
+        : activity.predecessorKeys;
+    activitiesSection[activity.key] = {
+      name: activity.name,
+      description: activity.description,
+      input_criterion: activity.inputCriterion,
+      tools: activity.toolKeys,
+      required_artifacts: activity.requiredArtifactKeys,
+      produced_artifacts: activity.producedArtifactKeys,
+      templates: activity.templateKeys,
+      guidelines: activity.guidelineKeys,
+      participant_roles: activity.participantRoleKeys,
+      responsible_roles: activity.responsibleRoleKeys,
+      sub_activities: activity.subActivityKeys,
+      ...(predecessor !== undefined ? { predecessor } : {}),
+    };
+  });
+
+  const phasesSection: Record<string, Record<string, unknown>> = {};
+  snapshot.phases.forEach(phase => {
+    phasesSection[phase.key] = {
+      name: phase.name,
+      description: phase.description,
+      activities: phase.activityKeys,
+    };
+  });
+
+  return dump(
+    {
+      process_name: snapshot.processName,
+      process_description: snapshot.processDescription,
+      phases: phasesSection,
+      activities: activitiesSection,
+      artifacts: dumpCatalog(snapshot.artifacts),
+      tools: dumpCatalog(snapshot.tools),
+      guidelines: dumpCatalog(snapshot.guidelines),
+      roles: dumpCatalog(snapshot.roles),
+      templates: dumpCatalog(snapshot.templates),
+    },
+    { lineWidth: -1, noRefs: true, sortKeys: false }
+  );
+};

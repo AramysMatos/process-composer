@@ -25,6 +25,7 @@ import { getEntities as getActivityEntities } from 'app/entities/activity/activi
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
 import { deleteEntity as deleteProcess, getEntity as getProcessEntity } from 'app/entities/process/process.reducer';
 import { duplicateProcess } from 'app/modules/process-design/duplicate-process';
+import { downloadStaticSiteForProcessId } from 'app/modules/process-visualization/download-static-site-for-process';
 import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
@@ -85,6 +86,7 @@ export const ProcessOverview = () => {
   const [deleteProcessTarget, setDeleteProcessTarget] = useState(false);
   const [deletingProcess, setDeletingProcess] = useState(false);
   const [duplicatingProcess, setDuplicatingProcess] = useState(false);
+  const [downloadingStaticSite, setDownloadingStaticSite] = useState(false);
   const [processEditDrawerOpen, setProcessEditDrawerOpen] = useState(false);
   const accordionInitializedRef = React.useRef(false);
 
@@ -307,6 +309,21 @@ export const ProcessOverview = () => {
       setDuplicatingProcess(false);
     }
   }, [dispatch, duplicatingProcess, navigate, processId]);
+
+  const handleDownloadStaticSite = useCallback(async () => {
+    if (!processId || downloadingStaticSite) {
+      return;
+    }
+
+    setDownloadingStaticSite(true);
+    try {
+      await downloadStaticSiteForProcessId(processId);
+    } catch {
+      // Error notification may be handled by axios interceptor.
+    } finally {
+      setDownloadingStaticSite(false);
+    }
+  }, [downloadingStaticSite, processId]);
 
   const togglePhasePanel = (phaseId: number) => {
     setOpenPhaseIds(current => {
@@ -537,6 +554,22 @@ export const ProcessOverview = () => {
                 ),
                 to: `/processos/${processId}/exportar`,
                 'data-cy': `processExportYaml-${processId}`,
+              },
+              {
+                key: 'downloadStaticSite',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="box" className="me-2" />
+                    <Translate contentKey="processComposerApp.processDesign.list.actions.downloadStaticSite">
+                      Download static site
+                    </Translate>
+                  </>
+                ),
+                onClick() {
+                  void handleDownloadStaticSite();
+                },
+                disabled: downloadingStaticSite,
+                'data-cy': `processDownloadStaticSite-${processId}`,
               },
               {
                 key: 'delete',

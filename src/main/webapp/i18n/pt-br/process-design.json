@@ -26,7 +26,8 @@
           "edit": "Editar processo",
           "duplicate": "Duplicar processo",
           "exportYaml": "Exportar YAML",
-          "visualize": "Visualizar processo"
+          "visualize": "Visualizar processo",
+          "downloadStaticSite": "Baixar site estático (ZIP)"
         },
         "delete": {
           "confirm": "Tem certeza de que deseja excluir o processo \"{{name}}\"?"

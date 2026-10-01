@@ -38,6 +38,7 @@ import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-u
 import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { IProcess } from 'app/shared/model/process.model';
 import { isSystemTemplate } from 'app/shared/model/owned-entity.model';
+import { downloadStaticSiteForProcessId } from 'app/modules/process-visualization/download-static-site-for-process';
 import { YAML_VISUALIZATION_BASE_PATH } from 'app/modules/process-visualization/process-visualization-paths';
 
 const LIST_PAGE_SIZE = 12;
@@ -123,6 +124,7 @@ export const ProcessList = () => {
   const [deleteTarget, setDeleteTarget] = useState<ProcessDeleteTarget | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [duplicatingProcessId, setDuplicatingProcessId] = useState<number | null>(null);
+  const [downloadingStaticSiteId, setDownloadingStaticSiteId] = useState<number | null>(null);
   const [pagination, setPagination] = useState(
     overridePaginationStateWithQueryParams(getSortState(location, LIST_PAGE_SIZE, 'id'), location.search)
   );
@@ -342,6 +344,21 @@ export const ProcessList = () => {
     }
   };
 
+  const handleDownloadStaticSite = async (process: IProcess) => {
+    if (!process.id || downloadingStaticSiteId !== null) {
+      return;
+    }
+
+    setDownloadingStaticSiteId(process.id);
+    try {
+      await downloadStaticSiteForProcessId(process.id);
+    } catch {
+      // Error notification may be handled by axios interceptor.
+    } finally {
+      setDownloadingStaticSiteId(null);
+    }
+  };
+
   const handleDuplicate = async (process: IProcess) => {
     if (!process.id || duplicatingProcessId !== null) {
       return;
@@ -449,6 +466,7 @@ export const ProcessList = () => {
         <Row className="g-3 process-list__grid">
           {displayedProcesses.map(process => {
             const isDuplicating = duplicatingProcessId === process.id;
+            const isDownloadingStaticSite = downloadingStaticSiteId === process.id;
             const ownerLogin = getProcessOwnerLogin(process);
             const showSystemBadge = isSystemTemplate(process);
             const showOwnerLabel = isAdmin && !showSystemBadge && ownerLogin;
@@ -503,6 +521,22 @@ export const ProcessList = () => {
                             ),
                             to: `/processos/${process.id}/exportar`,
                             'data-cy': `processExportYaml-${process.id}`,
+                          },
+                          {
+                            key: 'downloadStaticSite',
+                            label: (
+                              <>
+                                <FontAwesomeIcon icon="box" className="me-2" />
+                                <Translate contentKey="processComposerApp.processDesign.list.actions.downloadStaticSite">
+                                  Download static site
+                                </Translate>
+                              </>
+                            ),
+                            onClick() {
+                              void handleDownloadStaticSite(process);
+                            },
+                            disabled: isDownloadingStaticSite || downloadingStaticSiteId !== null,
+                            'data-cy': `processDownloadStaticSite-${process.id}`,
                           },
                           {
                             key: 'delete',

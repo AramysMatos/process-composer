@@ -7,6 +7,7 @@ import { Translate, translate } from 'react-jhipster';
 import ProcessComposerLogoIcon from 'app/shared/icons/process-composer-logo-icon';
 import { ProcessVisualizationNav } from 'app/modules/process-visualization/components/process-visualization-nav';
 import { useProcessVisualization } from 'app/modules/process-visualization/process-visualization-context';
+import { DownloadStaticSiteButton } from 'app/modules/process-visualization/components/download-static-site-button';
 import { processEditorPath } from 'app/modules/process-visualization/process-visualization-paths';
 
 export interface ProcessVisualizationLayoutInnerProps {
@@ -56,13 +57,14 @@ export const ProcessVisualizationLayoutInner = ({ showEditorLink = true }: Proce
           <span>ModusComposer</span>
         </Link>
         <span className="process-visualization-site__process-title">{title}</span>
-        <div className="process-visualization-site__header-actions">
+        <div className="process-visualization-site__header-actions d-flex flex-wrap gap-2">
           {showEditorLink && processId !== undefined && (
             <Button tag={Link} to={processEditorPath(processId)} color="primary" outline size="sm" target="_blank" rel="noreferrer">
               <FontAwesomeIcon icon="pencil-alt" className="me-1" />
               <Translate contentKey="processComposerApp.processDesign.visualization.openEditor">Open in editor</Translate>
             </Button>
           )}
+          <DownloadStaticSiteButton source={source} processId={processId} />
         </div>
       </header>
       <div className="process-visualization-site__body">
