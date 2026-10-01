@@ -97,7 +97,11 @@ public class EntityAccessService {
     }
 
     public void preserveOwnerOnUpdate(OwnedEntity existing, OwnedEntity payload) {
-        payload.setOwner(existing.getOwner());
+        if (Boolean.TRUE.equals(payload.getSystemTemplate()) && isAdmin()) {
+            payload.setOwner(null);
+        } else {
+            payload.setOwner(existing.getOwner());
+        }
         payload.setSystemTemplate(null);
     }
 

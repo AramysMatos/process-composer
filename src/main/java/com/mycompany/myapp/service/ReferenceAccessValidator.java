@@ -179,12 +179,35 @@ public class ReferenceAccessValidator {
         }
     }
 
+    /**
+     * Assigns ownership on create only. Updates must keep ownership via {@link EntityAccessService#preserveOwnerOnUpdate}.
+     */
     private void inheritOwner(OwnedEntity child, OwnedEntity parent) {
-        if (parent != null && !parent.isSystemTemplate()) {
+        if (parent == null || isPersistent(child)) {
+            return;
+        }
+        if (!parent.isSystemTemplate()) {
             child.setOwner(parent.getOwner());
-        } else if (parent != null && parent.isSystemTemplate()) {
+            return;
+        }
+        if (entityAccessService.isAdmin()) {
+            child.setOwner(null);
+        } else {
             child.setOwner(entityAccessService.getCurrentUser());
         }
+    }
+
+    private boolean isPersistent(OwnedEntity entity) {
+        if (entity instanceof Phase) {
+            return ((Phase) entity).getId() != null;
+        }
+        if (entity instanceof Activity) {
+            return ((Activity) entity).getId() != null;
+        }
+        if (entity instanceof Task) {
+            return ((Task) entity).getId() != null;
+        }
+        return false;
     }
 
     private ResponseStatusException notFound(String entityType) {

@@ -88,4 +88,14 @@ class EntityAccessServiceTest {
         Roles prepared = entityAccessService.prepareForCreate(role);
         assertThat(prepared.getOwnerId()).isEqualTo(1L);
     }
+
+    @Test
+    void preserveOwnerOnUpdateKeepsSystemTemplateOwnerNull() {
+        Roles existing = new Roles().name("Scrum Master");
+        Roles payload = new Roles().name("Scrum Master Updated");
+
+        entityAccessService.preserveOwnerOnUpdate(existing, payload);
+
+        assertThat(payload.getOwner()).isNull();
+    }
 }
