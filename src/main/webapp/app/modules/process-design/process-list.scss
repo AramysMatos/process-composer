@@ -88,4 +88,14 @@
     align-items: center;
     justify-content: center;
   }
+
+  &__sections {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  &__section-title {
+    margin-bottom: 1rem;
+  }
 }

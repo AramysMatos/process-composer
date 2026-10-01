@@ -2,25 +2,7 @@ import './process-list.scss';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import {
-  Badge,
-  Button,
-  Card,
-  CardBody,
-  CardText,
-  CardTitle,
-  Col,
-  Input,
-  InputGroup,
-  InputGroupText,
-  Label,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  Row,
-  Spinner,
-} from 'reactstrap';
+import { Button, Input, InputGroup, InputGroupText, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { JhiItemCount, JhiPagination, Translate, getSortState, translate } from 'react-jhipster';
 
@@ -30,21 +12,21 @@ import { getEntities as getActivities } from 'app/entities/activity/activity.red
 import { getEntities as getPhases } from 'app/entities/phase/phase.reducer';
 import { deleteEntity as deleteProcess, getEntities as getProcesses, IProcessQueryParams } from 'app/entities/process/process.reducer';
 import { duplicateProcess } from 'app/modules/process-design/duplicate-process';
+import { ProcessListProcessGrid } from 'app/modules/process-design/process-list-process-grid';
+import { applySectionProcessing, ProcessSortOption } from 'app/modules/process-design/process-list-section-processing';
+import { useProcessListSections } from 'app/modules/process-design/use-process-list-sections';
 import { AUTHORITIES } from 'app/config/constants';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
-import { countActivitiesForProcess, countPhasesForProcess } from 'app/shared/util/process-stats.utils';
+import { countPhasesForProcess } from 'app/shared/util/process-stats.utils';
 import { SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
-import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { IProcess } from 'app/shared/model/process.model';
-import { isSystemTemplate } from 'app/shared/model/owned-entity.model';
 import { downloadStaticSiteForProcessId } from 'app/modules/process-visualization/download-static-site-for-process';
 import { YAML_VISUALIZATION_BASE_PATH } from 'app/modules/process-visualization/process-visualization-paths';
 
 const LIST_PAGE_SIZE = 12;
 const SEARCH_FETCH_SIZE = 1000;
 
-type ProcessSortOption = 'recent' | 'name' | 'phases';
 type OwnerFilterValue = 'all' | 'system' | string;
 
 type ProcessDeleteTarget = {
@@ -64,6 +46,15 @@ const parseOwnerFilterFromSearch = (search: string): OwnerFilterValue => {
   return 'all';
 };
 
+const parseOthersPageFromSearch = (search: string): number => {
+  const othersPage = new URLSearchParams(search).get('othersPage');
+  if (!othersPage) {
+    return 1;
+  }
+  const parsed = +othersPage;
+  return Number.isNaN(parsed) || parsed < 1 ? 1 : parsed;
+};
+
 const toOwnerFilterParams = (ownerFilter: OwnerFilterValue): Pick<IProcessQueryParams, 'ownerId' | 'systemOnly'> => {
   if (ownerFilter === 'system') {
     return { systemOnly: true };
@@ -74,7 +65,14 @@ const toOwnerFilterParams = (ownerFilter: OwnerFilterValue): Pick<IProcessQueryP
   return {};
 };
 
-const buildListSearch = (activePage: number, sort: string, order: string, ownerFilter: OwnerFilterValue): string => {
+const buildListSearch = (
+  activePage: number,
+  othersPage: number,
+  sort: string,
+  order: string,
+  ownerFilter: OwnerFilterValue,
+  includeOthersPage: boolean
+): string => {
   const params = new URLSearchParams();
   params.set('page', String(activePage));
   params.set(SORT, `${sort},${order}`);
@@ -83,10 +81,11 @@ const buildListSearch = (activePage: number, sort: string, order: string, ownerF
   } else if (ownerFilter !== 'all') {
     params.set('ownerId', ownerFilter);
   }
+  if (includeOthersPage && othersPage > 1) {
+    params.set('othersPage', String(othersPage));
+  }
   return `?${params.toString()}`;
 };
-
-const getProcessOwnerLogin = (process: IProcess): string | null => process.owner?.login ?? process.createdBy ?? null;
 
 const SORT_OPTIONS: Array<{ value: ProcessSortOption; labelKey: string; defaultLabel: string }> = [
   { value: 'recent', labelKey: 'processComposerApp.processDesign.list.sort.recent', defaultLabel: 'Most recent' },
@@ -114,6 +113,53 @@ const toPaginationSort = (option: ProcessSortOption): { sort: string; order: str
   return { sort: 'id', order: 'desc' };
 };
 
+type ProcessListSectionBlockProps = {
+  titleKey: string;
+  defaultTitle: string;
+  emptyKey: string;
+  defaultEmpty: string;
+  dataCy: string;
+  processes: IProcess[];
+  totalItems: number;
+  activePage?: number;
+  itemsPerPage?: number;
+  onSelectPage?: (page: number) => void;
+  gridProps: Omit<React.ComponentProps<typeof ProcessListProcessGrid>, 'processes'>;
+};
+
+const ProcessListSectionBlock = ({
+  titleKey,
+  defaultTitle,
+  emptyKey,
+  defaultEmpty,
+  dataCy,
+  processes,
+  totalItems,
+  activePage,
+  itemsPerPage,
+  onSelectPage,
+  gridProps,
+}: ProcessListSectionBlockProps) => (
+  <section className="process-list__section" data-cy={dataCy}>
+    <h2 className="process-list__section-title h4">
+      <Translate contentKey={titleKey}>{defaultTitle}</Translate>
+    </h2>
+    {processes.length === 0 ? (
+      <p className="text-muted mb-0">
+        <Translate contentKey={emptyKey}>{defaultEmpty}</Translate>
+      </p>
+    ) : (
+      <ProcessListProcessGrid {...gridProps} processes={processes} />
+    )}
+    {onSelectPage && activePage && itemsPerPage && totalItems > 0 && totalItems > itemsPerPage && (
+      <div className="process-list__pagination d-flex flex-wrap justify-content-between align-items-center mt-3 gap-3">
+        <JhiItemCount page={activePage} total={totalItems} itemsPerPage={itemsPerPage} i18nEnabled />
+        <JhiPagination activePage={activePage} onSelect={onSelectPage} maxButtons={5} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+      </div>
+    )}
+  </section>
+);
+
 export const ProcessList = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
@@ -121,6 +167,7 @@ export const ProcessList = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [ownerFilter, setOwnerFilter] = useState<OwnerFilterValue>(() => parseOwnerFilterFromSearch(location.search));
+  const [othersPage, setOthersPage] = useState(() => parseOthersPageFromSearch(location.search));
   const [deleteTarget, setDeleteTarget] = useState<ProcessDeleteTarget | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [duplicatingProcessId, setDuplicatingProcessId] = useState<number | null>(null);
@@ -137,12 +184,31 @@ export const ProcessList = () => {
   const account = useAppSelector(state => state.authentication.account);
   const users = useAppSelector(state => state.userManagement.users);
   const isAdmin = hasAnyAuthority(account.authorities, [AUTHORITIES.ADMIN]);
-  const ownerFilterParams = useMemo(() => (isAdmin ? toOwnerFilterParams(ownerFilter) : {}), [isAdmin, ownerFilter]);
+  const splitView = !isAdmin || ownerFilter === 'all';
+  const includeOthersSection = splitView && isAdmin;
+  const ownerFilterParams = useMemo(
+    () => (isAdmin && !splitView ? toOwnerFilterParams(ownerFilter) : {}),
+    [isAdmin, ownerFilter, splitView]
+  );
 
   const trimmedSearch = searchQuery.trim();
   const isSearching = trimmedSearch.length > 0;
   const sortOption = toSortOption(pagination.sort, pagination.order);
   const needsClientSideCollection = isSearching || sortOption === 'phases';
+  const serverSort = sortOption === 'phases' ? 'id,desc' : `${pagination.sort},${pagination.order}`;
+
+  const sections = useProcessListSections({
+    enabled: splitView,
+    currentUserId: account.id,
+    includeOthersSection,
+    myPage: pagination.activePage,
+    othersPage,
+    pageSize: LIST_PAGE_SIZE,
+    serverSort,
+    myNeedsLargeFetch: needsClientSideCollection,
+    othersNeedsLargeFetch: needsClientSideCollection,
+    largeFetchSize: SEARCH_FETCH_SIZE,
+  });
 
   useEffect(() => {
     dispatch(getPhases({}));
@@ -165,6 +231,7 @@ export const ProcessList = () => {
 
     const sortSplit = sortParam.split(',');
     const nextOwnerFilter = parseOwnerFilterFromSearch(location.search);
+    const nextOthersPage = parseOthersPageFromSearch(location.search);
     setPagination(current => {
       if (current.activePage === +page && current.sort === sortSplit[0] && current.order === sortSplit[1]) {
         return current;
@@ -178,14 +245,18 @@ export const ProcessList = () => {
       };
     });
     setOwnerFilter(current => (current === nextOwnerFilter ? current : nextOwnerFilter));
+    setOthersPage(current => (current === nextOthersPage ? current : nextOthersPage));
   }, [location.search]);
 
   useEffect(() => {
     setPagination(current => ({ ...current, activePage: 1 }));
+    setOthersPage(1);
   }, [trimmedSearch]);
 
   useEffect(() => {
-    const serverSort = sortOption === 'phases' ? 'id,desc' : `${pagination.sort},${pagination.order}`;
+    if (splitView) {
+      return;
+    }
 
     if (needsClientSideCollection) {
       dispatch(
@@ -215,8 +286,8 @@ export const ProcessList = () => {
     pagination.itemsPerPage,
     pagination.order,
     pagination.sort,
-    sortOption,
-    trimmedSearch,
+    serverSort,
+    splitView,
   ]);
 
   useEffect(() => {
@@ -224,11 +295,22 @@ export const ProcessList = () => {
       return;
     }
 
-    const endURL = buildListSearch(pagination.activePage, pagination.sort, pagination.order, ownerFilter);
+    const endURL = buildListSearch(pagination.activePage, othersPage, pagination.sort, pagination.order, ownerFilter, includeOthersSection);
     if (location.search !== endURL) {
       navigate(`${location.pathname}${endURL}`, { replace: true });
     }
-  }, [isSearching, location.pathname, location.search, navigate, ownerFilter, pagination.activePage, pagination.order, pagination.sort]);
+  }, [
+    includeOthersSection,
+    isSearching,
+    location.pathname,
+    location.search,
+    navigate,
+    othersPage,
+    ownerFilter,
+    pagination.activePage,
+    pagination.order,
+    pagination.sort,
+  ]);
 
   const filteredProcesses = useMemo(() => {
     let result = processes;
@@ -256,11 +338,52 @@ export const ProcessList = () => {
 
   const totalItems = needsClientSideCollection ? filteredProcesses.length : totalItemsFromStore ?? 0;
 
+  const mySection = useMemo(() => {
+    const processed = applySectionProcessing(
+      sections.my.items,
+      trimmedSearch,
+      sortOption,
+      phases,
+      needsClientSideCollection,
+      pagination.activePage,
+      LIST_PAGE_SIZE
+    );
+    return {
+      displayed: processed.displayed,
+      totalItems: needsClientSideCollection ? processed.totalItems : sections.my.totalItems,
+    };
+  }, [needsClientSideCollection, pagination.activePage, phases, sections.my.items, sections.my.totalItems, sortOption, trimmedSearch]);
+
+  const modelsSection = useMemo(
+    () => applySectionProcessing(sections.models.items, trimmedSearch, sortOption, phases, false, 1, LIST_PAGE_SIZE).displayed,
+    [phases, sections.models.items, sortOption, trimmedSearch]
+  );
+
+  const othersSection = useMemo(() => {
+    const processed = applySectionProcessing(
+      sections.others.items,
+      trimmedSearch,
+      sortOption,
+      phases,
+      needsClientSideCollection,
+      othersPage,
+      LIST_PAGE_SIZE
+    );
+    return {
+      displayed: processed.displayed,
+      totalItems: needsClientSideCollection ? processed.totalItems : sections.others.totalItems,
+    };
+  }, [needsClientSideCollection, othersPage, phases, sections.others.items, sections.others.totalItems, sortOption, trimmedSearch]);
+
+  const listLoading = splitView ? sections.loading : loading;
+
   const handlePagination = (currentPage: number) =>
     setPagination({
       ...pagination,
       activePage: currentPage,
     });
+
+  const handleOthersPagination = (currentPage: number) => setOthersPage(currentPage);
 
   const handleSortChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextSort = toPaginationSort(event.target.value as ProcessSortOption);
@@ -269,6 +392,7 @@ export const ProcessList = () => {
       ...nextSort,
       activePage: 1,
     }));
+    setOthersPage(1);
   };
 
   const handleOwnerFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -277,10 +401,16 @@ export const ProcessList = () => {
       ...current,
       activePage: 1,
     }));
+    setOthersPage(1);
   };
 
+  const refreshSections = sections.refresh;
+
   const refreshProcesses = useCallback(() => {
-    const serverSort = sortOption === 'phases' ? 'id,desc' : `${pagination.sort},${pagination.order}`;
+    if (splitView) {
+      refreshSections();
+      return;
+    }
 
     if (needsClientSideCollection) {
       dispatch(
@@ -308,9 +438,9 @@ export const ProcessList = () => {
     ownerFilterParams,
     pagination.activePage,
     pagination.itemsPerPage,
-    pagination.order,
-    pagination.sort,
-    sortOption,
+    refreshSections,
+    serverSort,
+    splitView,
   ]);
 
   const handleRequestDelete = (process: IProcess) => {
@@ -373,6 +503,18 @@ export const ProcessList = () => {
     } finally {
       setDuplicatingProcessId(null);
     }
+  };
+
+  const gridHandlers = {
+    phases,
+    activities,
+    isAdmin,
+    onDuplicate: handleDuplicate,
+    onDownloadStaticSite: handleDownloadStaticSite,
+    onRequestDelete: handleRequestDelete,
+    duplicatingProcessId,
+    downloadingStaticSiteId,
+    deleting,
   };
 
   return (
@@ -450,182 +592,77 @@ export const ProcessList = () => {
         )}
       </div>
 
-      {loading && (
+      {listLoading && (
         <div className="process-list__loading text-center py-5">
           <Spinner color="primary" />
         </div>
       )}
 
-      {!loading && displayedProcesses.length === 0 && (
+      {!listLoading && splitView && (
+        <div className="process-list__sections">
+          <ProcessListSectionBlock
+            titleKey="processComposerApp.processDesign.list.sections.myProcesses"
+            defaultTitle="My processes"
+            emptyKey="processComposerApp.processDesign.list.sections.emptyMy"
+            defaultEmpty="You have not created any processes yet."
+            dataCy="processListSectionMy"
+            processes={mySection.displayed}
+            totalItems={mySection.totalItems}
+            activePage={pagination.activePage}
+            itemsPerPage={LIST_PAGE_SIZE}
+            onSelectPage={handlePagination}
+            gridProps={gridHandlers}
+          />
+          <ProcessListSectionBlock
+            titleKey="processComposerApp.processDesign.list.sections.modelMethods"
+            defaultTitle="Model methods"
+            emptyKey="processComposerApp.processDesign.list.sections.emptyModels"
+            defaultEmpty="No model methods available."
+            dataCy="processListSectionModels"
+            processes={modelsSection}
+            totalItems={modelsSection.length}
+            gridProps={{ ...gridHandlers, showSystemBadge: false }}
+          />
+          {includeOthersSection && (
+            <ProcessListSectionBlock
+              titleKey="processComposerApp.processDesign.list.sections.otherUsers"
+              defaultTitle="Other users' processes"
+              emptyKey="processComposerApp.processDesign.list.sections.emptyOthers"
+              defaultEmpty="No processes from other users."
+              dataCy="processListSectionOthers"
+              processes={othersSection.displayed}
+              totalItems={othersSection.totalItems}
+              activePage={othersPage}
+              itemsPerPage={LIST_PAGE_SIZE}
+              onSelectPage={handleOthersPagination}
+              gridProps={gridHandlers}
+            />
+          )}
+        </div>
+      )}
+
+      {!listLoading && !splitView && displayedProcesses.length === 0 && (
         <div className="alert alert-warning" data-cy="processListEmpty">
           <Translate contentKey="processComposerApp.processDesign.list.notFound">No processes found</Translate>
         </div>
       )}
 
-      {!loading && displayedProcesses.length > 0 && (
-        <Row className="g-3 process-list__grid">
-          {displayedProcesses.map(process => {
-            const isDuplicating = duplicatingProcessId === process.id;
-            const isDownloadingStaticSite = downloadingStaticSiteId === process.id;
-            const ownerLogin = getProcessOwnerLogin(process);
-            const showSystemBadge = isSystemTemplate(process);
-            const showOwnerLabel = isAdmin && !showSystemBadge && ownerLogin;
-
-            return (
-              <Col key={process.id} xs={12} md={6} xl={4}>
-                <Card className="process-list__card shadow-sm" data-cy={`processListCard-${process.id}`}>
-                  <CardBody className="process-list__card-body">
-                    <div className="process-list__card-header">
-                      <CardTitle tag="h2" className="h5 text-body mb-0">
-                        {process.processName}
-                      </CardTitle>
-                      <CardActionsMenu
-                        data-cy={`processListCardMenu-${process.id}`}
-                        items={[
-                          {
-                            key: 'duplicate',
-                            label: (
-                              <>
-                                <FontAwesomeIcon icon="copy" className="me-2" />
-                                <Translate contentKey="processComposerApp.processDesign.list.actions.duplicate">
-                                  Duplicate process
-                                </Translate>
-                              </>
-                            ),
-                            onClick() {
-                              void handleDuplicate(process);
-                            },
-                            disabled: isDuplicating || duplicatingProcessId !== null,
-                            'data-cy': `processDuplicate-${process.id}`,
-                          },
-                          {
-                            key: 'visualize',
-                            label: (
-                              <>
-                                <FontAwesomeIcon icon="book" className="me-2" />
-                                <Translate contentKey="processComposerApp.processDesign.list.actions.visualize">
-                                  View process site
-                                </Translate>
-                              </>
-                            ),
-                            onClick: () => window.open(`/processos/${process.id}/visualizar`, '_blank', 'noopener,noreferrer'),
-                            'data-cy': `processVisualize-${process.id}`,
-                          },
-                          {
-                            key: 'export',
-                            label: (
-                              <>
-                                <FontAwesomeIcon icon="file-code" className="me-2" />
-                                <Translate contentKey="processComposerApp.processDesign.list.actions.exportYaml">Export YAML</Translate>
-                              </>
-                            ),
-                            to: `/processos/${process.id}/exportar`,
-                            'data-cy': `processExportYaml-${process.id}`,
-                          },
-                          {
-                            key: 'downloadStaticSite',
-                            label: (
-                              <>
-                                <FontAwesomeIcon icon="box" className="me-2" />
-                                <Translate contentKey="processComposerApp.processDesign.list.actions.downloadStaticSite">
-                                  Download static site
-                                </Translate>
-                              </>
-                            ),
-                            onClick() {
-                              void handleDownloadStaticSite(process);
-                            },
-                            disabled: isDownloadingStaticSite || downloadingStaticSiteId !== null,
-                            'data-cy': `processDownloadStaticSite-${process.id}`,
-                          },
-                          {
-                            key: 'delete',
-                            label: (
-                              <>
-                                <FontAwesomeIcon icon="trash" className="me-2" />
-                                <Translate contentKey="entity.action.delete">Delete</Translate>
-                              </>
-                            ),
-                            onClick: () => handleRequestDelete(process),
-                            danger: true,
-                            disabled: deleting,
-                            'data-cy': `processDelete-${process.id}`,
-                          },
-                        ]}
-                      />
-                    </div>
-
-                    {process.processDescription && (
-                      <CardText className="text-muted small process-list__description">{process.processDescription}</CardText>
-                    )}
-
-                    {showOwnerLabel && (
-                      <CardText className="small mb-2">
-                        <span className="text-muted">
-                          <Translate contentKey="processComposerApp.processDesign.list.owner.label" interpolate={{ login: ownerLogin }}>
-                            {`Owner: ${ownerLogin}`}
-                          </Translate>
-                        </span>
-                      </CardText>
-                    )}
-
-                    <CardText className="text-muted small mb-0 d-flex flex-wrap align-items-center gap-2">
-                      <span>
-                        <Translate
-                          contentKey="home.dashboard.process.phaseCount"
-                          interpolate={{ count: countPhasesForProcess(process.id, phases) }}
-                        >
-                          {`${countPhasesForProcess(process.id, phases)} phases`}
-                        </Translate>
-                        {' · '}
-                        <Translate
-                          contentKey="home.dashboard.process.activityCount"
-                          interpolate={{ count: countActivitiesForProcess(process.id, phases, activities) }}
-                        >
-                          {`${countActivitiesForProcess(process.id, phases, activities)} activities`}
-                        </Translate>
-                      </span>
-                      {showSystemBadge && (
-                        <Badge color="info" className="mb-0">
-                          <Translate contentKey="processComposerApp.library.systemTemplate">Modelo</Translate>
-                        </Badge>
-                      )}
-                    </CardText>
-
-                    <div className="process-list__card-actions d-flex flex-wrap gap-2">
-                      <Button tag={Link} to={`/processos/${process.id}`} color="info" size="sm" data-cy={`processOpen-${process.id}`}>
-                        <FontAwesomeIcon icon="eye" /> <Translate contentKey="home.dashboard.process.open">Open</Translate>
-                      </Button>
-                      <Button
-                        tag={Link}
-                        to={`/projetos/novo?processId=${process.id}`}
-                        color="primary"
-                        size="sm"
-                        data-cy={`processInstantiate-${process.id}`}
-                      >
-                        <FontAwesomeIcon icon="plus" />{' '}
-                        <Translate contentKey="home.dashboard.process.instantiateProject">Instantiate Project</Translate>
-                      </Button>
-                    </div>
-                  </CardBody>
-                </Card>
-              </Col>
-            );
-          })}
-        </Row>
-      )}
-
-      {totalItems > 0 && (
-        <div className="process-list__pagination d-flex flex-wrap justify-content-between align-items-center mt-4 gap-3">
-          <JhiItemCount page={pagination.activePage} total={totalItems} itemsPerPage={pagination.itemsPerPage} i18nEnabled />
-          <JhiPagination
-            activePage={pagination.activePage}
-            onSelect={handlePagination}
-            maxButtons={5}
-            itemsPerPage={pagination.itemsPerPage}
-            totalItems={totalItems}
-          />
-        </div>
+      {!listLoading && !splitView && displayedProcesses.length > 0 && (
+        <>
+          <ProcessListProcessGrid {...gridHandlers} processes={displayedProcesses} />
+          {totalItems > 0 && (
+            <div className="process-list__pagination d-flex flex-wrap justify-content-between align-items-center mt-4 gap-3">
+              <JhiItemCount page={pagination.activePage} total={totalItems} itemsPerPage={pagination.itemsPerPage} i18nEnabled />
+              <JhiPagination
+                activePage={pagination.activePage}
+                onSelect={handlePagination}
+                maxButtons={5}
+                itemsPerPage={pagination.itemsPerPage}
+                totalItems={totalItems}
+              />
+            </div>
+          )}
+        </>
       )}
 
       <Modal isOpen={deleteTarget !== null} toggle={handleCancelDelete}>

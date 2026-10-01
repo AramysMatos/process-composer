@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -162,26 +163,65 @@ public class ProcessResource {
     public ResponseEntity<List<Process>> getAllProcesses(
         @org.springdoc.api.annotations.ParameterObject Pageable pageable,
         @RequestParam(required = false) Long ownerId,
-        @RequestParam(required = false) Boolean systemOnly
+        @RequestParam(required = false) Boolean systemOnly,
+        @RequestParam(required = false) Boolean othersOnly
     ) {
         log.debug("REST request to get a page of Processes");
+        assertValidProcessListFilters(ownerId, systemOnly, othersOnly);
         Page<Process> page;
         if (entityAccessService.isAdmin()) {
-            if (Boolean.TRUE.equals(systemOnly) && ownerId != null) {
-                throw new BadRequestAlertException("Cannot combine systemOnly and ownerId filters", ENTITY_NAME, "invalidfilter");
-            }
-            if (Boolean.TRUE.equals(systemOnly)) {
-                page = processRepository.findAllSystemTemplates(pageable);
-            } else if (ownerId != null) {
-                page = processRepository.findAllByOwnerId(ownerId, pageable);
-            } else {
-                page = processRepository.findAllWithOwner(pageable);
-            }
+            page = resolveAdminProcessListPage(pageable, ownerId, systemOnly, othersOnly);
         } else {
-            page = processRepository.findAllVisibleToUser(entityAccessService.getCurrentUserId(), pageable);
+            page = resolveUserProcessListPage(pageable, ownerId, systemOnly, othersOnly);
         }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    private void assertValidProcessListFilters(Long ownerId, Boolean systemOnly, Boolean othersOnly) {
+        int filterCount = 0;
+        if (Boolean.TRUE.equals(systemOnly)) {
+            filterCount++;
+        }
+        if (ownerId != null) {
+            filterCount++;
+        }
+        if (Boolean.TRUE.equals(othersOnly)) {
+            filterCount++;
+        }
+        if (filterCount > 1) {
+            throw new BadRequestAlertException("Cannot combine list filters", ENTITY_NAME, "invalidfilter");
+        }
+    }
+
+    private Page<Process> resolveAdminProcessListPage(Pageable pageable, Long ownerId, Boolean systemOnly, Boolean othersOnly) {
+        if (Boolean.TRUE.equals(systemOnly)) {
+            return processRepository.findAllSystemTemplates(pageable);
+        }
+        if (ownerId != null) {
+            return processRepository.findAllByOwnerId(ownerId, pageable);
+        }
+        if (Boolean.TRUE.equals(othersOnly)) {
+            return processRepository.findAllOwnedByOthers(entityAccessService.getCurrentUserId(), pageable);
+        }
+        return processRepository.findAllWithOwner(pageable);
+    }
+
+    private Page<Process> resolveUserProcessListPage(Pageable pageable, Long ownerId, Boolean systemOnly, Boolean othersOnly) {
+        if (Boolean.TRUE.equals(othersOnly)) {
+            throw new AccessDeniedException("othersOnly filter is not allowed for non-admin users");
+        }
+        Long currentUserId = entityAccessService.getCurrentUserId();
+        if (Boolean.TRUE.equals(systemOnly)) {
+            return processRepository.findAllSystemTemplates(pageable);
+        }
+        if (ownerId != null) {
+            if (!ownerId.equals(currentUserId)) {
+                throw new AccessDeniedException("Cannot list processes owned by another user");
+            }
+            return processRepository.findAllByOwnerId(ownerId, pageable);
+        }
+        return processRepository.findAllVisibleToUser(currentUserId, pageable);
     }
 
     /**

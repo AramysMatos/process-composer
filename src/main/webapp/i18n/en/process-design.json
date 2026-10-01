@@ -22,6 +22,14 @@
         "owner": {
           "label": "Owner: {{login}}"
         },
+        "sections": {
+          "myProcesses": "My processes",
+          "modelMethods": "Model methods",
+          "otherUsers": "Other users' processes",
+          "emptyMy": "You have not created any processes yet.",
+          "emptyModels": "No model methods available.",
+          "emptyOthers": "No processes from other users."
+        },
         "actions": {
           "edit": "Edit process",
           "duplicate": "Duplicate process",

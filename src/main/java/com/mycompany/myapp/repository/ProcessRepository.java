@@ -41,4 +41,11 @@ public interface ProcessRepository extends JpaRepository<Process, Long> {
     @EntityGraph(attributePaths = "owner")
     @Query(value = "SELECT p FROM Process p WHERE p.owner IS NULL", countQuery = "SELECT count(p) FROM Process p WHERE p.owner IS NULL")
     Page<Process> findAllSystemTemplates(Pageable pageable);
+
+    @EntityGraph(attributePaths = "owner")
+    @Query(
+        value = "SELECT p FROM Process p WHERE p.owner IS NOT NULL AND p.owner.id <> :userId",
+        countQuery = "SELECT count(p) FROM Process p WHERE p.owner IS NOT NULL AND p.owner.id <> :userId"
+    )
+    Page<Process> findAllOwnedByOthers(@Param("userId") Long userId, Pageable pageable);
 }

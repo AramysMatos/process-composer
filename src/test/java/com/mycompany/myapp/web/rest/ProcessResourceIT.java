@@ -484,7 +484,7 @@ class ProcessResourceIT {
     @Test
     @Transactional
     @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
-    void getAllProcessesAsUserIgnoresOwnerFilter() throws Exception {
+    void getAllProcessesAsUserFilterByOwnOwnerId() throws Exception {
         User user = userRepository.findOneByLogin("user").orElseThrow();
         User admin = userRepository.findOneByLogin("admin").orElseThrow();
 
@@ -501,10 +501,74 @@ class ProcessResourceIT {
         processRepository.saveAndFlush(systemProcess);
 
         restProcessMockMvc
-            .perform(get(ENTITY_API_URL + "?ownerId=" + admin.getId()))
+            .perform(get(ENTITY_API_URL + "?ownerId=" + user.getId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.[*].processName").value(hasItem("User Process")))
-            .andExpect(jsonPath("$.[*].processName").value(hasItem("System Process")))
+            .andExpect(jsonPath("$.[*].processName").value(org.hamcrest.Matchers.not(hasItem("System Process"))))
             .andExpect(jsonPath("$.[*].processName").value(org.hamcrest.Matchers.not(hasItem("Admin Process"))));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void getAllProcessesAsUserFilterSystemOnly() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+
+        Process userProcess = createEntity(em).processName("User Process");
+        userProcess.setOwner(user);
+        processRepository.saveAndFlush(userProcess);
+
+        Process systemProcess = createEntity(em).processName("System Process");
+        systemProcess.setOwner(null);
+        processRepository.saveAndFlush(systemProcess);
+
+        restProcessMockMvc
+            .perform(get(ENTITY_API_URL + "?systemOnly=true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].processName").value(hasItem("System Process")))
+            .andExpect(jsonPath("$.[*].processName").value(org.hamcrest.Matchers.not(hasItem("User Process"))));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void getAllProcessesAsUserRejectsOtherOwnerId() throws Exception {
+        User admin = userRepository.findOneByLogin("admin").orElseThrow();
+
+        restProcessMockMvc.perform(get(ENTITY_API_URL + "?ownerId=" + admin.getId())).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void getAllProcessesAsUserRejectsOthersOnly() throws Exception {
+        restProcessMockMvc.perform(get(ENTITY_API_URL + "?othersOnly=true")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    void getAllProcessesAsAdminFilterOthersOnly() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        User admin = userRepository.findOneByLogin("admin").orElseThrow();
+
+        Process userProcess = createEntity(em).processName("User Process");
+        userProcess.setOwner(user);
+        processRepository.saveAndFlush(userProcess);
+
+        Process adminProcess = createEntity(em).processName("Admin Process");
+        adminProcess.setOwner(admin);
+        processRepository.saveAndFlush(adminProcess);
+
+        Process systemProcess = createEntity(em).processName("System Process");
+        systemProcess.setOwner(null);
+        processRepository.saveAndFlush(systemProcess);
+
+        restProcessMockMvc
+            .perform(get(ENTITY_API_URL + "?othersOnly=true"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[*].processName").value(hasItem("User Process")))
+            .andExpect(jsonPath("$.[*].processName").value(org.hamcrest.Matchers.not(hasItem("Admin Process"))))
+            .andExpect(jsonPath("$.[*].processName").value(org.hamcrest.Matchers.not(hasItem("System Process"))));
     }
 }
