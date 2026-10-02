@@ -121,7 +121,8 @@
         "activityCount": "{{count}} atividades",
         "rolesCount": "{{count}} papéis",
         "artifactsCount": "{{count}} artefatos",
-        "readOnlyModel": "Este é um método modelo padrão. Você pode visualizar, exportar e clonar, mas não editar."
+        "readOnlyModel": "Este é um método modelo padrão. Você pode visualizar, exportar e clonar, mas não editar.",
+        "sidebarResize": "Redimensionar barra lateral da árvore do processo"
       },
       "delete": {
         "confirmPhase": "Tem certeza de que deseja excluir a fase \"{{name}}\"?",

@@ -48,6 +48,7 @@ import { ProcessDetailDrawer } from 'app/modules/process-design/components/proce
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
+import { useResizableSidebarWidth } from 'app/modules/process-design/hooks/use-resizable-sidebar-width';
 import { useSaveToLibrary } from 'app/modules/process-design/hooks/use-save-to-library';
 import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
 
@@ -99,6 +100,8 @@ export const ProcessOverview = () => {
   const [promoteTarget, setPromoteTarget] = useState(false);
   const [promotingToSystemTemplate, setPromotingToSystemTemplate] = useState(false);
   const accordionInitializedRef = React.useRef(false);
+
+  const { widthPx: sidebarWidthPx, minWidthPx, maxWidthPx, isResizing, startResize, resetWidth } = useResizableSidebarWidth();
 
   const phases = useMemo(
     () => (isValidProcessId ? sortById(phaseEntities.filter(phase => phase.process?.id === processId)) : []),
@@ -601,24 +604,38 @@ export const ProcessOverview = () => {
         </Alert>
       )}
 
-      <div className="process-overview__layout">
-        <aside className="process-overview__sidebar">
-          <ProcessTreeSidebar
-            processId={processId}
-            selectedActivityId={selectedActivityId}
-            onSelectActivity={handleSelectActivity}
-            onCreateActivity={readOnly ? undefined : handleCreateActivity}
-            onCreatePhase={readOnly ? undefined : handleCreatePhase}
-            onEditPhase={readOnly ? undefined : handleEditPhase}
-            onSavePhaseToLibrary={readOnly ? undefined : handleSavePhaseToLibrary}
-            onSaveActivityToLibrary={readOnly ? undefined : handleSaveActivityToLibrary}
-            isSavingToLibrary={isSaving}
-            onDeletePhase={
-              readOnly ? undefined : (phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })
-            }
-            onDeleteActivity={readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
+      <div className={`process-overview__layout${isResizing ? ' process-overview__layout--sidebar-resizing' : ''}`}>
+        <div className="process-overview__sidebar-shell" style={{ width: sidebarWidthPx }} data-cy="process-overview-sidebar-shell">
+          <aside className="process-overview__sidebar">
+            <ProcessTreeSidebar
+              processId={processId}
+              selectedActivityId={selectedActivityId}
+              onSelectActivity={handleSelectActivity}
+              onCreateActivity={readOnly ? undefined : handleCreateActivity}
+              onCreatePhase={readOnly ? undefined : handleCreatePhase}
+              onEditPhase={readOnly ? undefined : handleEditPhase}
+              onSavePhaseToLibrary={readOnly ? undefined : handleSavePhaseToLibrary}
+              onSaveActivityToLibrary={readOnly ? undefined : handleSaveActivityToLibrary}
+              isSavingToLibrary={isSaving}
+              onDeletePhase={
+                readOnly ? undefined : (phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })
+              }
+              onDeleteActivity={readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
+            />
+          </aside>
+          <div
+            className="process-overview__sidebar-resizer"
+            role="separator"
+            aria-orientation="vertical"
+            aria-valuenow={sidebarWidthPx}
+            aria-valuemin={minWidthPx}
+            aria-valuemax={maxWidthPx}
+            aria-label={translate('processComposerApp.processDesign.overview.sidebarResize', 'Resize process tree sidebar')}
+            data-cy="process-overview-sidebar-resizer"
+            onPointerDown={startResize}
+            onDoubleClick={resetWidth}
           />
-        </aside>
+        </div>
 
         <section
           className="process-overview__content"

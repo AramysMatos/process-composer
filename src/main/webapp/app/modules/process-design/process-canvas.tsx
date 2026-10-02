@@ -30,6 +30,7 @@ import { ProcessDetailDrawer } from 'app/modules/process-design/components/proce
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
+import { useResizableSidebarWidth } from 'app/modules/process-design/hooks/use-resizable-sidebar-width';
 import { useSaveToLibrary } from 'app/modules/process-design/hooks/use-save-to-library';
 
 export const ProcessCanvas = () => {
@@ -75,6 +76,8 @@ export const ProcessCanvas = () => {
   const [processEditDrawerOpen, setProcessEditDrawerOpen] = useState(false);
   const [promoteTarget, setPromoteTarget] = useState(false);
   const [promotingToSystemTemplate, setPromotingToSystemTemplate] = useState(false);
+
+  const { widthPx: sidebarWidthPx, minWidthPx, maxWidthPx, isResizing, startResize, resetWidth } = useResizableSidebarWidth();
 
   const handleSelectActivity = useCallback((activityId: number) => {
     setSelectedActivityId(activityId);
@@ -359,24 +362,38 @@ export const ProcessCanvas = () => {
         </Alert>
       )}
 
-      <div className="process-canvas__layout">
-        <aside className="process-canvas__sidebar">
-          <ProcessTreeSidebar
-            processId={processId}
-            selectedActivityId={selectedActivityId}
-            onSelectActivity={handleSelectActivity}
-            onCreateActivity={readOnly ? undefined : handleCreateActivity}
-            onCreatePhase={readOnly ? undefined : handleCreatePhase}
-            onEditPhase={readOnly ? undefined : handleEditPhase}
-            onSavePhaseToLibrary={readOnly ? undefined : handleSavePhaseToLibrary}
-            onSaveActivityToLibrary={readOnly ? undefined : handleSaveActivityToLibrary}
-            isSavingToLibrary={isSaving}
-            onDeletePhase={
-              readOnly ? undefined : (phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })
-            }
-            onDeleteActivity={readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
+      <div className={`process-canvas__layout${isResizing ? ' process-canvas__layout--sidebar-resizing' : ''}`}>
+        <div className="process-canvas__sidebar-shell" style={{ width: sidebarWidthPx }} data-cy="process-canvas-sidebar-shell">
+          <aside className="process-canvas__sidebar">
+            <ProcessTreeSidebar
+              processId={processId}
+              selectedActivityId={selectedActivityId}
+              onSelectActivity={handleSelectActivity}
+              onCreateActivity={readOnly ? undefined : handleCreateActivity}
+              onCreatePhase={readOnly ? undefined : handleCreatePhase}
+              onEditPhase={readOnly ? undefined : handleEditPhase}
+              onSavePhaseToLibrary={readOnly ? undefined : handleSavePhaseToLibrary}
+              onSaveActivityToLibrary={readOnly ? undefined : handleSaveActivityToLibrary}
+              isSavingToLibrary={isSaving}
+              onDeletePhase={
+                readOnly ? undefined : (phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })
+              }
+              onDeleteActivity={readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
+            />
+          </aside>
+          <div
+            className="process-canvas__sidebar-resizer"
+            role="separator"
+            aria-orientation="vertical"
+            aria-valuenow={sidebarWidthPx}
+            aria-valuemin={minWidthPx}
+            aria-valuemax={maxWidthPx}
+            aria-label={translate('processComposerApp.processDesign.overview.sidebarResize', 'Resize process tree sidebar')}
+            data-cy="process-canvas-sidebar-resizer"
+            onPointerDown={startResize}
+            onDoubleClick={resetWidth}
           />
-        </aside>
+        </div>
 
         <section
           className="process-canvas__content"
