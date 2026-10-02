@@ -35,7 +35,7 @@
           "promoteToSystemTemplate": "Tornar modelo do sistema",
           "duplicate": "Duplicar processo",
           "exportYaml": "Exportar YAML",
-          "visualize": "Visualizar processo",
+          "visualize": "Visualizar Site de Documentação",
           "downloadStaticSite": "Baixar site estático (ZIP)"
         },
         "delete": {
