@@ -30,6 +30,7 @@
   }
 
   &__row {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 0.25rem;
@@ -43,6 +44,18 @@
 
     &--selected {
       background-color: rgba(13, 110, 253, 0.12);
+    }
+
+    &:hover > .process-tree-sidebar__row-actions,
+    &:focus-within > .process-tree-sidebar__row-actions {
+      pointer-events: auto;
+      // Opaco: mesmo tom de rgba(0, 0, 0, 0.04) sobre #fff (fundo da sidebar)
+      background-color: color-mix(in srgb, #000 4%, #fff);
+    }
+
+    &--selected:hover > .process-tree-sidebar__row-actions,
+    &--selected:focus-within > .process-tree-sidebar__row-actions {
+      background-color: color-mix(in srgb, #0d6efd 12%, #fff);
     }
   }
 
@@ -166,9 +179,15 @@
   }
 
   &__row-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
     display: flex;
     align-items: center;
-    flex-shrink: 0;
+    padding-left: 0.5rem;
     padding-right: 0.25rem;
+    pointer-events: none;
   }
 }

@@ -27,6 +27,7 @@
 
 .process-overview__phase-header:hover .entity-save-to-library-button,
 .process-overview__activity-row:hover .entity-save-to-library-button,
-.process-tree-sidebar__row:hover .entity-save-to-library-button {
+.process-tree-sidebar__row:hover .entity-save-to-library-button,
+.process-tree-sidebar__row:focus-within .entity-save-to-library-button {
   opacity: 1;
 }

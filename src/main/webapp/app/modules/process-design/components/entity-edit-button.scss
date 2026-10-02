@@ -27,6 +27,7 @@
 
 .process-overview__phase-header:hover .entity-edit-button,
 .process-overview__activity-row:hover .entity-edit-button,
-.process-tree-sidebar__row:hover .entity-edit-button {
+.process-tree-sidebar__row:hover .entity-edit-button,
+.process-tree-sidebar__row:focus-within .entity-edit-button {
   opacity: 1;
 }
