@@ -177,7 +177,7 @@ public class PhaseResource {
 
         List<Phase> phases;
         if (Boolean.TRUE.equals(library)) {
-            phases = admin ? phaseRepository.findByProcessIsNull() : phaseRepository.findLibraryVisibleToUser(userId);
+            phases = admin ? phaseRepository.findAllLibraryForAdmin() : phaseRepository.findLibraryVisibleToUser(userId);
         } else if (processId != null) {
             Process process = processRepository
                 .findById(processId)

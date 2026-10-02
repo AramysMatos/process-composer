@@ -10,8 +10,10 @@ import com.mycompany.myapp.IntegrationTest;
 import com.mycompany.myapp.domain.Activity;
 import com.mycompany.myapp.domain.Phase;
 import com.mycompany.myapp.domain.Process;
+import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.repository.ActivityRepository;
 import com.mycompany.myapp.repository.PhaseRepository;
+import com.mycompany.myapp.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -61,6 +63,9 @@ class ActivityResourceIT {
 
     @Autowired
     private PhaseRepository phaseRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Mock
     private ActivityRepository activityRepositoryMock;
@@ -467,14 +472,18 @@ class ActivityResourceIT {
         em.persist(process);
         Phase phase = PhaseResourceIT.createEntity(em).process(process);
         em.persist(phase);
-        Activity processActivity = new Activity().name("Process activity").phase(phase);
-        activityRepository.saveAndFlush(processActivity);
+        Activity systemProcessActivity = activityRepository.saveAndFlush(new Activity().name("System process activity").phase(phase));
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        Activity userProcessActivity = new Activity().name("User process activity").phase(phase);
+        userProcessActivity.setOwner(user);
+        activityRepository.saveAndFlush(userProcessActivity);
 
         restActivityMockMvc
             .perform(get(ENTITY_API_URL).param("library", "true"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.[*].id").value(hasItem(libraryActivity.getId().intValue())))
-            .andExpect(jsonPath("$.[*].id").value(org.hamcrest.Matchers.not(hasItem(processActivity.getId().intValue()))));
+            .andExpect(jsonPath("$.[*].id").value(hasItem(systemProcessActivity.getId().intValue())))
+            .andExpect(jsonPath("$.[*].id").value(org.hamcrest.Matchers.not(hasItem(userProcessActivity.getId().intValue()))));
     }
 
     @Test

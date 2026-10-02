@@ -190,7 +190,7 @@ public class ActivityResource {
 
         List<Activity> activities;
         if (Boolean.TRUE.equals(library)) {
-            activities = admin ? activityRepository.findByPhaseIsNull() : activityRepository.findLibraryVisibleToUser(userId);
+            activities = admin ? activityRepository.findAllLibraryForAdmin() : activityRepository.findLibraryVisibleToUser(userId);
         } else if (processId != null) {
             Process process = processRepository
                 .findById(processId)

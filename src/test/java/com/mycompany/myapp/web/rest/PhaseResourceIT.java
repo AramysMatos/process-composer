@@ -10,8 +10,10 @@ import com.mycompany.myapp.IntegrationTest;
 import com.mycompany.myapp.domain.Activity;
 import com.mycompany.myapp.domain.Phase;
 import com.mycompany.myapp.domain.Process;
+import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.repository.ActivityRepository;
 import com.mycompany.myapp.repository.PhaseRepository;
+import com.mycompany.myapp.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -58,6 +60,9 @@ class PhaseResourceIT {
 
     @Autowired
     private ActivityRepository activityRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Mock
     private PhaseRepository phaseRepositoryMock;
@@ -433,13 +438,18 @@ class PhaseResourceIT {
         Phase libraryPhase = phaseRepository.saveAndFlush(new Phase().name("Library phase"));
         Process process = ProcessResourceIT.createEntity(em);
         em.persist(process);
-        phaseRepository.saveAndFlush(new Phase().name("Process phase").process(process));
+        Phase systemProcessPhase = phaseRepository.saveAndFlush(new Phase().name("System process phase").process(process));
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        Phase userProcessPhase = new Phase().name("User process phase").process(process);
+        userProcessPhase.setOwner(user);
+        phaseRepository.saveAndFlush(userProcessPhase);
 
         restPhaseMockMvc
             .perform(get(ENTITY_API_URL).param("library", "true"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.[*].id").value(hasItem(libraryPhase.getId().intValue())))
-            .andExpect(jsonPath("$.length()").value(1));
+            .andExpect(jsonPath("$.[*].id").value(hasItem(systemProcessPhase.getId().intValue())))
+            .andExpect(jsonPath("$.[*].id").value(org.hamcrest.Matchers.not(hasItem(userProcessPhase.getId().intValue()))));
     }
 
     @Test
