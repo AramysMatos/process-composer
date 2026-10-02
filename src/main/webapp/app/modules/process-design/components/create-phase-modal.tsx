@@ -6,9 +6,10 @@ import { Translate, translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { createEntitySilent as createPhaseEntity } from 'app/entities/phase/phase.reducer';
 import { clonePhase } from 'app/modules/process-design/clone-phase';
+import { SearchableSourceListPicker } from 'app/modules/process-design/components/searchable-source-list-picker';
 import { IPhase } from 'app/shared/model/phase.model';
 
-type CreateMode = 'blank' | 'clone';
+type CreateMode = 'blank' | 'cloneLibrary' | 'cloneProcess';
 
 export interface CreatePhaseModalProps {
   isOpen: boolean;
@@ -34,6 +35,8 @@ export const CreatePhaseModal = ({ isOpen, processId, onClose, onCreated }: Crea
   const processName = processMatches
     ? process.processName ?? translate('processComposerApp.processDesign.tree.untitledProcess', 'Untitled process')
     : undefined;
+
+  const isCloneMode = mode === 'cloneLibrary' || mode === 'cloneProcess';
 
   useEffect(() => {
     if (!isOpen) {
@@ -70,15 +73,20 @@ export const CreatePhaseModal = ({ isOpen, processId, onClose, onCreated }: Crea
     void loadSources();
   }, [isOpen, processId]);
 
-  const sortedLibraryPhases = useMemo(
-    () => [...libraryPhases].sort((left, right) => (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' })),
-    [libraryPhases]
-  );
+  const cloneSourceItems = useMemo(() => {
+    if (mode === 'cloneLibrary') {
+      return libraryPhases;
+    }
+    if (mode === 'cloneProcess') {
+      return processPhases;
+    }
+    return [];
+  }, [libraryPhases, mode, processPhases]);
 
-  const sortedProcessPhases = useMemo(
-    () => [...processPhases].sort((left, right) => (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' })),
-    [processPhases]
-  );
+  const handleModeChange = (nextMode: CreateMode) => {
+    setMode(nextMode);
+    setSourcePhaseId('');
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -167,7 +175,7 @@ export const CreatePhaseModal = ({ isOpen, processId, onClose, onCreated }: Crea
                 name="createPhaseMode"
                 type="radio"
                 checked={mode === 'blank'}
-                onChange={() => setMode('blank')}
+                onChange={() => handleModeChange('blank')}
                 data-cy="create-phase-mode-blank"
               />
               <Label check for="create-phase-mode-blank">
@@ -176,92 +184,79 @@ export const CreatePhaseModal = ({ isOpen, processId, onClose, onCreated }: Crea
             </FormGroup>
             <FormGroup check>
               <Input
-                id="create-phase-mode-clone"
+                id="create-phase-mode-clone-library"
                 name="createPhaseMode"
                 type="radio"
-                checked={mode === 'clone'}
-                onChange={() => setMode('clone')}
-                data-cy="create-phase-mode-clone"
+                checked={mode === 'cloneLibrary'}
+                onChange={() => handleModeChange('cloneLibrary')}
+                data-cy="create-phase-mode-clone-library"
               />
-              <Label check for="create-phase-mode-clone">
-                <Translate contentKey="processComposerApp.processDesign.canvas.createPhaseModeClone">Clone from existing phase</Translate>
+              <Label check for="create-phase-mode-clone-library">
+                <Translate contentKey="processComposerApp.processDesign.canvas.createPhaseModeCloneLibrary">
+                  Clone from library phase
+                </Translate>
+              </Label>
+            </FormGroup>
+            <FormGroup check>
+              <Input
+                id="create-phase-mode-clone-process"
+                name="createPhaseMode"
+                type="radio"
+                checked={mode === 'cloneProcess'}
+                onChange={() => handleModeChange('cloneProcess')}
+                data-cy="create-phase-mode-clone-process"
+              />
+              <Label check for="create-phase-mode-clone-process">
+                <Translate contentKey="processComposerApp.processDesign.canvas.createPhaseModeCloneProcess">
+                  Clone from phase in this process
+                </Translate>
               </Label>
             </FormGroup>
           </FormGroup>
 
-          {mode === 'blank' && (
-            <FormGroup>
-              <Label for="sidebar-new-phase-name">
+          <FormGroup>
+            <Label for={isCloneMode ? 'sidebar-clone-phase-name' : 'sidebar-new-phase-name'}>
+              {isCloneMode ? (
+                <Translate contentKey="processComposerApp.processDesign.canvas.clonePhaseNameLabel">Name (optional)</Translate>
+              ) : (
                 <Translate contentKey="processComposerApp.processDesign.canvas.phaseName">Phase name</Translate>
-              </Label>
-              <Input
-                id="sidebar-new-phase-name"
-                value={name}
-                onChange={event => setName(event.target.value)}
-                data-cy="sidebar-new-phase-name"
-                autoFocus
-                required
+              )}
+            </Label>
+            <Input
+              id={isCloneMode ? 'sidebar-clone-phase-name' : 'sidebar-new-phase-name'}
+              value={name}
+              onChange={event => setName(event.target.value)}
+              placeholder={
+                isCloneMode
+                  ? translate(
+                      'processComposerApp.processDesign.canvas.clonePhaseNamePlaceholder',
+                      'Leave empty to use source name with copy suffix'
+                    )
+                  : undefined
+              }
+              data-cy={isCloneMode ? 'sidebar-clone-phase-name' : 'sidebar-new-phase-name'}
+              autoFocus
+              required={mode === 'blank'}
+            />
+          </FormGroup>
+
+          {isCloneMode && (
+            <FormGroup className="mb-0">
+              <SearchableSourceListPicker
+                key={mode}
+                items={cloneSourceItems}
+                selectedId={sourcePhaseId}
+                onSelect={setSourcePhaseId}
+                loading={loadingSources}
+                dataCyPrefix="sidebar-clone-source-phase"
+                listLabelContentKey="processComposerApp.processDesign.canvas.clonePhaseSourceLabel"
+                listLabelDefault="Source phase"
+                emptyContentKey="processComposerApp.processDesign.canvas.clonePhaseSourceEmpty"
+                emptyDefault="No phases found"
+                loadingContentKey="processComposerApp.processDesign.canvas.clonePhaseLoading"
+                loadingDefault="Loading phases..."
               />
             </FormGroup>
-          )}
-
-          {mode === 'clone' && (
-            <>
-              <FormGroup>
-                <Label for="sidebar-clone-source-phase">
-                  <Translate contentKey="processComposerApp.processDesign.canvas.clonePhaseSourceLabel">Source phase</Translate>
-                </Label>
-                <Input
-                  id="sidebar-clone-source-phase"
-                  type="select"
-                  value={sourcePhaseId}
-                  onChange={event => setSourcePhaseId(event.target.value)}
-                  disabled={loadingSources}
-                  data-cy="sidebar-clone-source-phase"
-                  required
-                >
-                  <option value="">
-                    {loadingSources
-                      ? translate('processComposerApp.processDesign.canvas.clonePhaseLoading', 'Loading phases...')
-                      : translate('processComposerApp.processDesign.canvas.clonePhaseSourcePlaceholder', 'Select a phase')}
-                  </option>
-                  {sortedLibraryPhases.length > 0 && (
-                    <optgroup label={translate('processComposerApp.processDesign.canvas.clonePhaseSourceLibrary', 'Library')}>
-                      {sortedLibraryPhases.map(phase => (
-                        <option key={`library-${phase.id}`} value={phase.id}>
-                          {phase.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                  {sortedProcessPhases.length > 0 && (
-                    <optgroup label={translate('processComposerApp.processDesign.canvas.clonePhaseSourceProcess', 'In this process')}>
-                      {sortedProcessPhases.map(phase => (
-                        <option key={`process-${phase.id}`} value={phase.id}>
-                          {phase.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                </Input>
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="sidebar-clone-phase-name">
-                  <Translate contentKey="processComposerApp.processDesign.canvas.clonePhaseNameLabel">Name (optional)</Translate>
-                </Label>
-                <Input
-                  id="sidebar-clone-phase-name"
-                  value={name}
-                  onChange={event => setName(event.target.value)}
-                  placeholder={translate(
-                    'processComposerApp.processDesign.canvas.clonePhaseNamePlaceholder',
-                    'Leave empty to use source name with copy suffix'
-                  )}
-                  data-cy="sidebar-clone-phase-name"
-                />
-              </FormGroup>
-            </>
           )}
         </ModalBody>
         <ModalFooter>

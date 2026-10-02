@@ -6,9 +6,10 @@ import { Translate, translate } from 'react-jhipster';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { createEntitySilent as createActivityEntity } from 'app/entities/activity/activity.reducer';
 import { cloneActivity } from 'app/modules/process-design/clone-activity';
+import { SearchableSourceListPicker } from 'app/modules/process-design/components/searchable-source-list-picker';
 import { IActivity } from 'app/shared/model/activity.model';
 
-type CreateMode = 'blank' | 'clone';
+type CreateMode = 'blank' | 'cloneLibrary' | 'cloneProcess';
 
 export interface CreateActivityModalProps {
   isOpen: boolean;
@@ -36,6 +37,8 @@ export const CreateActivityModal = ({ isOpen, phaseId, processId, phaseName, onC
     phaseId !== null
       ? phaseEntities.find(item => item.id === phaseId) ?? (phaseName ? { id: phaseId, name: phaseName } : undefined)
       : undefined;
+
+  const isCloneMode = mode === 'cloneLibrary' || mode === 'cloneProcess';
 
   useEffect(() => {
     if (!isOpen) {
@@ -71,17 +74,20 @@ export const CreateActivityModal = ({ isOpen, phaseId, processId, phaseName, onC
     void loadSources();
   }, [isOpen, processId]);
 
-  const sortedLibraryActivities = useMemo(
-    () =>
-      [...libraryActivities].sort((left, right) => (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' })),
-    [libraryActivities]
-  );
+  const cloneSourceItems = useMemo(() => {
+    if (mode === 'cloneLibrary') {
+      return libraryActivities;
+    }
+    if (mode === 'cloneProcess') {
+      return processActivities;
+    }
+    return [];
+  }, [libraryActivities, mode, processActivities]);
 
-  const sortedProcessActivities = useMemo(
-    () =>
-      [...processActivities].sort((left, right) => (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' })),
-    [processActivities]
-  );
+  const handleModeChange = (nextMode: CreateMode) => {
+    setMode(nextMode);
+    setSourceActivityId('');
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -172,7 +178,7 @@ export const CreateActivityModal = ({ isOpen, phaseId, processId, phaseName, onC
                 name="createMode"
                 type="radio"
                 checked={mode === 'blank'}
-                onChange={() => setMode('blank')}
+                onChange={() => handleModeChange('blank')}
                 data-cy="create-activity-mode-blank"
               />
               <Label check for="create-activity-mode-blank">
@@ -181,92 +187,74 @@ export const CreateActivityModal = ({ isOpen, phaseId, processId, phaseName, onC
             </FormGroup>
             <FormGroup check>
               <Input
-                id="create-activity-mode-clone"
+                id="create-activity-mode-clone-library"
                 name="createMode"
                 type="radio"
-                checked={mode === 'clone'}
-                onChange={() => setMode('clone')}
-                data-cy="create-activity-mode-clone"
+                checked={mode === 'cloneLibrary'}
+                onChange={() => handleModeChange('cloneLibrary')}
+                data-cy="create-activity-mode-clone-library"
               />
-              <Label check for="create-activity-mode-clone">
-                <Translate contentKey="processComposerApp.processDesign.canvas.createModeClone">Clone from existing activity</Translate>
+              <Label check for="create-activity-mode-clone-library">
+                <Translate contentKey="processComposerApp.processDesign.canvas.createModeCloneLibrary">
+                  Clone from library activity
+                </Translate>
+              </Label>
+            </FormGroup>
+            <FormGroup check>
+              <Input
+                id="create-activity-mode-clone-process"
+                name="createMode"
+                type="radio"
+                checked={mode === 'cloneProcess'}
+                onChange={() => handleModeChange('cloneProcess')}
+                disabled={!processId}
+                data-cy="create-activity-mode-clone-process"
+              />
+              <Label check for="create-activity-mode-clone-process">
+                <Translate contentKey="processComposerApp.processDesign.canvas.createModeCloneProcess">
+                  Clone from activity in this process
+                </Translate>
               </Label>
             </FormGroup>
           </FormGroup>
 
-          {mode === 'blank' && (
-            <FormGroup>
-              <Label for="sidebar-new-activity-name">
+          <FormGroup>
+            <Label for={isCloneMode ? 'sidebar-clone-activity-name' : 'sidebar-new-activity-name'}>
+              {isCloneMode ? (
+                <Translate contentKey="processComposerApp.processDesign.canvas.cloneNameLabel">Name (optional)</Translate>
+              ) : (
                 <Translate contentKey="processComposerApp.processDesign.canvas.activityName">Activity name</Translate>
-              </Label>
-              <Input
-                id="sidebar-new-activity-name"
-                value={name}
-                onChange={event => setName(event.target.value)}
-                data-cy="sidebar-new-activity-name"
-                autoFocus
-                required
+              )}
+            </Label>
+            <Input
+              id={isCloneMode ? 'sidebar-clone-activity-name' : 'sidebar-new-activity-name'}
+              value={name}
+              onChange={event => setName(event.target.value)}
+              placeholder={
+                isCloneMode
+                  ? translate(
+                      'processComposerApp.processDesign.canvas.cloneNamePlaceholder',
+                      'Leave empty to use source name with copy suffix'
+                    )
+                  : undefined
+              }
+              data-cy={isCloneMode ? 'sidebar-clone-activity-name' : 'sidebar-new-activity-name'}
+              autoFocus
+              required={mode === 'blank'}
+            />
+          </FormGroup>
+
+          {isCloneMode && (
+            <FormGroup className="mb-0">
+              <SearchableSourceListPicker
+                key={mode}
+                items={cloneSourceItems}
+                selectedId={sourceActivityId}
+                onSelect={setSourceActivityId}
+                loading={loadingSources}
+                dataCyPrefix="sidebar-clone-source-activity"
               />
             </FormGroup>
-          )}
-
-          {mode === 'clone' && (
-            <>
-              <FormGroup>
-                <Label for="sidebar-clone-source-activity">
-                  <Translate contentKey="processComposerApp.processDesign.canvas.cloneSourceLabel">Source activity</Translate>
-                </Label>
-                <Input
-                  id="sidebar-clone-source-activity"
-                  type="select"
-                  value={sourceActivityId}
-                  onChange={event => setSourceActivityId(event.target.value)}
-                  disabled={loadingSources}
-                  data-cy="sidebar-clone-source-activity"
-                  required
-                >
-                  <option value="">
-                    {loadingSources
-                      ? translate('processComposerApp.processDesign.canvas.cloneLoading', 'Loading activities...')
-                      : translate('processComposerApp.processDesign.canvas.cloneSourcePlaceholder', 'Select an activity')}
-                  </option>
-                  {sortedLibraryActivities.length > 0 && (
-                    <optgroup label={translate('processComposerApp.processDesign.canvas.cloneSourceLibrary', 'Library')}>
-                      {sortedLibraryActivities.map(activity => (
-                        <option key={`library-${activity.id}`} value={activity.id}>
-                          {activity.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                  {sortedProcessActivities.length > 0 && (
-                    <optgroup label={translate('processComposerApp.processDesign.canvas.cloneSourceProcess', 'In this process')}>
-                      {sortedProcessActivities.map(activity => (
-                        <option key={`process-${activity.id}`} value={activity.id}>
-                          {activity.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                </Input>
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="sidebar-clone-activity-name">
-                  <Translate contentKey="processComposerApp.processDesign.canvas.cloneNameLabel">Name (optional)</Translate>
-                </Label>
-                <Input
-                  id="sidebar-clone-activity-name"
-                  value={name}
-                  onChange={event => setName(event.target.value)}
-                  placeholder={translate(
-                    'processComposerApp.processDesign.canvas.cloneNamePlaceholder',
-                    'Leave empty to use source name with copy suffix'
-                  )}
-                  data-cy="sidebar-clone-activity-name"
-                />
-              </FormGroup>
-            </>
           )}
         </ModalBody>
         <ModalFooter>
