@@ -33,6 +33,7 @@ export interface ActivityDetailEditorProps {
   onDeleted?: () => void;
   onDuplicated?: (activityId: number) => void;
   deleting?: boolean;
+  readOnly?: boolean;
 }
 
 export const ActivityDetailEditor = ({
@@ -47,6 +48,7 @@ export const ActivityDetailEditor = ({
   onDeleted,
   onDuplicated,
   deleting = false,
+  readOnly = false,
 }: ActivityDetailEditorProps) => {
   const dispatch = useAppDispatch();
   const isLibraryContext = processId === undefined;
@@ -168,7 +170,7 @@ export const ActivityDetailEditor = ({
   const effectivePhaseId = phaseId ?? draft?.phase?.id;
 
   const menuItems: CardActionItem[] = [];
-  if (draft?.id && showHeaderActions) {
+  if (draft?.id && showHeaderActions && !readOnly) {
     if (!isLibraryContext) {
       menuItems.push({
         key: 'duplicate',
@@ -213,15 +215,23 @@ export const ActivityDetailEditor = ({
 
     switch (section) {
       case 'general':
-        return <GeneralTab draft={draft} onChange={setDraft} disabled={updating} />;
+        return <GeneralTab draft={draft} onChange={setDraft} disabled={updating || readOnly} />;
       case 'roles':
-        return <RolesTab draft={draft} onChange={setDraft} disabled={updating} />;
+        return <RolesTab draft={draft} onChange={setDraft} disabled={updating || readOnly} />;
       case 'resources':
-        return <ResourcesTab draft={draft} onChange={setDraft} disabled={updating} />;
+        return <ResourcesTab draft={draft} onChange={setDraft} disabled={updating || readOnly} />;
       case 'artifacts':
-        return <ArtifactsTab draft={draft} onChange={setDraft} disabled={updating} />;
+        return <ArtifactsTab draft={draft} onChange={setDraft} disabled={updating || readOnly} />;
       case 'dependencies':
-        return <DependenciesTab draft={draft} processId={processId} phaseId={effectivePhaseId} onChange={setDraft} disabled={updating} />;
+        return (
+          <DependenciesTab
+            draft={draft}
+            processId={processId}
+            phaseId={effectivePhaseId}
+            onChange={setDraft}
+            disabled={updating || readOnly}
+          />
+        );
       default:
         return null;
     }
@@ -289,9 +299,11 @@ export const ActivityDetailEditor = ({
             ))}
           </div>
 
-          <div className="activity-detail-drawer__footer">
-            <div className="activity-detail-drawer__footer-actions">{saveButton}</div>
-          </div>
+          {!readOnly && (
+            <div className="activity-detail-drawer__footer">
+              <div className="activity-detail-drawer__footer-actions">{saveButton}</div>
+            </div>
+          )}
         </>
       )}
 
@@ -323,9 +335,11 @@ export const ActivityDetailEditor = ({
             <TabPane tabId="dependencies">{renderSectionContent('dependencies')}</TabPane>
           </TabContent>
 
-          <div className="activity-detail-drawer__footer">
-            <div className="activity-detail-drawer__footer-actions">{saveButton}</div>
-          </div>
+          {!readOnly && (
+            <div className="activity-detail-drawer__footer">
+              <div className="activity-detail-drawer__footer-actions">{saveButton}</div>
+            </div>
+          )}
         </>
       )}
     </div>

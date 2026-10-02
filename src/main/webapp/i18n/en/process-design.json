@@ -115,7 +115,8 @@
         "canvasUnavailable": "Canvas view will be available soon",
         "activityCount": "{{count}} activities",
         "rolesCount": "{{count}} roles",
-        "artifactsCount": "{{count}} artifacts"
+        "artifactsCount": "{{count}} artifacts",
+        "readOnlyModel": "This is a standard model method. You can view, export, and clone it, but not edit it."
       },
       "delete": {
         "confirmPhase": "Are you sure you want to delete the phase \"{{name}}\"?",

@@ -6,7 +6,7 @@ import { Translate } from 'react-jhipster';
 
 import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { IProcess } from 'app/shared/model/process.model';
-import { isSystemTemplate } from 'app/shared/model/owned-entity.model';
+import { canEditEntity, isSystemTemplate } from 'app/shared/model/owned-entity.model';
 import { countActivitiesForProcess, countPhasesForProcess } from 'app/shared/util/process-stats.utils';
 import { IPhase } from 'app/shared/model/phase.model';
 import { IActivity } from 'app/shared/model/activity.model';
@@ -25,6 +25,7 @@ type ProcessListProcessGridProps = ProcessListGridHandlers & {
   phases: IPhase[];
   activities: IActivity[];
   isAdmin: boolean;
+  currentUserId?: number;
   showSystemBadge?: boolean;
   showOwnerLabel?: boolean;
 };
@@ -36,6 +37,7 @@ export const ProcessListProcessGrid = ({
   phases,
   activities,
   isAdmin,
+  currentUserId,
   showSystemBadge: showSystemBadgeOverride,
   showOwnerLabel: showOwnerLabelOverride,
   onDuplicate,
@@ -52,6 +54,77 @@ export const ProcessListProcessGrid = ({
       const ownerLogin = getProcessOwnerLogin(process);
       const showSystemBadge = showSystemBadgeOverride ?? isSystemTemplate(process);
       const showOwnerLabel = showOwnerLabelOverride ?? (isAdmin && !showSystemBadge && Boolean(ownerLogin));
+      const canEdit = canEditEntity(process, isAdmin, currentUserId);
+
+      const menuItems = [
+        {
+          key: 'duplicate',
+          label: (
+            <>
+              <FontAwesomeIcon icon="copy" className="me-2" />
+              <Translate contentKey="processComposerApp.processDesign.list.actions.duplicate">Duplicate process</Translate>
+            </>
+          ),
+          onClick() {
+            void onDuplicate(process);
+          },
+          disabled: isDuplicating || duplicatingProcessId !== null,
+          'data-cy': `processDuplicate-${process.id}`,
+        },
+        {
+          key: 'visualize',
+          label: (
+            <>
+              <FontAwesomeIcon icon="book" className="me-2" />
+              <Translate contentKey="processComposerApp.processDesign.list.actions.visualize">View process site</Translate>
+            </>
+          ),
+          onClick: () => window.open(`/processos/${process.id}/visualizar`, '_blank', 'noopener,noreferrer'),
+          'data-cy': `processVisualize-${process.id}`,
+        },
+        {
+          key: 'export',
+          label: (
+            <>
+              <FontAwesomeIcon icon="file-code" className="me-2" />
+              <Translate contentKey="processComposerApp.processDesign.list.actions.exportYaml">Export YAML</Translate>
+            </>
+          ),
+          to: `/processos/${process.id}/exportar`,
+          'data-cy': `processExportYaml-${process.id}`,
+        },
+        {
+          key: 'downloadStaticSite',
+          label: (
+            <>
+              <FontAwesomeIcon icon="box" className="me-2" />
+              <Translate contentKey="processComposerApp.processDesign.list.actions.downloadStaticSite">Download static site</Translate>
+            </>
+          ),
+          onClick() {
+            void onDownloadStaticSite(process);
+          },
+          disabled: isDownloadingStaticSite || downloadingStaticSiteId !== null,
+          'data-cy': `processDownloadStaticSite-${process.id}`,
+        },
+        ...(canEdit
+          ? [
+              {
+                key: 'delete',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="trash" className="me-2" />
+                    <Translate contentKey="entity.action.delete">Delete</Translate>
+                  </>
+                ),
+                onClick: () => onRequestDelete(process),
+                danger: true,
+                disabled: deleting,
+                'data-cy': `processDelete-${process.id}`,
+              },
+            ]
+          : []),
+      ];
 
       return (
         <Col key={process.id} xs={12} md={6} xl={4}>
@@ -61,76 +134,7 @@ export const ProcessListProcessGrid = ({
                 <CardTitle tag="h2" className="h5 text-body mb-0">
                   {process.processName}
                 </CardTitle>
-                <CardActionsMenu
-                  data-cy={`processListCardMenu-${process.id}`}
-                  items={[
-                    {
-                      key: 'duplicate',
-                      label: (
-                        <>
-                          <FontAwesomeIcon icon="copy" className="me-2" />
-                          <Translate contentKey="processComposerApp.processDesign.list.actions.duplicate">Duplicate process</Translate>
-                        </>
-                      ),
-                      onClick() {
-                        void onDuplicate(process);
-                      },
-                      disabled: isDuplicating || duplicatingProcessId !== null,
-                      'data-cy': `processDuplicate-${process.id}`,
-                    },
-                    {
-                      key: 'visualize',
-                      label: (
-                        <>
-                          <FontAwesomeIcon icon="book" className="me-2" />
-                          <Translate contentKey="processComposerApp.processDesign.list.actions.visualize">View process site</Translate>
-                        </>
-                      ),
-                      onClick: () => window.open(`/processos/${process.id}/visualizar`, '_blank', 'noopener,noreferrer'),
-                      'data-cy': `processVisualize-${process.id}`,
-                    },
-                    {
-                      key: 'export',
-                      label: (
-                        <>
-                          <FontAwesomeIcon icon="file-code" className="me-2" />
-                          <Translate contentKey="processComposerApp.processDesign.list.actions.exportYaml">Export YAML</Translate>
-                        </>
-                      ),
-                      to: `/processos/${process.id}/exportar`,
-                      'data-cy': `processExportYaml-${process.id}`,
-                    },
-                    {
-                      key: 'downloadStaticSite',
-                      label: (
-                        <>
-                          <FontAwesomeIcon icon="box" className="me-2" />
-                          <Translate contentKey="processComposerApp.processDesign.list.actions.downloadStaticSite">
-                            Download static site
-                          </Translate>
-                        </>
-                      ),
-                      onClick() {
-                        void onDownloadStaticSite(process);
-                      },
-                      disabled: isDownloadingStaticSite || downloadingStaticSiteId !== null,
-                      'data-cy': `processDownloadStaticSite-${process.id}`,
-                    },
-                    {
-                      key: 'delete',
-                      label: (
-                        <>
-                          <FontAwesomeIcon icon="trash" className="me-2" />
-                          <Translate contentKey="entity.action.delete">Delete</Translate>
-                        </>
-                      ),
-                      onClick: () => onRequestDelete(process),
-                      danger: true,
-                      disabled: deleting,
-                      'data-cy': `processDelete-${process.id}`,
-                    },
-                  ]}
-                />
+                <CardActionsMenu data-cy={`processListCardMenu-${process.id}`} items={menuItems} />
               </div>
 
               {process.processDescription && (

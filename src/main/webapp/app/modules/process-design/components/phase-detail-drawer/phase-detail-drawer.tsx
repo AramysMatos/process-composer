@@ -15,9 +15,19 @@ export interface PhaseDetailDrawerProps {
   onSaved?: () => void;
   onDelete?: (phase: { id: number; name: string }) => void;
   deleting?: boolean;
+  readOnly?: boolean;
 }
 
-export const PhaseDetailDrawer = ({ phaseId, processId, isOpen, onClose, onSaved, onDelete, deleting = false }: PhaseDetailDrawerProps) => {
+export const PhaseDetailDrawer = ({
+  phaseId,
+  processId,
+  isOpen,
+  onClose,
+  onSaved,
+  onDelete,
+  deleting = false,
+  readOnly = false,
+}: PhaseDetailDrawerProps) => {
   const phaseEntity = useAppSelector(state => state.phase.entity);
   const draftName = phaseEntity.id === phaseId ? phaseEntity.name : undefined;
   const drawerTitle = draftName ?? translate('processComposerApp.processDesign.phaseDrawer.title', 'Phase details');
@@ -53,6 +63,7 @@ export const PhaseDetailDrawer = ({ phaseId, processId, isOpen, onClose, onSaved
           onSaved={onSaved}
           onDelete={onDelete}
           deleting={deleting}
+          readOnly={readOnly}
         />
       </OffcanvasBody>
     </Offcanvas>

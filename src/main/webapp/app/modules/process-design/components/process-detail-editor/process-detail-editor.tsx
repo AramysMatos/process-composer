@@ -12,9 +12,10 @@ import { IProcess } from 'app/shared/model/process.model';
 export interface ProcessDetailEditorProps {
   processId: number | null;
   onSaved?: () => void;
+  readOnly?: boolean;
 }
 
-export const ProcessDetailEditor = ({ processId, onSaved }: ProcessDetailEditorProps) => {
+export const ProcessDetailEditor = ({ processId, onSaved, readOnly = false }: ProcessDetailEditorProps) => {
   const dispatch = useAppDispatch();
 
   const processEntity = useAppSelector(state => state.process.entity);
@@ -81,46 +82,50 @@ export const ProcessDetailEditor = ({ processId, onSaved }: ProcessDetailEditorP
 
       {!isLoading && draft && (
         <>
-          <div className="process-detail-editor__sections">
-            <section className="process-detail-editor__section" data-cy="process-section-general">
-              <FormGroup>
-                <Label for="process-editor-name">
-                  <Translate contentKey="processComposerApp.process.processName">Process Name</Translate>
-                </Label>
-                <Input
-                  id="process-editor-name"
-                  value={draft.processName ?? ''}
-                  disabled={updating}
-                  onChange={event => setDraft({ ...draft, processName: event.target.value })}
-                  data-cy="process-editor-name"
-                />
-              </FormGroup>
-              <FormGroup>
-                <Label for="process-editor-description">
-                  <Translate contentKey="processComposerApp.process.processDescription">Process Description</Translate>
-                </Label>
-                <Input
-                  id="process-editor-description"
-                  type="textarea"
-                  rows={4}
-                  value={draft.processDescription ?? ''}
-                  disabled={updating}
-                  onChange={event => setDraft({ ...draft, processDescription: event.target.value })}
-                  data-cy="process-editor-description"
-                />
-              </FormGroup>
-            </section>
-          </div>
+          <fieldset disabled={readOnly}>
+            <div className="process-detail-editor__sections">
+              <section className="process-detail-editor__section" data-cy="process-section-general">
+                <FormGroup>
+                  <Label for="process-editor-name">
+                    <Translate contentKey="processComposerApp.process.processName">Process Name</Translate>
+                  </Label>
+                  <Input
+                    id="process-editor-name"
+                    value={draft.processName ?? ''}
+                    disabled={updating}
+                    onChange={event => setDraft({ ...draft, processName: event.target.value })}
+                    data-cy="process-editor-name"
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label for="process-editor-description">
+                    <Translate contentKey="processComposerApp.process.processDescription">Process Description</Translate>
+                  </Label>
+                  <Input
+                    id="process-editor-description"
+                    type="textarea"
+                    rows={4}
+                    value={draft.processDescription ?? ''}
+                    disabled={updating}
+                    onChange={event => setDraft({ ...draft, processDescription: event.target.value })}
+                    data-cy="process-editor-description"
+                  />
+                </FormGroup>
+              </section>
+            </div>
+          </fieldset>
 
-          <div className="process-detail-editor__footer">
-            <Button color="primary" onClick={() => void handleSave()} disabled={isBusy} data-cy="process-editor-save">
-              {updating ? (
-                <Translate contentKey="processComposerApp.processDesign.drawer.saving">Saving...</Translate>
-              ) : (
-                <Translate contentKey="processComposerApp.processDesign.drawer.save">Save</Translate>
-              )}
-            </Button>
-          </div>
+          {!readOnly && (
+            <div className="process-detail-editor__footer">
+              <Button color="primary" onClick={() => void handleSave()} disabled={isBusy} data-cy="process-editor-save">
+                {updating ? (
+                  <Translate contentKey="processComposerApp.processDesign.drawer.saving">Saving...</Translate>
+                ) : (
+                  <Translate contentKey="processComposerApp.processDesign.drawer.save">Save</Translate>
+                )}
+              </Button>
+            </div>
+          )}
         </>
       )}
     </div>

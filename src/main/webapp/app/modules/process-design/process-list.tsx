@@ -509,6 +509,7 @@ export const ProcessList = () => {
     phases,
     activities,
     isAdmin,
+    currentUserId: account.id,
     onDuplicate: handleDuplicate,
     onDownloadStaticSite: handleDownloadStaticSite,
     onRequestDelete: handleRequestDelete,

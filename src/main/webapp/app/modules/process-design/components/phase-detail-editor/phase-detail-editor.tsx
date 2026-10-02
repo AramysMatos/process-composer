@@ -24,6 +24,7 @@ export interface PhaseDetailEditorProps {
   onDeleted?: () => void;
   onDuplicated?: (phaseId: number) => void;
   deleting?: boolean;
+  readOnly?: boolean;
 }
 
 export const PhaseDetailEditor = ({
@@ -37,6 +38,7 @@ export const PhaseDetailEditor = ({
   onDeleted,
   onDuplicated,
   deleting = false,
+  readOnly = false,
 }: PhaseDetailEditorProps) => {
   const dispatch = useAppDispatch();
   const isLibraryContext = processId === undefined;
@@ -142,7 +144,7 @@ export const PhaseDetailEditor = ({
   const isBusy = updating || deleting || duplicating;
 
   const menuItems: CardActionItem[] = [];
-  if (draft?.id && showHeaderActions) {
+  if (draft?.id && showHeaderActions && !readOnly) {
     if (isLibraryContext) {
       menuItems.push({
         key: 'duplicate',
@@ -229,32 +231,34 @@ export const PhaseDetailEditor = ({
                     <Translate contentKey="processComposerApp.processDesign.drawer.tabs.general">General</Translate>
                   </h3>
                 )}
-                <FormGroup>
-                  <Label for="phase-editor-name">
-                    <Translate contentKey="processComposerApp.phase.name">Name</Translate>
-                  </Label>
-                  <Input
-                    id="phase-editor-name"
-                    value={draft.name ?? ''}
-                    disabled={updating}
-                    onChange={event => setDraft({ ...draft, name: event.target.value })}
-                    data-cy="phase-editor-name"
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <Label for="phase-editor-description">
-                    <Translate contentKey="processComposerApp.phase.description">Description</Translate>
-                  </Label>
-                  <Input
-                    id="phase-editor-description"
-                    type="textarea"
-                    rows={4}
-                    value={draft.description ?? ''}
-                    disabled={updating}
-                    onChange={event => setDraft({ ...draft, description: event.target.value })}
-                    data-cy="phase-editor-description"
-                  />
-                </FormGroup>
+                <fieldset disabled={readOnly}>
+                  <FormGroup>
+                    <Label for="phase-editor-name">
+                      <Translate contentKey="processComposerApp.phase.name">Name</Translate>
+                    </Label>
+                    <Input
+                      id="phase-editor-name"
+                      value={draft.name ?? ''}
+                      disabled={updating}
+                      onChange={event => setDraft({ ...draft, name: event.target.value })}
+                      data-cy="phase-editor-name"
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="phase-editor-description">
+                      <Translate contentKey="processComposerApp.phase.description">Description</Translate>
+                    </Label>
+                    <Input
+                      id="phase-editor-description"
+                      type="textarea"
+                      rows={4}
+                      value={draft.description ?? ''}
+                      disabled={updating}
+                      onChange={event => setDraft({ ...draft, description: event.target.value })}
+                      data-cy="phase-editor-description"
+                    />
+                  </FormGroup>
+                </fieldset>
               </section>
             )}
 
@@ -274,7 +278,7 @@ export const PhaseDetailEditor = ({
             )}
           </div>
 
-          {(!activityEditing || generalOnly) && <div className="phase-detail-editor__footer">{saveButton}</div>}
+          {!readOnly && (!activityEditing || generalOnly) && <div className="phase-detail-editor__footer">{saveButton}</div>}
         </>
       )}
     </div>

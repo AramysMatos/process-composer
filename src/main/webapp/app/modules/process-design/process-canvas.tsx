@@ -11,6 +11,10 @@ import { getEntities as getActivityEntities } from 'app/entities/activity/activi
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
 import { deleteEntity as deleteProcess, getEntity as getProcessEntity } from 'app/entities/process/process.reducer';
 import { duplicateProcess } from 'app/modules/process-design/duplicate-process';
+import { isProcessReadOnlyForUser } from 'app/modules/process-design/process-edit-access';
+import { buildProcessHeaderMenuItems } from 'app/modules/process-design/process-header-menu-items';
+import { AUTHORITIES } from 'app/config/constants';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { downloadStaticSiteForProcessId } from 'app/modules/process-visualization/download-static-site-for-process';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
 import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
@@ -35,6 +39,8 @@ export const ProcessCanvas = () => {
   const isValidProcessId = Number.isFinite(processId) && processId > 0;
 
   const process = useAppSelector(state => state.process.entity);
+  const account = useAppSelector(state => state.authentication.account);
+  const isAdmin = hasAnyAuthority(account.authorities, [AUTHORITIES.ADMIN]);
   const processLoading = useAppSelector(state => state.process.loading);
   const phaseEntities = useAppSelector(state => state.phase.entities);
   const phaseLoading = useAppSelector(state => state.phase.loading);
@@ -42,6 +48,7 @@ export const ProcessCanvas = () => {
   const activityLoading = useAppSelector(state => state.activity.loading);
   const processMatches = process.id === processId;
   const processName = process.processName ?? translate('processComposerApp.processDesign.tree.untitledProcess', 'Untitled process');
+  const readOnly = processMatches && isProcessReadOnlyForUser(process, isAdmin, account.id);
 
   const phases = useMemo(
     () => phaseEntities.filter(phase => phase.process?.id === processId).sort((left, right) => (left.id ?? 0) - (right.id ?? 0)),
@@ -241,6 +248,36 @@ export const ProcessCanvas = () => {
     }
   }, [downloadingStaticSite, processId]);
 
+  const headerMenuItems = useMemo(
+    () =>
+      buildProcessHeaderMenuItems({
+        processId,
+        readOnly,
+        onEdit: handleOpenProcessEdit,
+        onDuplicate: () => {
+          void handleDuplicateProcess();
+        },
+        onDownloadStaticSite: () => {
+          void handleDownloadStaticSite();
+        },
+        duplicatingProcess,
+        downloadingStaticSite,
+        deletingProcess,
+        onRequestDelete: handleRequestDeleteProcess,
+      }),
+    [
+      deletingProcess,
+      downloadingStaticSite,
+      duplicatingProcess,
+      handleDownloadStaticSite,
+      handleDuplicateProcess,
+      handleOpenProcessEdit,
+      handleRequestDeleteProcess,
+      processId,
+      readOnly,
+    ]
+  );
+
   if (!isValidProcessId) {
     return (
       <div className="process-canvas" data-cy="process-canvas">
@@ -270,90 +307,16 @@ export const ProcessCanvas = () => {
             data-cy="process-canvas-breadcrumb"
           />
         </div>
-        {processMatches && (
-          <CardActionsMenu
-            data-cy={`processCanvasMenu-${processId}`}
-            items={[
-              {
-                key: 'edit',
-                label: (
-                  <>
-                    <FontAwesomeIcon icon="pencil-alt" className="me-2" />
-                    <Translate contentKey="processComposerApp.processDesign.list.actions.edit">Edit process</Translate>
-                  </>
-                ),
-                onClick: handleOpenProcessEdit,
-                'data-cy': `processEdit-${processId}`,
-              },
-              {
-                key: 'duplicate',
-                label: (
-                  <>
-                    <FontAwesomeIcon icon="copy" className="me-2" />
-                    <Translate contentKey="processComposerApp.processDesign.list.actions.duplicate">Duplicate process</Translate>
-                  </>
-                ),
-                onClick() {
-                  void handleDuplicateProcess();
-                },
-                disabled: duplicatingProcess,
-                'data-cy': `processDuplicate-${processId}`,
-              },
-              {
-                key: 'visualize',
-                label: (
-                  <>
-                    <FontAwesomeIcon icon="book" className="me-2" />
-                    <Translate contentKey="processComposerApp.processDesign.list.actions.visualize">View process site</Translate>
-                  </>
-                ),
-                onClick: () => window.open(`/processos/${processId}/visualizar`, '_blank', 'noopener,noreferrer'),
-                'data-cy': `processVisualize-${processId}`,
-              },
-              {
-                key: 'export',
-                label: (
-                  <>
-                    <FontAwesomeIcon icon="file-code" className="me-2" />
-                    <Translate contentKey="processComposerApp.processDesign.list.actions.exportYaml">Export YAML</Translate>
-                  </>
-                ),
-                to: `/processos/${processId}/exportar`,
-                'data-cy': `processExportYaml-${processId}`,
-              },
-              {
-                key: 'downloadStaticSite',
-                label: (
-                  <>
-                    <FontAwesomeIcon icon="box" className="me-2" />
-                    <Translate contentKey="processComposerApp.processDesign.list.actions.downloadStaticSite">
-                      Download static site
-                    </Translate>
-                  </>
-                ),
-                onClick() {
-                  void handleDownloadStaticSite();
-                },
-                disabled: downloadingStaticSite,
-                'data-cy': `processDownloadStaticSite-${processId}`,
-              },
-              {
-                key: 'delete',
-                label: (
-                  <>
-                    <FontAwesomeIcon icon="trash" className="me-2" />
-                    <Translate contentKey="entity.action.delete">Delete</Translate>
-                  </>
-                ),
-                onClick: handleRequestDeleteProcess,
-                danger: true,
-                disabled: deletingProcess,
-                'data-cy': `processDelete-${processId}`,
-              },
-            ]}
-          />
-        )}
+        {processMatches && <CardActionsMenu data-cy={`processCanvasMenu-${processId}`} items={headerMenuItems} />}
       </header>
+
+      {readOnly && (
+        <Alert color="info" className="mb-3 mx-3" data-cy="process-read-only-banner">
+          <Translate contentKey="processComposerApp.processDesign.overview.readOnlyModel">
+            This is a standard model method. You can view, export, and clone it, but not edit it.
+          </Translate>
+        </Alert>
+      )}
 
       <div className="process-canvas__layout">
         <aside className="process-canvas__sidebar">
@@ -361,14 +324,16 @@ export const ProcessCanvas = () => {
             processId={processId}
             selectedActivityId={selectedActivityId}
             onSelectActivity={handleSelectActivity}
-            onCreateActivity={handleCreateActivity}
-            onCreatePhase={handleCreatePhase}
-            onEditPhase={handleEditPhase}
-            onSavePhaseToLibrary={handleSavePhaseToLibrary}
-            onSaveActivityToLibrary={handleSaveActivityToLibrary}
+            onCreateActivity={readOnly ? undefined : handleCreateActivity}
+            onCreatePhase={readOnly ? undefined : handleCreatePhase}
+            onEditPhase={readOnly ? undefined : handleEditPhase}
+            onSavePhaseToLibrary={readOnly ? undefined : handleSavePhaseToLibrary}
+            onSaveActivityToLibrary={readOnly ? undefined : handleSaveActivityToLibrary}
             isSavingToLibrary={isSaving}
-            onDeletePhase={(phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })}
-            onDeleteActivity={(activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
+            onDeletePhase={
+              readOnly ? undefined : (phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })
+            }
+            onDeleteActivity={readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
           />
         </aside>
 
@@ -394,7 +359,12 @@ export const ProcessCanvas = () => {
           </div>
 
           <div className="process-canvas__canvas-area">
-            <ActivityCanvas processId={processId} selectedActivityId={selectedActivityId} onSelectActivity={handleSelectActivity} />
+            <ActivityCanvas
+              processId={processId}
+              selectedActivityId={selectedActivityId}
+              onSelectActivity={handleSelectActivity}
+              readOnly={readOnly}
+            />
           </div>
         </section>
       </div>
@@ -404,6 +374,7 @@ export const ProcessCanvas = () => {
         isOpen={processEditDrawerOpen}
         onClose={handleCloseProcessEdit}
         onSaved={handleProcessSaved}
+        readOnly={readOnly}
       />
 
       <PhaseDetailDrawer
@@ -412,8 +383,9 @@ export const ProcessCanvas = () => {
         isOpen={drawerPhaseId !== null}
         onClose={handleClosePhaseDrawer}
         onSaved={handlePhaseSaved}
-        onDelete={phase => requestDelete({ type: 'phase', id: phase.id, name: phase.name })}
+        onDelete={readOnly ? undefined : phase => requestDelete({ type: 'phase', id: phase.id, name: phase.name })}
         deleting={deleting}
+        readOnly={readOnly}
       />
 
       <ActivityDetailDrawer
@@ -422,25 +394,30 @@ export const ProcessCanvas = () => {
         isOpen={drawerActivityId !== null}
         onClose={handleCloseActivityDrawer}
         onSaved={handleActivitySaved}
-        onDelete={activity => requestDelete({ type: 'activity', id: activity.id, name: activity.name })}
+        onDelete={readOnly ? undefined : activity => requestDelete({ type: 'activity', id: activity.id, name: activity.name })}
         onDuplicated={handleActivityDuplicated}
         deleting={deleting}
+        readOnly={readOnly}
       />
 
-      <CreateActivityModal
-        isOpen={createModalPhaseId !== null}
-        phaseId={createModalPhaseId}
-        processId={processId}
-        onClose={handleCloseCreateModal}
-        onCreated={handleActivityCreated}
-      />
+      {!readOnly && (
+        <>
+          <CreateActivityModal
+            isOpen={createModalPhaseId !== null}
+            phaseId={createModalPhaseId}
+            processId={processId}
+            onClose={handleCloseCreateModal}
+            onCreated={handleActivityCreated}
+          />
 
-      <CreatePhaseModal
-        isOpen={createPhaseModalOpen}
-        processId={processId}
-        onClose={handleCloseCreatePhaseModal}
-        onCreated={handlePhaseCreated}
-      />
+          <CreatePhaseModal
+            isOpen={createPhaseModalOpen}
+            processId={processId}
+            onClose={handleCloseCreatePhaseModal}
+            onCreated={handlePhaseCreated}
+          />
+        </>
+      )}
 
       <ConfirmDeleteModal target={deleteTarget} deleting={deleting} onCancel={cancelDelete} onConfirm={confirmDelete} />
 

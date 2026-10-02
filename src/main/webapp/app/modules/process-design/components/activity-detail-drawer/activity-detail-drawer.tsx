@@ -16,6 +16,7 @@ export interface ActivityDetailDrawerProps {
   onDelete?: (activity: { id: number; name: string }) => void;
   onDuplicated?: (activityId: number) => void;
   deleting?: boolean;
+  readOnly?: boolean;
 }
 
 export const ActivityDetailDrawer = ({
@@ -27,6 +28,7 @@ export const ActivityDetailDrawer = ({
   onDelete,
   onDuplicated,
   deleting = false,
+  readOnly = false,
 }: ActivityDetailDrawerProps) => {
   const activityEntity = useAppSelector(state => state.activity.entity);
   const draftName = activityEntity.id === activityId ? activityEntity.name : undefined;
@@ -65,6 +67,7 @@ export const ActivityDetailDrawer = ({
           onDelete={onDelete}
           onDuplicated={onDuplicated}
           deleting={deleting}
+          readOnly={readOnly}
         />
       </OffcanvasBody>
     </Offcanvas>

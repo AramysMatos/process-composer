@@ -18,8 +18,8 @@ import { EntitySaveToLibraryButton } from 'app/modules/process-design/components
 export interface ProcessTreeSidebarProps {
   processId: number;
   onSelectActivity: (activityId: number) => void;
-  onCreateActivity: (phaseId: number) => void;
-  onCreatePhase: () => void;
+  onCreateActivity?: (phaseId: number) => void;
+  onCreatePhase?: () => void;
   onEditPhase?: (phaseId: number) => void;
   onSavePhaseToLibrary?: (phaseId: number) => void;
   onSaveActivityToLibrary?: (activityId: number) => void;
@@ -280,17 +280,19 @@ export const ProcessTreeSidebar = ({
               );
             })}
 
-            <li>
-              <button
-                type="button"
-                className="process-tree-sidebar__create"
-                onClick={() => onCreateActivity(phase.id as number)}
-                title={newActivityLabel}
-              >
-                <FontAwesomeIcon icon="plus" />
-                <Translate contentKey="processComposerApp.processDesign.tree.newActivity">New activity</Translate>
-              </button>
-            </li>
+            {onCreateActivity && (
+              <li>
+                <button
+                  type="button"
+                  className="process-tree-sidebar__create"
+                  onClick={() => onCreateActivity(phase.id as number)}
+                  title={newActivityLabel}
+                >
+                  <FontAwesomeIcon icon="plus" />
+                  <Translate contentKey="processComposerApp.processDesign.tree.newActivity">New activity</Translate>
+                </button>
+              </li>
+            )}
           </ul>
         )}
       </li>
@@ -381,12 +383,14 @@ export const ProcessTreeSidebar = ({
 
               {phases.map(renderPhaseNode)}
 
-              <li>
-                <button type="button" className="process-tree-sidebar__create" onClick={onCreatePhase} title={newPhaseLabel}>
-                  <FontAwesomeIcon icon="plus" />
-                  <Translate contentKey="processComposerApp.processDesign.tree.newPhase">New phase</Translate>
-                </button>
-              </li>
+              {onCreatePhase && (
+                <li>
+                  <button type="button" className="process-tree-sidebar__create" onClick={onCreatePhase} title={newPhaseLabel}>
+                    <FontAwesomeIcon icon="plus" />
+                    <Translate contentKey="processComposerApp.processDesign.tree.newPhase">New phase</Translate>
+                  </button>
+                </li>
+              )}
             </ul>
           )}
         </li>

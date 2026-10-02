@@ -12,9 +12,10 @@ export interface ProcessDetailDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
+  readOnly?: boolean;
 }
 
-export const ProcessDetailDrawer = ({ processId, isOpen, onClose, onSaved }: ProcessDetailDrawerProps) => {
+export const ProcessDetailDrawer = ({ processId, isOpen, onClose, onSaved, readOnly = false }: ProcessDetailDrawerProps) => {
   const processEntity = useAppSelector(state => state.process.entity);
   const draftName = processEntity.id === processId ? processEntity.processName : undefined;
   const drawerTitle = draftName ?? translate('processComposerApp.processDesign.processDrawer.title', 'Process details');
@@ -41,7 +42,7 @@ export const ProcessDetailDrawer = ({ processId, isOpen, onClose, onSaved }: Pro
       </OffcanvasHeader>
 
       <OffcanvasBody>
-        <ProcessDetailEditor processId={isOpen ? processId : null} onSaved={onSaved} />
+        <ProcessDetailEditor processId={isOpen ? processId : null} onSaved={onSaved} readOnly={readOnly} />
       </OffcanvasBody>
     </Offcanvas>
   );

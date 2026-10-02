@@ -115,7 +115,8 @@
         "canvasUnavailable": "A visualização em canvas estará disponível em breve",
         "activityCount": "{{count}} atividades",
         "rolesCount": "{{count}} papéis",
-        "artifactsCount": "{{count}} artefatos"
+        "artifactsCount": "{{count}} artefatos",
+        "readOnlyModel": "Este é um método modelo padrão. Você pode visualizar, exportar e clonar, mas não editar."
       },
       "delete": {
         "confirmPhase": "Tem certeza de que deseja excluir a fase \"{{name}}\"?",
