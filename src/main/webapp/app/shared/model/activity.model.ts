@@ -5,8 +5,9 @@ import { ITools } from 'app/shared/model/tools.model';
 import { IArtifacts } from 'app/shared/model/artifacts.model';
 import { IPhase } from 'app/shared/model/phase.model';
 import { ITask } from 'app/shared/model/task.model';
+import { IOwnedEntity } from 'app/shared/model/owned-entity.model';
 
-export interface IActivity {
+export interface IActivity extends IOwnedEntity {
   id?: number;
   name?: string | null;
   description?: string | null;

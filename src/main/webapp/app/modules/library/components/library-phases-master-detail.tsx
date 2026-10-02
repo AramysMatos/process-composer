@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Alert,
+  Badge,
   Button,
   Form,
   FormGroup,
@@ -21,6 +22,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { JhiItemCount, JhiPagination, Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { AUTHORITIES } from 'app/config/constants';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import {
   createEntitySilent as createPhase,
   deleteEntitySilent as deletePhase,
@@ -28,6 +31,8 @@ import {
   reset as resetPhase,
 } from 'app/entities/phase/phase.reducer';
 import { PhaseDetailEditor } from 'app/modules/process-design/components/phase-detail-editor/phase-detail-editor';
+import { IPhase } from 'app/shared/model/phase.model';
+import { canEditEntity, isSystemTemplate } from 'app/shared/model/owned-entity.model';
 
 const LIST_PAGE_SIZE = 20;
 const NEW_ITEM_ID = 'new';
@@ -48,7 +53,12 @@ export const LibraryPhasesMasterDetail = ({ selectedId, onSelectItem }: LibraryP
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [phaseToDelete, setPhaseToDelete] = useState<{ id: number; name: string } | null>(null);
 
+  const account = useAppSelector(state => state.authentication.account);
+  const isAdmin = hasAnyAuthority(account.authorities, [AUTHORITIES.ADMIN]);
+  const currentUserId = account.id;
+
   const entities = useAppSelector(state => state.phase.entities);
+  const phaseEntity = useAppSelector(state => state.phase.entity);
   const loading = useAppSelector(state => state.phase.loading);
   const updating = useAppSelector(state => state.phase.updating);
 
@@ -57,6 +67,18 @@ export const LibraryPhasesMasterDetail = ({ selectedId, onSelectItem }: LibraryP
   const hasValidSelection = isCreating || (selectedNumericId !== undefined && !Number.isNaN(selectedNumericId));
 
   const trimmedSearch = searchQuery.trim().toLowerCase();
+
+  const detailPhase = useMemo((): IPhase | undefined => {
+    if (isCreating || selectedNumericId === undefined) {
+      return undefined;
+    }
+    if (phaseEntity?.id === selectedNumericId) {
+      return phaseEntity;
+    }
+    return entities.find(item => item.id === selectedNumericId);
+  }, [entities, isCreating, phaseEntity, selectedNumericId]);
+
+  const readOnly = Boolean(detailPhase && !canEditEntity(detailPhase, isAdmin, currentUserId));
 
   const refreshLibraryPhases = useCallback(() => {
     dispatch(getPhases({ library: true }));
@@ -117,13 +139,26 @@ export const LibraryPhasesMasterDetail = ({ selectedId, onSelectItem }: LibraryP
     }
   };
 
-  const handleDeleteRequest = useCallback((phase: { id: number; name: string }) => {
-    setPhaseToDelete(phase);
-    setDeleteModalOpen(true);
-  }, []);
+  const handleDeleteRequest = useCallback(
+    (phase: { id: number; name: string }) => {
+      const entity = entities.find(item => item.id === phase.id) ?? (phaseEntity?.id === phase.id ? phaseEntity : undefined);
+      if (entity && !canEditEntity(entity, isAdmin, currentUserId)) {
+        return;
+      }
+      setPhaseToDelete(phase);
+      setDeleteModalOpen(true);
+    },
+    [currentUserId, entities, isAdmin, phaseEntity]
+  );
 
   const handleConfirmDelete = async () => {
     if (!phaseToDelete) {
+      return;
+    }
+
+    const entity = entities.find(item => item.id === phaseToDelete.id) ?? (phaseEntity?.id === phaseToDelete.id ? phaseEntity : undefined);
+    if (entity && !canEditEntity(entity, isAdmin, currentUserId)) {
+      setDeleteModalOpen(false);
       return;
     }
 
@@ -200,7 +235,14 @@ export const LibraryPhasesMasterDetail = ({ selectedId, onSelectItem }: LibraryP
                   onClick={() => item.id && onSelectItem(item.id)}
                   data-cy={`libraryPhasesListItem-${item.id}`}
                 >
-                  <span className="library-master-detail__list-item-name">{item.name}</span>
+                  <span className="library-master-detail__list-item-name">
+                    {item.name}
+                    {isSystemTemplate(item) && (
+                      <Badge color="info" className="ms-2">
+                        <Translate contentKey="processComposerApp.library.systemTemplate">Modelo</Translate>
+                      </Badge>
+                    )}
+                  </span>
                   {item.description && <span className="library-master-detail__list-item-description">{item.description}</span>}
                 </button>
               );
@@ -274,12 +316,20 @@ export const LibraryPhasesMasterDetail = ({ selectedId, onSelectItem }: LibraryP
           </div>
         ) : (
           <div className="library-master-detail__detail-body">
+            {readOnly && detailPhase && isSystemTemplate(detailPhase) && !isAdmin && (
+              <Alert color="info" className="mb-3" data-cy="libraryPhasesReadOnlyBanner">
+                <Translate contentKey="processComposerApp.library.readOnlyModel">
+                  This is a system model. You can view and clone it, but not edit or delete it.
+                </Translate>
+              </Alert>
+            )}
             <PhaseDetailEditor
               phaseId={selectedNumericId ?? null}
               variant="panel"
               showHeaderActions
+              readOnly={readOnly}
               onSaved={refreshLibraryPhases}
-              onDelete={handleDeleteRequest}
+              onDelete={canEditEntity(detailPhase, isAdmin, currentUserId) ? handleDeleteRequest : undefined}
               onDeleted={handleDeleted}
               onDuplicated={handleDuplicated}
             />

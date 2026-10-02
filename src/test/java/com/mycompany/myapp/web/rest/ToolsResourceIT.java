@@ -2,12 +2,16 @@ package com.mycompany.myapp.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.mycompany.myapp.IntegrationTest;
 import com.mycompany.myapp.domain.Tools;
+import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.repository.ToolsRepository;
+import com.mycompany.myapp.repository.UserRepository;
+import com.mycompany.myapp.security.AuthoritiesConstants;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -43,6 +47,9 @@ class ToolsResourceIT {
 
     @Autowired
     private ToolsRepository toolsRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private EntityManager em;
@@ -371,5 +378,52 @@ class ToolsResourceIT {
         // Validate the database contains one less item
         List<Tools> toolsList = toolsRepository.findAll();
         assertThat(toolsList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    void getToolsIncludesOwnerId() throws Exception {
+        Tools systemTool = createEntity(em).name("System Tool");
+        systemTool.setOwner(null);
+        toolsRepository.saveAndFlush(systemTool);
+
+        restToolsMockMvc
+            .perform(get(ENTITY_API_URL_ID, systemTool.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.ownerId").value(nullValue()));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void putSystemTemplateToolForbiddenForUser() throws Exception {
+        Tools systemTool = createEntity(em).name("System Tool");
+        systemTool.setOwner(null);
+        toolsRepository.saveAndFlush(systemTool);
+
+        Tools updatedTools = toolsRepository.findById(systemTool.getId()).orElseThrow();
+        em.detach(updatedTools);
+        updatedTools.name(UPDATED_NAME).description(UPDATED_DESCRIPTION);
+
+        restToolsMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedTools.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedTools))
+            )
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void deleteSystemTemplateToolForbiddenForUser() throws Exception {
+        Tools systemTool = createEntity(em).name("System Tool");
+        systemTool.setOwner(null);
+        toolsRepository.saveAndFlush(systemTool);
+
+        restToolsMockMvc
+            .perform(delete(ENTITY_API_URL_ID, systemTool.getId()).accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
     }
 }

@@ -170,8 +170,8 @@ export const ActivityDetailEditor = ({
   const effectivePhaseId = phaseId ?? draft?.phase?.id;
 
   const menuItems: CardActionItem[] = [];
-  if (draft?.id && showHeaderActions && !readOnly) {
-    if (!isLibraryContext) {
+  if (draft?.id && showHeaderActions) {
+    if (!isLibraryContext && !readOnly) {
       menuItems.push({
         key: 'duplicate',
         label: (
@@ -187,21 +187,39 @@ export const ActivityDetailEditor = ({
         'data-cy': `activityDuplicate-${draft.id}`,
       });
     }
-    menuItems.push({
-      key: 'delete',
-      label: (
-        <>
-          <FontAwesomeIcon icon="trash" className="me-2" />
-          <Translate contentKey="processComposerApp.processDesign.delete.deleteActivity">Delete activity</Translate>
-        </>
-      ),
-      onClick() {
-        void handleDelete();
-      },
-      danger: true,
-      disabled: isBusy,
-      'data-cy': `activityDelete-${draft.id}`,
-    });
+    if (isLibraryContext) {
+      menuItems.push({
+        key: 'duplicate',
+        label: (
+          <>
+            <FontAwesomeIcon icon="copy" className="me-2" />
+            <Translate contentKey="processComposerApp.library.clone">Clone</Translate>
+          </>
+        ),
+        onClick() {
+          void handleDuplicate();
+        },
+        disabled: isBusy,
+        'data-cy': `activityDuplicate-${draft.id}`,
+      });
+    }
+    if (!readOnly) {
+      menuItems.push({
+        key: 'delete',
+        label: (
+          <>
+            <FontAwesomeIcon icon="trash" className="me-2" />
+            <Translate contentKey="processComposerApp.processDesign.delete.deleteActivity">Delete activity</Translate>
+          </>
+        ),
+        onClick() {
+          void handleDelete();
+        },
+        danger: true,
+        disabled: isBusy,
+        'data-cy': `activityDelete-${draft.id}`,
+      });
+    }
   }
 
   if (!activityId) {

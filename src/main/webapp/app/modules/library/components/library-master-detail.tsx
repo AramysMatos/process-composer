@@ -149,6 +149,10 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
   const handleSave = event => {
     event.preventDefault();
 
+    if (!isCreating && !canEditEntity(detailEntity, isAdmin, currentUserId)) {
+      return;
+    }
+
     const payload = {
       ...detailEntity,
       ...draft,
@@ -172,9 +176,10 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
   };
 
   const confirmDelete = () => {
-    if (detailEntity.id) {
-      dispatch(config.thunks.deleteEntity(detailEntity.id));
+    if (!detailEntity.id || !canEditEntity(detailEntity, isAdmin, currentUserId)) {
+      return;
     }
+    dispatch(config.thunks.deleteEntity(detailEntity.id));
   };
 
   const handleClone = () => {
@@ -271,6 +276,14 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
           </div>
         ) : (
           <div className="library-master-detail__detail-body">
+            {readOnly && isSystemTemplate(detailEntity) && !isAdmin && (
+              <Alert color="info" className="mb-3" data-cy="libraryReadOnlyBanner">
+                <Translate contentKey="processComposerApp.library.readOnlyModel">
+                  This is a system model. You can view and clone it, but not edit or delete it.
+                </Translate>
+              </Alert>
+            )}
+
             <div className="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
               <h2 className="h4 mb-0 d-flex align-items-center gap-2 flex-wrap">
                 {isCreating ? <Translate contentKey="processComposerApp.library.createTitle">New item</Translate> : detailEntity.name}

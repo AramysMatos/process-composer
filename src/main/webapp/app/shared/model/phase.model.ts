@@ -1,7 +1,8 @@
 import { IActivity } from 'app/shared/model/activity.model';
 import { IProcess } from 'app/shared/model/process.model';
+import { IOwnedEntity } from 'app/shared/model/owned-entity.model';
 
-export interface IPhase {
+export interface IPhase extends IOwnedEntity {
   id?: number;
   name?: string | null;
   description?: string | null;

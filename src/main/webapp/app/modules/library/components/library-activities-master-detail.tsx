@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Alert,
+  Badge,
   Button,
   Form,
   FormGroup,
@@ -28,7 +29,10 @@ import {
   reset as resetActivity,
 } from 'app/entities/activity/activity.reducer';
 import { ActivityDetailEditor } from 'app/modules/process-design/components/activity-detail-drawer/activity-detail-editor';
+import { AUTHORITIES } from 'app/config/constants';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { IActivity } from 'app/shared/model/activity.model';
+import { canEditEntity, isSystemTemplate } from 'app/shared/model/owned-entity.model';
 
 const LIST_PAGE_SIZE = 20;
 const NEW_ITEM_ID = 'new';
@@ -49,7 +53,12 @@ export const LibraryActivitiesMasterDetail = ({ selectedId, onSelectItem }: Libr
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<{ id: number; name: string } | null>(null);
 
+  const account = useAppSelector(state => state.authentication.account);
+  const isAdmin = hasAnyAuthority(account.authorities, [AUTHORITIES.ADMIN]);
+  const currentUserId = account.id;
+
   const entities = useAppSelector(state => state.activity.entities);
+  const activityEntity = useAppSelector(state => state.activity.entity);
   const loading = useAppSelector(state => state.activity.loading);
   const updating = useAppSelector(state => state.activity.updating);
 
@@ -58,6 +67,18 @@ export const LibraryActivitiesMasterDetail = ({ selectedId, onSelectItem }: Libr
   const hasValidSelection = isCreating || (selectedNumericId !== undefined && !Number.isNaN(selectedNumericId));
 
   const trimmedSearch = searchQuery.trim().toLowerCase();
+
+  const detailActivity = useMemo((): IActivity | undefined => {
+    if (isCreating || selectedNumericId === undefined) {
+      return undefined;
+    }
+    if (activityEntity?.id === selectedNumericId) {
+      return activityEntity;
+    }
+    return entities.find(item => item.id === selectedNumericId);
+  }, [activityEntity, entities, isCreating, selectedNumericId]);
+
+  const readOnly = Boolean(detailActivity && !canEditEntity(detailActivity, isAdmin, currentUserId));
 
   const refreshLibraryActivities = useCallback(() => {
     dispatch(getActivities({ library: true }));
@@ -125,13 +146,27 @@ export const LibraryActivitiesMasterDetail = ({ selectedId, onSelectItem }: Libr
     }
   };
 
-  const handleDeleteRequest = useCallback((activity: { id: number; name: string }) => {
-    setActivityToDelete(activity);
-    setDeleteModalOpen(true);
-  }, []);
+  const handleDeleteRequest = useCallback(
+    (activity: { id: number; name: string }) => {
+      const entity = entities.find(item => item.id === activity.id) ?? (activityEntity?.id === activity.id ? activityEntity : undefined);
+      if (entity && !canEditEntity(entity, isAdmin, currentUserId)) {
+        return;
+      }
+      setActivityToDelete(activity);
+      setDeleteModalOpen(true);
+    },
+    [activityEntity, currentUserId, entities, isAdmin]
+  );
 
   const handleConfirmDelete = async () => {
     if (!activityToDelete) {
+      return;
+    }
+
+    const entity =
+      entities.find(item => item.id === activityToDelete.id) ?? (activityEntity?.id === activityToDelete.id ? activityEntity : undefined);
+    if (entity && !canEditEntity(entity, isAdmin, currentUserId)) {
+      setDeleteModalOpen(false);
       return;
     }
 
@@ -152,6 +187,15 @@ export const LibraryActivitiesMasterDetail = ({ selectedId, onSelectItem }: Libr
     onSelectItem(undefined);
     navigate('/biblioteca/activities');
   }, [navigate, onSelectItem, refreshLibraryActivities]);
+
+  const handleDuplicated = useCallback(
+    (activityId: number) => {
+      refreshLibraryActivities();
+      onSelectItem(activityId);
+      navigate(`/biblioteca/activities/${activityId}`);
+    },
+    [navigate, onSelectItem, refreshLibraryActivities]
+  );
 
   return (
     <div className="library-master-detail library-activities-master-detail" data-cy="libraryMasterDetail-activities">
@@ -200,7 +244,14 @@ export const LibraryActivitiesMasterDetail = ({ selectedId, onSelectItem }: Libr
                   onClick={() => item.id && onSelectItem(item.id)}
                   data-cy={`libraryActivitiesListItem-${item.id}`}
                 >
-                  <span className="library-master-detail__list-item-name">{item.name}</span>
+                  <span className="library-master-detail__list-item-name">
+                    {item.name}
+                    {isSystemTemplate(item) && (
+                      <Badge color="info" className="ms-2">
+                        <Translate contentKey="processComposerApp.library.systemTemplate">Modelo</Translate>
+                      </Badge>
+                    )}
+                  </span>
                   {item.description && <span className="library-master-detail__list-item-description">{item.description}</span>}
                 </button>
               );
@@ -270,13 +321,22 @@ export const LibraryActivitiesMasterDetail = ({ selectedId, onSelectItem }: Libr
           </div>
         ) : (
           <div className="library-master-detail__detail-body">
+            {readOnly && detailActivity && isSystemTemplate(detailActivity) && !isAdmin && (
+              <Alert color="info" className="mb-3" data-cy="libraryActivitiesReadOnlyBanner">
+                <Translate contentKey="processComposerApp.library.readOnlyModel">
+                  This is a system model. You can view and clone it, but not edit or delete it.
+                </Translate>
+              </Alert>
+            )}
             <ActivityDetailEditor
               activityId={selectedNumericId ?? null}
               variant="panel"
               showHeaderActions
+              readOnly={readOnly}
               onSaved={refreshLibraryActivities}
-              onDelete={handleDeleteRequest}
+              onDelete={canEditEntity(detailActivity, isAdmin, currentUserId) ? handleDeleteRequest : undefined}
               onDeleted={handleDeleted}
+              onDuplicated={handleDuplicated}
             />
           </div>
         )}

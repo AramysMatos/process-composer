@@ -144,7 +144,7 @@ export const PhaseDetailEditor = ({
   const isBusy = updating || deleting || duplicating;
 
   const menuItems: CardActionItem[] = [];
-  if (draft?.id && showHeaderActions && !readOnly) {
+  if (draft?.id && showHeaderActions) {
     if (isLibraryContext) {
       menuItems.push({
         key: 'duplicate',
@@ -161,21 +161,23 @@ export const PhaseDetailEditor = ({
         'data-cy': `phaseDuplicate-${draft.id}`,
       });
     }
-    menuItems.push({
-      key: 'delete',
-      label: (
-        <>
-          <FontAwesomeIcon icon="trash" className="me-2" />
-          <Translate contentKey="entity.action.delete">Delete</Translate>
-        </>
-      ),
-      onClick() {
-        void handleDelete();
-      },
-      danger: true,
-      disabled: isBusy,
-      'data-cy': `phaseDelete-${draft.id}`,
-    });
+    if (!readOnly) {
+      menuItems.push({
+        key: 'delete',
+        label: (
+          <>
+            <FontAwesomeIcon icon="trash" className="me-2" />
+            <Translate contentKey="entity.action.delete">Delete</Translate>
+          </>
+        ),
+        onClick() {
+          void handleDelete();
+        },
+        danger: true,
+        disabled: isBusy,
+        'data-cy': `phaseDelete-${draft.id}`,
+      });
+    }
   }
 
   if (!phaseId) {
@@ -271,7 +273,7 @@ export const PhaseDetailEditor = ({
                   phaseId={draft.id!}
                   phaseName={draft.name}
                   processId={processId}
-                  disabled={updating}
+                  disabled={updating || readOnly}
                   onActivityEditingChange={setActivityEditing}
                 />
               </section>

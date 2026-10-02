@@ -2,12 +2,16 @@ package com.mycompany.myapp.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.mycompany.myapp.IntegrationTest;
 import com.mycompany.myapp.domain.Roles;
+import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.repository.RolesRepository;
+import com.mycompany.myapp.repository.UserRepository;
+import com.mycompany.myapp.security.AuthoritiesConstants;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -43,6 +47,9 @@ class RolesResourceIT {
 
     @Autowired
     private RolesRepository rolesRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private EntityManager em;
@@ -369,5 +376,85 @@ class RolesResourceIT {
         // Validate the database contains one less item
         List<Roles> rolesList = rolesRepository.findAll();
         assertThat(rolesList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    void getRolesIncludesOwnerId() throws Exception {
+        Roles systemRole = createEntity(em).name("System Role");
+        systemRole.setOwner(null);
+        rolesRepository.saveAndFlush(systemRole);
+
+        restRolesMockMvc
+            .perform(get(ENTITY_API_URL_ID, systemRole.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.ownerId").value(nullValue()));
+
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        Roles ownRole = createEntity(em).name("Owned Role");
+        ownRole.setOwner(user);
+        rolesRepository.saveAndFlush(ownRole);
+
+        restRolesMockMvc
+            .perform(get(ENTITY_API_URL_ID, ownRole.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.ownerId").value(user.getId().intValue()));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void putSystemTemplateRoleForbiddenForUser() throws Exception {
+        Roles systemRole = createEntity(em).name("System Role");
+        systemRole.setOwner(null);
+        rolesRepository.saveAndFlush(systemRole);
+
+        Roles updatedRoles = rolesRepository.findById(systemRole.getId()).orElseThrow();
+        em.detach(updatedRoles);
+        updatedRoles.name(UPDATED_NAME).description(UPDATED_DESCRIPTION);
+
+        restRolesMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedRoles.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedRoles))
+            )
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void putOwnRoleAllowedForUser() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+        Roles ownRole = createEntity(em).name("My Role");
+        ownRole.setOwner(user);
+        rolesRepository.saveAndFlush(ownRole);
+
+        Roles updatedRoles = rolesRepository.findById(ownRole.getId()).orElseThrow();
+        em.detach(updatedRoles);
+        updatedRoles.name(UPDATED_NAME).description(UPDATED_DESCRIPTION);
+
+        restRolesMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, updatedRoles.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedRoles))
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value(UPDATED_NAME));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void deleteSystemTemplateRoleForbiddenForUser() throws Exception {
+        Roles systemRole = createEntity(em).name("System Role");
+        systemRole.setOwner(null);
+        rolesRepository.saveAndFlush(systemRole);
+
+        restRolesMockMvc
+            .perform(delete(ENTITY_API_URL_ID, systemRole.getId()).accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
     }
 }

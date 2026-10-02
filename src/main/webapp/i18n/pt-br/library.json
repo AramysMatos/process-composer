@@ -11,6 +11,7 @@
       "notFound": "Nenhum item encontrado",
       "selectItem": "Selecione um item da lista ou crie um novo",
       "systemTemplate": "Modelo",
+      "readOnlyModel": "Este é um modelo do sistema. Você pode visualizar e clonar, mas não editar ou excluir.",
       "clone": "Clonar",
       "saveAsSystemTemplate": "Salvar como modelo de sistema",
       "audit": {
