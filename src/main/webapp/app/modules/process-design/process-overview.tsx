@@ -19,13 +19,15 @@ import {
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
+import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getActivityEntities } from 'app/entities/activity/activity.reducer';
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
 import { deleteEntity as deleteProcess, getEntity as getProcessEntity } from 'app/entities/process/process.reducer';
 import { duplicateProcess } from 'app/modules/process-design/duplicate-process';
-import { isProcessReadOnlyForUser } from 'app/modules/process-design/process-edit-access';
+import { canPromoteProcessToSystemTemplate, isProcessReadOnlyForUser } from 'app/modules/process-design/process-edit-access';
+import { promoteProcessToSystemTemplate } from 'app/modules/process-design/promote-process-to-system-template';
 import { buildProcessHeaderMenuItems } from 'app/modules/process-design/process-header-menu-items';
 import { AUTHORITIES } from 'app/config/constants';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
@@ -94,6 +96,8 @@ export const ProcessOverview = () => {
   const [duplicatingProcess, setDuplicatingProcess] = useState(false);
   const [downloadingStaticSite, setDownloadingStaticSite] = useState(false);
   const [processEditDrawerOpen, setProcessEditDrawerOpen] = useState(false);
+  const [promoteTarget, setPromoteTarget] = useState(false);
+  const [promotingToSystemTemplate, setPromotingToSystemTemplate] = useState(false);
   const accordionInitializedRef = React.useRef(false);
 
   const phases = useMemo(
@@ -143,6 +147,7 @@ export const ProcessOverview = () => {
   const processMatches = process.id === processId;
   const processName = process.processName ?? translate('processComposerApp.processDesign.tree.untitledProcess', 'Untitled process');
   const readOnly = processMatches && isProcessReadOnlyForUser(process, isAdmin, account.id);
+  const canPromoteToSystemTemplate = processMatches && canPromoteProcessToSystemTemplate(process, isAdmin, account.id);
 
   const handleSelectActivity = useCallback((activityId: number) => {
     setSelectedActivityId(activityId);
@@ -332,6 +337,36 @@ export const ProcessOverview = () => {
     }
   }, [downloadingStaticSite, processId]);
 
+  const handleRequestPromoteToSystemTemplate = useCallback(() => {
+    setPromoteTarget(true);
+  }, []);
+
+  const handleCancelPromote = useCallback(() => {
+    if (!promotingToSystemTemplate) {
+      setPromoteTarget(false);
+    }
+  }, [promotingToSystemTemplate]);
+
+  const handleConfirmPromote = useCallback(async () => {
+    if (!processId || promotingToSystemTemplate) {
+      return;
+    }
+
+    setPromotingToSystemTemplate(true);
+    try {
+      await promoteProcessToSystemTemplate(processId);
+      toast.success(translate('processComposerApp.processDesign.list.promote.success', 'Process published as a system model.'));
+      setPromoteTarget(false);
+      dispatch(getProcessEntity(processId));
+      dispatch(getPhaseEntities({}));
+      dispatch(getActivityEntities({ eagerload: true }));
+    } catch {
+      // Error notification may be handled by axios interceptor.
+    } finally {
+      setPromotingToSystemTemplate(false);
+    }
+  }, [dispatch, processId, promotingToSystemTemplate]);
+
   const headerMenuItems = useMemo(
     () =>
       buildProcessHeaderMenuItems({
@@ -348,8 +383,12 @@ export const ProcessOverview = () => {
         downloadingStaticSite,
         deletingProcess,
         onRequestDelete: handleRequestDeleteProcess,
+        canPromoteToSystemTemplate,
+        onPromoteToSystemTemplate: handleRequestPromoteToSystemTemplate,
+        promotingToSystemTemplate,
       }),
     [
+      canPromoteToSystemTemplate,
       deletingProcess,
       downloadingStaticSite,
       duplicatingProcess,
@@ -357,7 +396,9 @@ export const ProcessOverview = () => {
       handleDuplicateProcess,
       handleOpenProcessEdit,
       handleRequestDeleteProcess,
+      handleRequestPromoteToSystemTemplate,
       processId,
+      promotingToSystemTemplate,
       readOnly,
     ]
   );
@@ -689,6 +730,33 @@ export const ProcessOverview = () => {
       )}
 
       <ConfirmDeleteModal target={deleteTarget} deleting={deleting} onCancel={cancelDelete} onConfirm={confirmDelete} />
+
+      <Modal isOpen={promoteTarget} toggle={handleCancelPromote}>
+        <ModalHeader toggle={handleCancelPromote} data-cy="processOverviewPromoteDialogHeading">
+          <Translate contentKey="processComposerApp.processDesign.list.actions.promoteToSystemTemplate">Save as system model</Translate>
+        </ModalHeader>
+        <ModalBody>
+          <Translate contentKey="processComposerApp.processDesign.list.promote.confirm" interpolate={{ name: processName }}>
+            {`Save "${processName}" as a system model method?`}
+          </Translate>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={handleCancelPromote} disabled={promotingToSystemTemplate}>
+            <FontAwesomeIcon icon="ban" /> <Translate contentKey="entity.action.cancel">Cancel</Translate>
+          </Button>
+          <Button
+            color="primary"
+            onClick={() => {
+              void handleConfirmPromote();
+            }}
+            disabled={promotingToSystemTemplate}
+            data-cy="processOverviewConfirmPromoteButton"
+          >
+            <FontAwesomeIcon icon="bookmark" />{' '}
+            <Translate contentKey="processComposerApp.processDesign.list.actions.promoteToSystemTemplate">Save as system model</Translate>
+          </Button>
+        </ModalFooter>
+      </Modal>
 
       <Modal isOpen={deleteProcessTarget} toggle={handleCancelDeleteProcess}>
         <ModalHeader toggle={handleCancelDeleteProcess} data-cy="processOverviewDeleteDialogHeading">

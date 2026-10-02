@@ -32,6 +32,7 @@
         },
         "actions": {
           "edit": "Editar processo",
+          "promoteToSystemTemplate": "Tornar modelo do sistema",
           "duplicate": "Duplicar processo",
           "exportYaml": "Exportar YAML",
           "visualize": "Visualizar processo",
@@ -39,6 +40,10 @@
         },
         "delete": {
           "confirm": "Tem certeza de que deseja excluir o processo \"{{name}}\"?"
+        },
+        "promote": {
+          "confirm": "Tornar \"{{name}}\" um método modelo do sistema? Todos os usuários poderão visualizar e clonar, mas não editar.",
+          "success": "Processo publicado como modelo do sistema."
         }
       },
       "wizard": {

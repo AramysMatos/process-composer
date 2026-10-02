@@ -14,6 +14,9 @@ type BuildProcessHeaderMenuItemsParams = {
   downloadingStaticSite: boolean;
   deletingProcess: boolean;
   onRequestDelete: () => void;
+  canPromoteToSystemTemplate?: boolean;
+  onPromoteToSystemTemplate?: () => void;
+  promotingToSystemTemplate?: boolean;
 };
 
 export const buildProcessHeaderMenuItems = ({
@@ -26,6 +29,9 @@ export const buildProcessHeaderMenuItems = ({
   downloadingStaticSite,
   deletingProcess,
   onRequestDelete,
+  canPromoteToSystemTemplate = false,
+  onPromoteToSystemTemplate,
+  promotingToSystemTemplate = false,
 }: BuildProcessHeaderMenuItemsParams): CardActionItem[] => {
   const items: CardActionItem[] = [];
 
@@ -91,6 +97,21 @@ export const buildProcessHeaderMenuItems = ({
       'data-cy': `processDownloadStaticSite-${processId}`,
     }
   );
+
+  if (canPromoteToSystemTemplate && onPromoteToSystemTemplate) {
+    items.push({
+      key: 'promoteSystemTemplate',
+      label: (
+        <>
+          <FontAwesomeIcon icon="bookmark" className="me-2" />
+          <Translate contentKey="processComposerApp.processDesign.list.actions.promoteToSystemTemplate">Save as system model</Translate>
+        </>
+      ),
+      onClick: onPromoteToSystemTemplate,
+      disabled: promotingToSystemTemplate,
+      'data-cy': `processPromoteSystemTemplate-${processId}`,
+    });
+  }
 
   if (!readOnly) {
     items.push({

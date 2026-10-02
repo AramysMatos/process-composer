@@ -571,4 +571,48 @@ class ProcessResourceIT {
             .andExpect(jsonPath("$.[*].processName").value(org.hamcrest.Matchers.not(hasItem("Admin Process"))))
             .andExpect(jsonPath("$.[*].processName").value(org.hamcrest.Matchers.not(hasItem("System Process"))));
     }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    void promoteProcessToSystemTemplateAsAdminOwner() throws Exception {
+        User admin = userRepository.findOneByLogin("admin").orElseThrow();
+
+        Process process = createEntity(em).processName("Promote Me");
+        process.setOwner(admin);
+        processRepository.saveAndFlush(process);
+
+        Phase phase = new Phase().name("Phase 1").process(process);
+        phase.setOwner(admin);
+        phaseRepository.saveAndFlush(phase);
+
+        Activity activity = new Activity().name("Activity 1").phase(phase);
+        activity.setOwner(admin);
+        activityRepository.saveAndFlush(activity);
+
+        restProcessMockMvc
+            .perform(post(ENTITY_API_URL + "/" + process.getId() + "/promote-system-template").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.ownerId").doesNotExist());
+
+        Process updated = processRepository.findById(process.getId()).orElseThrow();
+        assertThat(updated.getOwner()).isNull();
+        assertThat(phaseRepository.findById(phase.getId()).orElseThrow().getOwner()).isNull();
+        assertThat(activityRepository.findById(activity.getId()).orElseThrow().getOwner()).isNull();
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "user", authorities = AuthoritiesConstants.USER)
+    void promoteProcessToSystemTemplateForbiddenForUser() throws Exception {
+        User user = userRepository.findOneByLogin("user").orElseThrow();
+
+        Process process = createEntity(em).processName("User Process");
+        process.setOwner(user);
+        processRepository.saveAndFlush(process);
+
+        restProcessMockMvc
+            .perform(post(ENTITY_API_URL + "/" + process.getId() + "/promote-system-template").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
+    }
 }

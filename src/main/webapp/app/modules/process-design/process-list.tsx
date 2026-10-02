@@ -21,7 +21,9 @@ import { countPhasesForProcess } from 'app/shared/util/process-stats.utils';
 import { SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 import { IProcess } from 'app/shared/model/process.model';
+import { promoteProcessToSystemTemplate } from 'app/modules/process-design/promote-process-to-system-template';
 import { downloadStaticSiteForProcessId } from 'app/modules/process-visualization/download-static-site-for-process';
+import { toast } from 'react-toastify';
 import { YAML_VISUALIZATION_BASE_PATH } from 'app/modules/process-visualization/process-visualization-paths';
 
 const LIST_PAGE_SIZE = 12;
@@ -30,6 +32,11 @@ const SEARCH_FETCH_SIZE = 1000;
 type OwnerFilterValue = 'all' | 'system' | string;
 
 type ProcessDeleteTarget = {
+  id: number;
+  name: string;
+};
+
+type ProcessPromoteTarget = {
   id: number;
   name: string;
 };
@@ -169,6 +176,8 @@ export const ProcessList = () => {
   const [ownerFilter, setOwnerFilter] = useState<OwnerFilterValue>(() => parseOwnerFilterFromSearch(location.search));
   const [othersPage, setOthersPage] = useState(() => parseOthersPageFromSearch(location.search));
   const [deleteTarget, setDeleteTarget] = useState<ProcessDeleteTarget | null>(null);
+  const [promoteTarget, setPromoteTarget] = useState<ProcessPromoteTarget | null>(null);
+  const [promotingProcessId, setPromotingProcessId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [duplicatingProcessId, setDuplicatingProcessId] = useState<number | null>(null);
   const [downloadingStaticSiteId, setDownloadingStaticSiteId] = useState<number | null>(null);
@@ -443,6 +452,37 @@ export const ProcessList = () => {
     splitView,
   ]);
 
+  const handleRequestPromoteToSystemTemplate = (process: IProcess) => {
+    if (!process.id) {
+      return;
+    }
+    setPromoteTarget({ id: process.id, name: process.processName ?? '' });
+  };
+
+  const handleCancelPromote = () => {
+    if (promotingProcessId === null) {
+      setPromoteTarget(null);
+    }
+  };
+
+  const handleConfirmPromote = async () => {
+    if (!promoteTarget) {
+      return;
+    }
+
+    setPromotingProcessId(promoteTarget.id);
+    try {
+      await promoteProcessToSystemTemplate(promoteTarget.id);
+      toast.success(translate('processComposerApp.processDesign.list.promote.success', 'Process published as a system model.'));
+      setPromoteTarget(null);
+      refreshProcesses();
+    } catch {
+      // Error notification may be handled by axios interceptor.
+    } finally {
+      setPromotingProcessId(null);
+    }
+  };
+
   const handleRequestDelete = (process: IProcess) => {
     if (!process.id) {
       return;
@@ -516,6 +556,8 @@ export const ProcessList = () => {
     duplicatingProcessId,
     downloadingStaticSiteId,
     deleting,
+    onPromoteToSystemTemplate: isAdmin ? handleRequestPromoteToSystemTemplate : undefined,
+    promotingProcessId,
   };
 
   return (
@@ -665,6 +707,33 @@ export const ProcessList = () => {
           )}
         </>
       )}
+
+      <Modal isOpen={promoteTarget !== null} toggle={handleCancelPromote}>
+        <ModalHeader toggle={handleCancelPromote} data-cy="processListPromoteDialogHeading">
+          <Translate contentKey="processComposerApp.processDesign.list.actions.promoteToSystemTemplate">Save as system model</Translate>
+        </ModalHeader>
+        <ModalBody>
+          <Translate contentKey="processComposerApp.processDesign.list.promote.confirm" interpolate={{ name: promoteTarget?.name ?? '' }}>
+            {`Save "${promoteTarget?.name ?? ''}" as a system model method?`}
+          </Translate>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={handleCancelPromote} disabled={promotingProcessId !== null}>
+            <FontAwesomeIcon icon="ban" /> <Translate contentKey="entity.action.cancel">Cancel</Translate>
+          </Button>
+          <Button
+            color="primary"
+            onClick={() => {
+              void handleConfirmPromote();
+            }}
+            disabled={promotingProcessId !== null}
+            data-cy="processListConfirmPromoteButton"
+          >
+            <FontAwesomeIcon icon="bookmark" />{' '}
+            <Translate contentKey="processComposerApp.processDesign.list.actions.promoteToSystemTemplate">Save as system model</Translate>
+          </Button>
+        </ModalFooter>
+      </Modal>
 
       <Modal isOpen={deleteTarget !== null} toggle={handleCancelDelete}>
         <ModalHeader toggle={handleCancelDelete} data-cy="processListDeleteDialogHeading">

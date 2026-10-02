@@ -4,6 +4,7 @@ import com.mycompany.myapp.domain.Process;
 import com.mycompany.myapp.repository.ProcessRepository;
 import com.mycompany.myapp.service.EntityAccessService;
 import com.mycompany.myapp.service.ProcessDeletionService;
+import com.mycompany.myapp.service.ProcessSystemTemplateService;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -42,15 +43,18 @@ public class ProcessResource {
 
     private final ProcessRepository processRepository;
     private final ProcessDeletionService processDeletionService;
+    private final ProcessSystemTemplateService processSystemTemplateService;
     private final EntityAccessService entityAccessService;
 
     public ProcessResource(
         ProcessRepository processRepository,
         ProcessDeletionService processDeletionService,
+        ProcessSystemTemplateService processSystemTemplateService,
         EntityAccessService entityAccessService
     ) {
         this.processRepository = processRepository;
         this.processDeletionService = processDeletionService;
+        this.processSystemTemplateService = processSystemTemplateService;
         this.entityAccessService = entityAccessService;
     }
 
@@ -244,6 +248,19 @@ public class ProcessResource {
      * @param id the id of the process to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
+    @PostMapping("/processes/{id}/promote-system-template")
+    public ResponseEntity<Process> promoteProcessToSystemTemplate(@PathVariable Long id) {
+        log.debug("REST request to promote Process to system template : {}", id);
+        entityAccessService.assertCanRead(
+            processRepository.findById(id).orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"))
+        );
+        Process result = processSystemTemplateService.promoteToSystemTemplate(id);
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
     @DeleteMapping("/processes/{id}")
     public ResponseEntity<Void> deleteProcess(@PathVariable Long id) {
         log.debug("REST request to delete Process : {}", id);

@@ -7,6 +7,7 @@ import { Translate } from 'react-jhipster';
 import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { IProcess } from 'app/shared/model/process.model';
 import { canEditEntity, isSystemTemplate } from 'app/shared/model/owned-entity.model';
+import { canPromoteProcessToSystemTemplate } from 'app/modules/process-design/process-edit-access';
 import { countActivitiesForProcess, countPhasesForProcess } from 'app/shared/util/process-stats.utils';
 import { IPhase } from 'app/shared/model/phase.model';
 import { IActivity } from 'app/shared/model/activity.model';
@@ -18,6 +19,8 @@ export type ProcessListGridHandlers = {
   duplicatingProcessId: number | null;
   downloadingStaticSiteId: number | null;
   deleting: boolean;
+  onPromoteToSystemTemplate?: (process: IProcess) => void;
+  promotingProcessId?: number | null;
 };
 
 type ProcessListProcessGridProps = ProcessListGridHandlers & {
@@ -46,6 +49,8 @@ export const ProcessListProcessGrid = ({
   duplicatingProcessId,
   downloadingStaticSiteId,
   deleting,
+  onPromoteToSystemTemplate,
+  promotingProcessId = null,
 }: ProcessListProcessGridProps) => (
   <Row className="g-3 process-list__grid">
     {processes.map(process => {
@@ -55,6 +60,8 @@ export const ProcessListProcessGrid = ({
       const showSystemBadge = showSystemBadgeOverride ?? isSystemTemplate(process);
       const showOwnerLabel = showOwnerLabelOverride ?? (isAdmin && !showSystemBadge && Boolean(ownerLogin));
       const canEdit = canEditEntity(process, isAdmin, currentUserId);
+      const canPromote = canPromoteProcessToSystemTemplate(process, isAdmin, currentUserId);
+      const isPromoting = promotingProcessId === process.id;
 
       const menuItems = [
         {
@@ -107,6 +114,24 @@ export const ProcessListProcessGrid = ({
           disabled: isDownloadingStaticSite || downloadingStaticSiteId !== null,
           'data-cy': `processDownloadStaticSite-${process.id}`,
         },
+        ...(canPromote && onPromoteToSystemTemplate
+          ? [
+              {
+                key: 'promoteSystemTemplate',
+                label: (
+                  <>
+                    <FontAwesomeIcon icon="bookmark" className="me-2" />
+                    <Translate contentKey="processComposerApp.processDesign.list.actions.promoteToSystemTemplate">
+                      Save as system model
+                    </Translate>
+                  </>
+                ),
+                onClick: () => onPromoteToSystemTemplate(process),
+                disabled: isPromoting || promotingProcessId !== null,
+                'data-cy': `processPromoteSystemTemplate-${process.id}`,
+              },
+            ]
+          : []),
         ...(canEdit
           ? [
               {

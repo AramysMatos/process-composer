@@ -32,6 +32,7 @@
         },
         "actions": {
           "edit": "Edit process",
+          "promoteToSystemTemplate": "Save as system model",
           "duplicate": "Duplicate process",
           "exportYaml": "Export YAML",
           "visualize": "View process site",
@@ -39,6 +40,10 @@
         },
         "delete": {
           "confirm": "Are you sure you want to delete the process \"{{name}}\"?"
+        },
+        "promote": {
+          "confirm": "Save \"{{name}}\" as a system model method? All users will be able to view and clone it, but not edit it.",
+          "success": "Process published as a system model."
         }
       },
       "wizard": {
