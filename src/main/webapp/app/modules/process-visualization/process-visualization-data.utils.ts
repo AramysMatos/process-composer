@@ -1,6 +1,7 @@
 import { IActivity } from 'app/shared/model/activity.model';
 import { IArtifacts } from 'app/shared/model/artifacts.model';
 import { IPhase } from 'app/shared/model/phase.model';
+import { sortActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 
 export const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
 
@@ -17,8 +18,8 @@ export const filterPhasesForProcess = (processId: number, phaseEntities: IPhase[
   sortById(phaseEntities.filter(phase => phase.process?.id === processId));
 
 export const filterActivitiesForPhases = (phases: IPhase[], activityEntities: IActivity[]): IActivity[] => {
-  const phaseIds = new Set(phases.map(phase => phase.id).filter((id): id is number => id !== undefined));
-  return sortActivitiesByName(activityEntities.filter(activity => activity.phase?.id !== undefined && phaseIds.has(activity.phase.id)));
+  const grouped = groupActivitiesByPhaseId(phases, activityEntities);
+  return phases.flatMap(phase => (phase.id !== undefined ? grouped.get(phase.id) ?? [] : []));
 };
 
 export const hydrateActivitiesWithArtifacts = (activities: IActivity[], artifacts: IArtifacts[]): IActivity[] => {
@@ -48,7 +49,7 @@ export const groupActivitiesByPhaseId = (phases: IPhase[], activities: IActivity
     }
   });
   grouped.forEach((list, phaseId) => {
-    grouped.set(phaseId, sortActivitiesByName(list));
+    grouped.set(phaseId, sortActivitiesByFlow(list));
   });
   return grouped;
 };

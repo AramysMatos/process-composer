@@ -112,7 +112,7 @@ const renderOverviewMain = (snapshot: ProcessSnapshot, ctx: StaticSiteBuildConte
 
   const phasesHtml = snapshot.phases
     .map(phase => {
-      const activities = phase.activityKeys.map(key => unified.activityByRef.get(key)).filter((a): a is UnifiedActivity => a !== undefined);
+      const activities = unified.activitiesByPhaseRef.get(phase.key) ?? [];
       const links = activities.map(a => `<li>${activityHref(ctx, staticSiteOverviewPath(), a.ref, a.name)}</li>`).join('');
       return `
         <div class="phase-block">
@@ -139,9 +139,10 @@ const renderOverviewMain = (snapshot: ProcessSnapshot, ctx: StaticSiteBuildConte
 };
 
 const renderActivitiesListMain = (snapshot: ProcessSnapshot, ctx: StaticSiteBuildContext): string => {
+  const { unified } = ctx;
   const sections = snapshot.phases
     .map(phase => {
-      const list = phase.activityKeys.map(key => unifiedActivity(ctx, key)).filter((a): a is UnifiedActivity => a !== undefined);
+      const list = unified.activitiesByPhaseRef.get(phase.key) ?? [];
       if (list.length === 0) {
         return '';
       }

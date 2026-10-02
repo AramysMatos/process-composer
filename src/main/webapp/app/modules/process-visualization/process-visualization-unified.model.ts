@@ -9,8 +9,8 @@ import {
   filterPhasesForProcess,
   groupActivitiesByPhaseId,
   hydrateActivitiesWithArtifacts,
-  sortActivitiesByName,
 } from 'app/modules/process-visualization/process-visualization-data.utils';
+import { sortUnifiedActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 import { IArtifacts } from 'app/shared/model/artifacts.model';
 
 export type VisualizationSource = 'api' | 'yaml';
@@ -182,7 +182,7 @@ export const buildUnifiedFromSnapshot = (snapshot: ProcessSnapshot, basePath: st
   const activitiesByPhaseRef = new Map<string, UnifiedActivity[]>();
   snapshot.phases.forEach(phase => {
     const list = phase.activityKeys.map(key => activities.find(a => a.ref === key)).filter((a): a is UnifiedActivity => a !== undefined);
-    activitiesByPhaseRef.set(phase.key, list);
+    activitiesByPhaseRef.set(phase.key, sortUnifiedActivitiesByFlow(list));
   });
 
   const activityByRef = new Map(activities.map(a => [a.ref, a]));

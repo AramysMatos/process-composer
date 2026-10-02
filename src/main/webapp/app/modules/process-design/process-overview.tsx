@@ -51,6 +51,7 @@ import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use
 import { useResizableSidebarWidth } from 'app/modules/process-design/hooks/use-resizable-sidebar-width';
 import { useSaveToLibrary } from 'app/modules/process-design/hooks/use-save-to-library';
 import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
+import { sortActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 
 /** Rota `/processos/:id/canvas` registrada em `routes.tsx`. */
 export const PROCESS_CANVAS_ROUTE_ENABLED = true;
@@ -58,15 +59,6 @@ export const PROCESS_CANVAS_ROUTE_ENABLED = true;
 type ViewMode = 'list' | 'canvas';
 
 const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
-
-const sortActivities = (activities: IActivity[]): IActivity[] =>
-  [...activities].sort((left, right) => {
-    const nameCompare = (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' });
-    if (nameCompare !== 0) {
-      return nameCompare;
-    }
-    return (left.id ?? 0) - (right.id ?? 0);
-  });
 
 export const ProcessOverview = () => {
   const dispatch = useAppDispatch();
@@ -116,7 +108,7 @@ export const ProcessOverview = () => {
         return;
       }
 
-      grouped.set(phase.id, sortActivities(activityEntities.filter(activity => activity.phase?.id === phase.id)));
+      grouped.set(phase.id, sortActivitiesByFlow(activityEntities.filter(activity => activity.phase?.id === phase.id)));
     });
 
     return grouped;

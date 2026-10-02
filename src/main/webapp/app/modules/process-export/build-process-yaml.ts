@@ -1,6 +1,7 @@
 import { dump } from 'js-yaml';
 
 import { IActivity } from 'app/shared/model/activity.model';
+import { sortActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 import { IArtifacts } from 'app/shared/model/artifacts.model';
 import { IGuidelines } from 'app/shared/model/guidelines.model';
 import { IPhase } from 'app/shared/model/phase.model';
@@ -208,8 +209,8 @@ export const buildProcessYaml = (process: IProcess, phases: IPhase[], activities
       return;
     }
 
-    const phaseActivityKeys = processActivities
-      .filter(activity => activity.phase?.id === phase.id && activity.id !== undefined)
+    const phaseActivityKeys = sortActivitiesByFlow(processActivities.filter(activity => activity.phase?.id === phase.id))
+      .filter((activity): activity is IActivity & { id: number } => activity.id !== undefined)
       .map(activity => activityKeys.get(activity.id))
       .filter((activityKey): activityKey is string => activityKey !== undefined);
 

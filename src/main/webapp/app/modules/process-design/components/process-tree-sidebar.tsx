@@ -10,6 +10,7 @@ import { getEntity as getProcessEntity } from 'app/entities/process/process.redu
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
 import { getEntities as getActivityEntities } from 'app/entities/activity/activity.reducer';
 import { IActivity } from 'app/shared/model/activity.model';
+import { sortActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 import { IPhase } from 'app/shared/model/phase.model';
 import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
 import { EntityEditButton } from 'app/modules/process-design/components/entity-edit-button';
@@ -30,15 +31,6 @@ export interface ProcessTreeSidebarProps {
 }
 
 const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
-
-const sortActivities = (activities: IActivity[]): IActivity[] =>
-  [...activities].sort((left, right) => {
-    const nameCompare = (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' });
-    if (nameCompare !== 0) {
-      return nameCompare;
-    }
-    return (left.id ?? 0) - (right.id ?? 0);
-  });
 
 export const ProcessTreeSidebar = ({
   processId,
@@ -92,7 +84,7 @@ export const ProcessTreeSidebar = ({
         return;
       }
 
-      const phaseActivities = sortActivities(activityEntities.filter(activity => activity.phase?.id === phase.id));
+      const phaseActivities = sortActivitiesByFlow(activityEntities.filter(activity => activity.phase?.id === phase.id));
       grouped.set(phase.id, phaseActivities);
     });
 

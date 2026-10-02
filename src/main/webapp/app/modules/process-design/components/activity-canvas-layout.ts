@@ -1,6 +1,8 @@
 import { Edge, Node, Position } from '@xyflow/react';
 import dagre from 'dagre';
 
+import { FlowEdge, topologicalSortNodeIds } from 'app/shared/util/sort-activities-by-flow.utils';
+
 import { ActivityNodeData } from './activity-node';
 
 export type CanvasLayoutMode = 'byPhase' | 'horizontal';
@@ -232,47 +234,6 @@ export const getCrossPhaseEdgePath = (
   return [path, labelX, labelY];
 };
 
-const topologicalSort = (nodeIds: string[], edges: Edge[]): string[] => {
-  const nodeSet = new Set(nodeIds);
-  const inDegree = new Map<string, number>();
-  const adjacency = new Map<string, string[]>();
-
-  nodeIds.forEach(id => {
-    inDegree.set(id, 0);
-    adjacency.set(id, []);
-  });
-
-  edges.forEach(edge => {
-    if (!nodeSet.has(edge.source) || !nodeSet.has(edge.target)) {
-      return;
-    }
-    adjacency.get(edge.source)?.push(edge.target);
-    inDegree.set(edge.target, (inDegree.get(edge.target) ?? 0) + 1);
-  });
-
-  const queue = [...nodeIds].filter(id => (inDegree.get(id) ?? 0) === 0).sort((left, right) => Number(left) - Number(right));
-  const sorted: string[] = [];
-
-  while (queue.length > 0) {
-    queue.sort((left, right) => Number(left) - Number(right));
-    const current = queue.shift();
-    if (!current) {
-      break;
-    }
-    sorted.push(current);
-    adjacency.get(current)?.forEach(next => {
-      const degree = (inDegree.get(next) ?? 0) - 1;
-      inDegree.set(next, degree);
-      if (degree === 0) {
-        queue.push(next);
-      }
-    });
-  }
-
-  const remaining = nodeIds.filter(id => !sorted.includes(id)).sort((left, right) => Number(left) - Number(right));
-  return [...sorted, ...remaining];
-};
-
 const getPhaseRowY = (phaseId: number | undefined, orderedPhaseIds: number[]): number => {
   if (phaseId === undefined) {
     return orderedPhaseIds.length * (NODE_HEIGHT + PHASE_ROW_GAP);
@@ -302,7 +263,8 @@ export const layoutElementsByPhase = (
       return sourcePhaseId === phaseId && targetPhaseId === phaseId;
     });
 
-    const orderedIds = topologicalSort(phaseNodeIds, intraPhaseEdges);
+    const flowEdges: FlowEdge[] = intraPhaseEdges.map(edge => ({ source: edge.source, target: edge.target }));
+    const orderedIds = topologicalSortNodeIds(phaseNodeIds, flowEdges);
     const rowY = rowIndex * (NODE_HEIGHT + PHASE_ROW_GAP);
 
     orderedIds.forEach((nodeId, colIndex) => {
