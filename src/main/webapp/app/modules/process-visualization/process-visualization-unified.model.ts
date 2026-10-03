@@ -10,7 +10,7 @@ import {
   groupActivitiesByPhaseId,
   hydrateActivitiesWithArtifacts,
 } from 'app/modules/process-visualization/process-visualization-data.utils';
-import { sortUnifiedActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
+import { sortSnapshotPhasesByActivityFlow, sortUnifiedActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 import { IArtifacts } from 'app/shared/model/artifacts.model';
 
 export type VisualizationSource = 'api' | 'yaml';
@@ -173,14 +173,16 @@ export const buildUnifiedFromSnapshot = (snapshot: ProcessSnapshot, basePath: st
     };
   });
 
-  const phases: UnifiedPhase[] = snapshot.phases.map(phase => ({
+  const orderedSnapshotPhases = sortSnapshotPhasesByActivityFlow(snapshot.phases, snapshot.activities);
+
+  const phases: UnifiedPhase[] = orderedSnapshotPhases.map(phase => ({
     ref: phase.key,
     name: phase.name,
     description: phase.description,
   }));
 
   const activitiesByPhaseRef = new Map<string, UnifiedActivity[]>();
-  snapshot.phases.forEach(phase => {
+  orderedSnapshotPhases.forEach(phase => {
     const list = phase.activityKeys.map(key => activities.find(a => a.ref === key)).filter((a): a is UnifiedActivity => a !== undefined);
     activitiesByPhaseRef.set(phase.key, sortUnifiedActivitiesByFlow(list));
   });
@@ -188,7 +190,12 @@ export const buildUnifiedFromSnapshot = (snapshot: ProcessSnapshot, basePath: st
   const activityByRef = new Map(activities.map(a => [a.ref, a]));
 
   const canvasActivities = snapshotActivitiesToCanvasModel(snapshot, activities);
-  const canvasPhases = snapshotPhasesToCanvasModel(snapshot);
+  const canvasPhases = orderedSnapshotPhases.map(phase => ({
+    id: syntheticIdFromRef(phase.key),
+    name: phase.name,
+    description: phase.description,
+    process: { id: 0 },
+  }));
   const canvasActivityRefBySyntheticId = new Map(snapshot.activities.map(activity => [syntheticIdFromRef(activity.key), activity.key]));
 
   return {
@@ -203,7 +210,7 @@ export const buildUnifiedFromSnapshot = (snapshot: ProcessSnapshot, basePath: st
     indexes: buildUnifiedIndexes(activities),
     canvasActivities,
     canvasPhases,
-    canvasPhaseRefs: snapshot.phases.map(p => p.key),
+    canvasPhaseRefs: orderedSnapshotPhases.map(p => p.key),
     canvasActivityRefBySyntheticId,
     loading: false,
     processMatches: true,
@@ -399,7 +406,7 @@ export const buildUnifiedFromApiStores = (
   artifactsError: boolean,
   error: boolean
 ): ProcessVisualizationUnifiedData => {
-  const phases = filterPhasesForProcess(processId, phaseEntities);
+  const phases = filterPhasesForProcess(processId, phaseEntities, activityEntities);
   const activities = hydrateActivitiesWithArtifacts(filterActivitiesForPhases(phases, activityEntities), artifacts);
   const activitiesByPhaseId = groupActivitiesByPhaseId(phases, activities);
   return buildUnifiedFromApi({

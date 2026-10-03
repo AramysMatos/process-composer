@@ -1,6 +1,8 @@
 import { IActivity } from 'app/shared/model/activity.model';
 
-import { sortActivitiesByFlow, topologicalSortNodeIds } from './sort-activities-by-flow.utils';
+import { IPhase } from 'app/shared/model/phase.model';
+
+import { sortActivitiesByFlow, sortPhasesByActivityFlow, topologicalSortNodeIds } from './sort-activities-by-flow.utils';
 
 function makeActivity(id: number, predecessors: number[], subActivities: number[]): IActivity {
   return {
@@ -42,5 +44,31 @@ describe('sortActivitiesByFlow', () => {
   it('uses numeric id tie-break for parallel activities', () => {
     const list = [makeActivity(3, [], []), makeActivity(1, [], []), makeActivity(2, [], [])];
     expect(sortActivitiesByFlow(list).map(a => a.id)).toEqual([1, 2, 3]);
+  });
+});
+
+describe('sortPhasesByActivityFlow', () => {
+  it('orders newer phase before older when its activity precedes the first phase activity', () => {
+    const phases: IPhase[] = [
+      { id: 1, name: 'First' },
+      { id: 99, name: 'New' },
+    ];
+    const activities: IActivity[] = [
+      { id: 10, name: 'A1', phase: { id: 1 }, predecessorActivities: [{ id: 20, name: 'N1' }] },
+      { id: 20, name: 'N1', phase: { id: 99 } },
+    ];
+    expect(sortPhasesByActivityFlow(phases, activities).map(phase => phase.id)).toEqual([99, 1]);
+  });
+
+  it('falls back to phase id when there are no cross-phase links', () => {
+    const phases: IPhase[] = [
+      { id: 5, name: 'B' },
+      { id: 2, name: 'A' },
+    ];
+    const activities: IActivity[] = [
+      { id: 1, phase: { id: 5 } },
+      { id: 2, phase: { id: 2 } },
+    ];
+    expect(sortPhasesByActivityFlow(phases, activities).map(phase => phase.id)).toEqual([2, 5]);
   });
 });

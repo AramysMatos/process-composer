@@ -30,6 +30,7 @@ import {
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
 import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
+import { sortPhasesByActivityFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
 import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
 import { ActivityNode, ActivityNodeData } from './activity-node';
@@ -216,10 +217,13 @@ const ActivityCanvasInner = ({
 
   const phases = useMemo(() => {
     if (embeddedPhases !== undefined) {
-      return sortById<IPhase>(embeddedPhases);
+      return sortPhasesByActivityFlow(embeddedPhases, embeddedActivities ?? []);
     }
-    return sortById<IPhase>(phaseEntities.filter(phase => phase.process?.id === processId));
-  }, [embeddedPhases, phaseEntities, processId]);
+    const processPhases = phaseEntities.filter(phase => phase.process?.id === processId);
+    const phaseIds = new Set(processPhases.flatMap(phase => (phase.id !== undefined ? [phase.id] : [])));
+    const processActivities = activityEntities.filter(activity => activity.phase?.id !== undefined && phaseIds.has(activity.phase.id));
+    return sortPhasesByActivityFlow(processPhases, processActivities);
+  }, [activityEntities, embeddedActivities, embeddedPhases, phaseEntities, processId]);
 
   const orderedPhaseIds = useMemo(() => phases.map(phase => phase.id).filter((id): id is number => id !== undefined), [phases]);
 

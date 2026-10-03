@@ -1,7 +1,7 @@
 import { dump } from 'js-yaml';
 
 import { IActivity } from 'app/shared/model/activity.model';
-import { sortActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
+import { sortActivitiesByFlow, sortPhasesByActivityFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 import { IArtifacts } from 'app/shared/model/artifacts.model';
 import { IGuidelines } from 'app/shared/model/guidelines.model';
 import { IPhase } from 'app/shared/model/phase.model';
@@ -108,9 +108,10 @@ const buildCatalogSection = <T extends NamedEntity>(
 };
 
 export const buildProcessYaml = (process: IProcess, phases: IPhase[], activities: IActivity[]): string => {
-  const sortedPhases = sortById(phases.filter(phase => phase.process?.id === process.id));
-  const phaseIds = new Set(sortedPhases.map(phase => phase.id).filter((id): id is number => id !== undefined));
-  const processActivities = sortById(activities.filter(activity => activity.phase?.id !== undefined && phaseIds.has(activity.phase.id)));
+  const processPhases = phases.filter(phase => phase.process?.id === process.id);
+  const phaseIds = new Set(processPhases.map(phase => phase.id).filter((id): id is number => id !== undefined));
+  const processActivities = activities.filter(activity => activity.phase?.id !== undefined && phaseIds.has(activity.phase.id));
+  const sortedPhases = sortPhasesByActivityFlow(processPhases, processActivities);
 
   const registry = new YamlKeyRegistry();
   const phaseKeys = new Map<number, string>();

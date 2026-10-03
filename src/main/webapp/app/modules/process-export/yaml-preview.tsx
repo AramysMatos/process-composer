@@ -15,6 +15,7 @@ import { IActivity } from 'app/shared/model/activity.model';
 import { IArtifacts } from 'app/shared/model/artifacts.model';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
 import { buildProcessYaml } from 'app/modules/process-export/build-process-yaml';
+import { sortPhasesByActivityFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 import { YamlSyntaxViewer } from 'app/modules/process-export/yaml-syntax-viewer';
 
 const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
@@ -104,10 +105,15 @@ export const YamlPreview = () => {
     };
   }, [isValidProcessId, processId]);
 
-  const phases = useMemo(
-    () => (isValidProcessId ? sortById(phaseEntities.filter(phase => phase.process?.id === processId)) : []),
-    [isValidProcessId, phaseEntities, processId]
-  );
+  const phases = useMemo(() => {
+    if (!isValidProcessId) {
+      return [];
+    }
+    const processPhases = phaseEntities.filter(phase => phase.process?.id === processId);
+    const phaseIds = new Set(processPhases.flatMap(phase => (phase.id !== undefined ? [phase.id] : [])));
+    const processActivities = activityEntities.filter(activity => activity.phase?.id !== undefined && phaseIds.has(activity.phase.id));
+    return sortPhasesByActivityFlow(processPhases, processActivities);
+  }, [activityEntities, isValidProcessId, phaseEntities, processId]);
 
   const activities = useMemo(() => {
     const phaseIds = new Set(phases.map(phase => phase.id).filter((phaseId): phaseId is number => phaseId !== undefined));

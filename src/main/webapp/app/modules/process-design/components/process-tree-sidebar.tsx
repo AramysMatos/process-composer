@@ -10,7 +10,7 @@ import { getEntity as getProcessEntity } from 'app/entities/process/process.redu
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
 import { getEntities as getActivityEntities } from 'app/entities/activity/activity.reducer';
 import { IActivity } from 'app/shared/model/activity.model';
-import { sortActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
+import { sortActivitiesByFlow, sortPhasesByActivityFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 import { IPhase } from 'app/shared/model/phase.model';
 import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
 import { EntityEditButton } from 'app/modules/process-design/components/entity-edit-button';
@@ -72,7 +72,12 @@ export const ProcessTreeSidebar = ({
     dispatch(getActivityEntities({ eagerload: true }));
   }, [dispatch, processId]);
 
-  const phases = useMemo(() => sortById(phaseEntities.filter(phase => phase.process?.id === processId)), [phaseEntities, processId]);
+  const phases = useMemo(() => {
+    const processPhases = phaseEntities.filter(phase => phase.process?.id === processId);
+    const phaseIds = new Set(processPhases.flatMap(phase => (phase.id !== undefined ? [phase.id] : [])));
+    const processActivities = activityEntities.filter(activity => activity.phase?.id !== undefined && phaseIds.has(activity.phase.id));
+    return sortPhasesByActivityFlow(processPhases, processActivities);
+  }, [activityEntities, phaseEntities, processId]);
 
   const phaseIds = useMemo((): number[] => phases.flatMap(phase => (phase.id !== undefined ? [phase.id] : [])), [phases]);
 

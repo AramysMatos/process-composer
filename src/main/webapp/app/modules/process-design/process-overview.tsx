@@ -51,7 +51,7 @@ import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use
 import { useResizableSidebarWidth } from 'app/modules/process-design/hooks/use-resizable-sidebar-width';
 import { useSaveToLibrary } from 'app/modules/process-design/hooks/use-save-to-library';
 import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
-import { sortActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
+import { sortActivitiesByFlow, sortPhasesByActivityFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 
 /** Rota `/processos/:id/canvas` registrada em `routes.tsx`. */
 export const PROCESS_CANVAS_ROUTE_ENABLED = true;
@@ -95,10 +95,15 @@ export const ProcessOverview = () => {
 
   const { widthPx: sidebarWidthPx, minWidthPx, maxWidthPx, isResizing, startResize, resetWidth } = useResizableSidebarWidth();
 
-  const phases = useMemo(
-    () => (isValidProcessId ? sortById(phaseEntities.filter(phase => phase.process?.id === processId)) : []),
-    [isValidProcessId, phaseEntities, processId]
-  );
+  const phases = useMemo(() => {
+    if (!isValidProcessId) {
+      return [];
+    }
+    const processPhases = phaseEntities.filter(phase => phase.process?.id === processId);
+    const phaseIds = new Set(processPhases.flatMap(phase => (phase.id !== undefined ? [phase.id] : [])));
+    const processActivities = activityEntities.filter(activity => activity.phase?.id !== undefined && phaseIds.has(activity.phase.id));
+    return sortPhasesByActivityFlow(processPhases, processActivities);
+  }, [activityEntities, isValidProcessId, phaseEntities, processId]);
 
   const activitiesByPhaseId = useMemo(() => {
     const grouped = new Map<number, IActivity[]>();

@@ -8,8 +8,7 @@ import { IActivity } from 'app/shared/model/activity.model';
 import { IArtifacts } from 'app/shared/model/artifacts.model';
 import { IPhase } from 'app/shared/model/phase.model';
 import { IProcess } from 'app/shared/model/process.model';
-
-const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
+import { sortPhasesByActivityFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 
 const hydrateActivitiesWithArtifacts = (activities: IActivity[], artifacts: IArtifacts[]): IActivity[] => {
   const artifactById = new Map(artifacts.flatMap(artifact => (artifact.id !== undefined ? [[artifact.id, artifact] as const] : [])));
@@ -34,12 +33,13 @@ export const downloadStaticSiteForProcessId = async (processId: number): Promise
   ]);
 
   const process = processResponse.data;
-  const phases = sortById(phasesResponse.data.filter(phase => phase.process?.id === processId));
-  const phaseIds = new Set(phases.map(phase => phase.id).filter((id): id is number => id !== undefined));
+  const processPhases = phasesResponse.data.filter(phase => phase.process?.id === processId);
+  const phaseIds = new Set(processPhases.map(phase => phase.id).filter((id): id is number => id !== undefined));
   const activities = hydrateActivitiesWithArtifacts(
     activitiesResponse.data.filter(activity => activity.phase?.id !== undefined && phaseIds.has(activity.phase.id)),
     artifactsResponse.data
   );
+  const phases = sortPhasesByActivityFlow(processPhases, activities);
 
   const yamlContent = buildProcessYaml(process, phases, activities);
   const snapshot = parseProcessYaml(yamlContent);

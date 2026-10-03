@@ -110,9 +110,9 @@ const renderOverviewMain = (snapshot: ProcessSnapshot, ctx: StaticSiteBuildConte
   const roleCount = unified.indexes.roles.size;
   const toolCount = unified.indexes.tools.size;
 
-  const phasesHtml = snapshot.phases
+  const phasesHtml = unified.phases
     .map(phase => {
-      const activities = unified.activitiesByPhaseRef.get(phase.key) ?? [];
+      const activities = unified.activitiesByPhaseRef.get(phase.ref) ?? [];
       const links = activities.map(a => `<li>${activityHref(ctx, staticSiteOverviewPath(), a.ref, a.name)}</li>`).join('');
       return `
         <div class="phase-block">
@@ -140,9 +140,9 @@ const renderOverviewMain = (snapshot: ProcessSnapshot, ctx: StaticSiteBuildConte
 
 const renderActivitiesListMain = (snapshot: ProcessSnapshot, ctx: StaticSiteBuildContext): string => {
   const { unified } = ctx;
-  const sections = snapshot.phases
+  const sections = unified.phases
     .map(phase => {
-      const list = unified.activitiesByPhaseRef.get(phase.key) ?? [];
+      const list = unified.activitiesByPhaseRef.get(phase.ref) ?? [];
       if (list.length === 0) {
         return '';
       }

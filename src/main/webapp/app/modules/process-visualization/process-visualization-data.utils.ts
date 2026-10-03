@@ -1,7 +1,7 @@
 import { IActivity } from 'app/shared/model/activity.model';
 import { IArtifacts } from 'app/shared/model/artifacts.model';
 import { IPhase } from 'app/shared/model/phase.model';
-import { sortActivitiesByFlow } from 'app/shared/util/sort-activities-by-flow.utils';
+import { sortActivitiesByFlow, sortPhasesByActivityFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 
 export const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
 
@@ -14,8 +14,12 @@ export const sortActivitiesByName = (activities: IActivity[]): IActivity[] =>
     return (left.id ?? 0) - (right.id ?? 0);
   });
 
-export const filterPhasesForProcess = (processId: number, phaseEntities: IPhase[]): IPhase[] =>
-  sortById(phaseEntities.filter(phase => phase.process?.id === processId));
+export const filterPhasesForProcess = (processId: number, phaseEntities: IPhase[], activityEntities: IActivity[]): IPhase[] => {
+  const processPhases = phaseEntities.filter(phase => phase.process?.id === processId);
+  const phaseIds = new Set(processPhases.flatMap(phase => (phase.id !== undefined ? [phase.id] : [])));
+  const processActivities = activityEntities.filter(activity => activity.phase?.id !== undefined && phaseIds.has(activity.phase.id));
+  return sortPhasesByActivityFlow(processPhases, processActivities);
+};
 
 export const filterActivitiesForPhases = (phases: IPhase[], activityEntities: IActivity[]): IActivity[] => {
   const grouped = groupActivitiesByPhaseId(phases, activityEntities);
