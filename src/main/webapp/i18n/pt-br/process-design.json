@@ -311,7 +311,7 @@
           "openSite": "Abrir site de visualização",
           "downloadStaticSite": "Baixar site estático (ZIP)",
           "uploadTitle": "Abrir processo a partir de YAML",
-          "uploadSubtitle": "Envie um arquivo YAML exportado do ModusComposer para navegar no site de visualização somente leitura.",
+          "uploadSubtitle": "Envie um arquivo YAML exportado do Composer para navegar no site de visualização somente leitura.",
           "fileLabel": "Arquivo YAML",
           "pasteButton": "Colar YAML",
           "pastePrompt": "Cole o conteúdo YAML do processo:",

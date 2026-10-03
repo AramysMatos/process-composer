@@ -311,7 +311,7 @@
           "openSite": "Open visualization site",
           "downloadStaticSite": "Download static site (ZIP)",
           "uploadTitle": "Open process from YAML",
-          "uploadSubtitle": "Upload a YAML file exported from ModusComposer to browse the read-only visualization site.",
+          "uploadSubtitle": "Upload a YAML file exported from Composer to browse the read-only visualization site.",
           "fileLabel": "YAML file",
           "pasteButton": "Paste YAML",
           "pastePrompt": "Paste the process YAML content:",
