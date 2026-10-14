@@ -377,41 +377,42 @@ export const ProcessCanvas = () => {
           sidebarVisible ? '' : ' process-canvas__layout--sidebar-hidden'
         }`}
       >
-        {sidebarVisible && (
-          <div className="process-canvas__sidebar-shell" style={{ width: sidebarWidthPx }} data-cy="process-canvas-sidebar-shell">
-            <aside className="process-canvas__sidebar">
-              <ProcessTreeSidebar
-                processId={processId}
-                selectedActivityId={selectedActivityId}
-                onSelectActivity={handleSelectActivity}
-                onCreateActivity={readOnly ? undefined : handleCreateActivity}
-                onCreatePhase={readOnly ? undefined : handleCreatePhase}
-                onEditPhase={readOnly ? undefined : handleEditPhase}
-                onSavePhaseToLibrary={readOnly ? undefined : handleSavePhaseToLibrary}
-                onSaveActivityToLibrary={readOnly ? undefined : handleSaveActivityToLibrary}
-                isSavingToLibrary={isSaving}
-                onDeletePhase={
-                  readOnly
-                    ? undefined
-                    : (phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })
-                }
-                onDeleteActivity={readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
-              />
-            </aside>
-            <div
-              className="process-canvas__sidebar-resizer"
-              role="separator"
-              aria-orientation="vertical"
-              aria-valuenow={sidebarWidthPx}
-              aria-valuemin={minWidthPx}
-              aria-valuemax={maxWidthPx}
-              aria-label={translate('processComposerApp.processDesign.overview.sidebarResize', 'Resize process tree sidebar')}
-              data-cy="process-canvas-sidebar-resizer"
-              onPointerDown={startResize}
-              onDoubleClick={resetWidth}
+        <div
+          className={`process-canvas__sidebar-shell${sidebarVisible ? '' : ' process-canvas__sidebar-shell--hidden'}`}
+          style={{ width: sidebarWidthPx }}
+          data-cy="process-canvas-sidebar-shell"
+          aria-hidden={!sidebarVisible}
+        >
+          <aside className="process-canvas__sidebar">
+            <ProcessTreeSidebar
+              processId={processId}
+              selectedActivityId={selectedActivityId}
+              onSelectActivity={handleSelectActivity}
+              onCreateActivity={readOnly ? undefined : handleCreateActivity}
+              onCreatePhase={readOnly ? undefined : handleCreatePhase}
+              onEditPhase={readOnly ? undefined : handleEditPhase}
+              onSavePhaseToLibrary={readOnly ? undefined : handleSavePhaseToLibrary}
+              onSaveActivityToLibrary={readOnly ? undefined : handleSaveActivityToLibrary}
+              isSavingToLibrary={isSaving}
+              onDeletePhase={
+                readOnly ? undefined : (phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })
+              }
+              onDeleteActivity={readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
             />
-          </div>
-        )}
+          </aside>
+          <div
+            className="process-canvas__sidebar-resizer"
+            role="separator"
+            aria-orientation="vertical"
+            aria-valuenow={sidebarWidthPx}
+            aria-valuemin={minWidthPx}
+            aria-valuemax={maxWidthPx}
+            aria-label={translate('processComposerApp.processDesign.overview.sidebarResize', 'Resize process tree sidebar')}
+            data-cy="process-canvas-sidebar-resizer"
+            onPointerDown={startResize}
+            onDoubleClick={resetWidth}
+          />
+        </div>
 
         <section
           className="process-canvas__content"
@@ -427,6 +428,9 @@ export const ProcessCanvas = () => {
               onToggleSidebar={toggleSidebar}
               onCreatePhase={readOnly ? undefined : handleCreatePhase}
               onCreateActivity={readOnly ? undefined : handleCreateActivity}
+              onRequestDeleteActivity={
+                readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })
+              }
             />
           </div>
         </section>

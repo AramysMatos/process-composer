@@ -215,7 +215,8 @@
         "layoutMode": {
           "label": "Layout",
           "byPhase": "By phase",
-          "horizontal": "Horizontal"
+          "horizontal": "Horizontal",
+          "organize": "Organize"
         }
       },
       "drawer": {

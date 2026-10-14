@@ -65,6 +65,8 @@ export interface ActivityCanvasProps {
   onToggleSidebar?: () => void;
   onCreatePhase?: () => void;
   onCreateActivity?: (phaseId: number) => void;
+  /** Opens the same confirm-delete flow as the tree / drawer delete actions. */
+  onRequestDeleteActivity?: (activityId: number, name: string) => void;
 }
 
 const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
@@ -169,6 +171,7 @@ interface ActivityCanvasToolbarProps {
   phases: IPhase[];
   layoutMode: CanvasLayoutMode;
   onLayoutModeChange: (mode: CanvasLayoutMode) => void;
+  onOrganizeLayout: () => void;
   onCreatePhase?: () => void;
   onCreateActivity?: (phaseId: number) => void;
 }
@@ -181,9 +184,11 @@ const ActivityCanvasToolbar = ({
   phases,
   layoutMode,
   onLayoutModeChange,
+  onOrganizeLayout,
   onCreatePhase,
   onCreateActivity,
 }: ActivityCanvasToolbarProps) => {
+  const organizeLabel = translate('processComposerApp.processDesign.canvas.layoutMode.organize', 'Organize');
   const isProcessDesign = Boolean(onToggleSidebar);
 
   const showLeftCluster = Boolean(onToggleSidebar || isProcessDesign);
@@ -307,6 +312,18 @@ const ActivityCanvasToolbar = ({
               </Button>
             </ButtonGroup>
           </div>
+          <Button
+            type="button"
+            color="light"
+            className="activity-canvas__toolbar-control activity-canvas__toolbar-control--icon-only"
+            onClick={onOrganizeLayout}
+            disabled={phases.length === 0}
+            title={organizeLabel}
+            aria-label={organizeLabel}
+            data-cy="canvas-organize-layout"
+          >
+            <FontAwesomeIcon icon="object-group" className="activity-canvas__layout-icon activity-canvas__layout-icon--solo" />
+          </Button>
         </div>
       </div>
     </div>
@@ -324,6 +341,7 @@ const ActivityCanvasInner = ({
   onToggleSidebar,
   onCreatePhase,
   onCreateActivity,
+  onRequestDeleteActivity,
 }: ActivityCanvasProps) => {
   const dispatch = useAppDispatch();
   const { fitView } = useReactFlow();
@@ -336,14 +354,27 @@ const ActivityCanvasInner = ({
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [layoutMode, setLayoutMode] = useState<CanvasLayoutMode>(() => loadCanvasLayoutMode(processId));
+  const [organizeRevision, setOrganizeRevision] = useState(0);
   const nodePositionsRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const shouldFitViewRef = useRef(true);
+  const [bootstrappedProcessId, setBootstrappedProcessId] = useState<number | null>(null);
 
   useEffect(() => {
     nodePositionsRef.current = new Map();
     shouldFitViewRef.current = true;
+    setBootstrappedProcessId(null);
     setLayoutMode(loadCanvasLayoutMode(processId));
   }, [processId]);
+
+  useEffect(() => {
+    if (embeddedActivities !== undefined) {
+      setBootstrappedProcessId(processId);
+      return;
+    }
+    if (!phaseLoading && !activityLoading) {
+      setBootstrappedProcessId(processId);
+    }
+  }, [activityLoading, embeddedActivities, phaseLoading, processId]);
 
   const handleLayoutModeChange = useCallback(
     (nextMode: CanvasLayoutMode) => {
@@ -359,6 +390,12 @@ const ActivityCanvasInner = ({
     },
     [layoutMode, processId, readOnly]
   );
+
+  const handleOrganizeLayout = useCallback(() => {
+    nodePositionsRef.current.clear();
+    shouldFitViewRef.current = true;
+    setOrganizeRevision(revision => revision + 1);
+  }, []);
 
   useEffect(() => {
     if (embeddedActivities !== undefined) {
@@ -432,10 +469,6 @@ const ActivityCanvasInner = ({
   }, [dispatch]);
 
   useEffect(() => {
-    if (activityLoading) {
-      return;
-    }
-
     const { nodes: baseNodes, edges: nextEdges } = buildGraphNodesAndEdges(
       processActivities,
       phaseColorById,
@@ -465,13 +498,13 @@ const ActivityCanvasInner = ({
       });
     }
   }, [
-    activityLoading,
     processActivities,
     phaseColorById,
     phaseNameById,
     orderedPhaseIds,
     phaseIdByActivityId,
     layoutMode,
+    organizeRevision,
     selectedActivityId,
     readOnly,
     setNodes,
@@ -592,6 +625,28 @@ const ActivityCanvasInner = ({
     [unlinkActivities]
   );
 
+  const handleBeforeDelete = useCallback(
+    async ({ nodes: nodesToDelete }: { nodes: Node<ActivityNodeData>[]; edges: Edge[] }) => {
+      if (nodesToDelete.length === 0) {
+        return true;
+      }
+      if (readOnly || !onRequestDeleteActivity) {
+        return false;
+      }
+      const activityNode = nodesToDelete[0];
+      const activityId = Number(activityNode.id);
+      if (!activityId) {
+        return false;
+      }
+      const activity = activitiesById.get(activityId);
+      const nodeData = activityNode.data as ActivityNodeData;
+      const name = activity?.name ?? nodeData?.name ?? '';
+      onRequestDeleteActivity(activityId, name);
+      return false;
+    },
+    [activitiesById, onRequestDeleteActivity, readOnly]
+  );
+
   const isValidConnection = useCallback(
     (connection: Edge | Connection) => {
       if (!connection.source || !connection.target || connection.source === connection.target) {
@@ -612,9 +667,9 @@ const ActivityCanvasInner = ({
     [activitiesById]
   );
 
-  const loading = embeddedActivities !== undefined ? false : phaseLoading || activityLoading;
+  const blockingLoad = embeddedActivities === undefined && (phaseLoading || activityLoading) && bootstrappedProcessId !== processId;
 
-  if (loading) {
+  if (blockingLoad) {
     return (
       <div className="activity-canvas" data-cy="activity-canvas">
         <div className="activity-canvas__loading">
@@ -641,6 +696,7 @@ const ActivityCanvasInner = ({
           phases={phases}
           layoutMode={layoutMode}
           onLayoutModeChange={handleLayoutModeChange}
+          onOrganizeLayout={handleOrganizeLayout}
           onCreatePhase={onCreatePhase}
           onCreateActivity={onCreateActivity}
         />
@@ -662,6 +718,7 @@ const ActivityCanvasInner = ({
             edgeTypes={edgeTypes}
             onConnect={readOnly ? undefined : handleConnect}
             onEdgesDelete={readOnly ? undefined : handleEdgesDelete}
+            onBeforeDelete={readOnly ? undefined : handleBeforeDelete}
             isValidConnection={readOnly ? undefined : isValidConnection}
             onNodeClick={(_, node) => onSelectActivity(Number(node.id))}
             defaultEdgeOptions={{ deletable: !readOnly, type: EDGE_TYPE }}

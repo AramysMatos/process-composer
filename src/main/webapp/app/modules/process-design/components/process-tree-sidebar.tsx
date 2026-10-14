@@ -15,6 +15,7 @@ import { IPhase } from 'app/shared/model/phase.model';
 import { EntityDeleteButton } from 'app/modules/process-design/components/entity-delete-button';
 import { EntityEditButton } from 'app/modules/process-design/components/entity-edit-button';
 import { EntitySaveToLibraryButton } from 'app/modules/process-design/components/entity-save-to-library-button';
+import { hasProcessCatalogData } from 'app/modules/process-design/utils/has-process-catalog-data';
 
 export interface ProcessTreeSidebarProps {
   processId: number;
@@ -68,9 +69,11 @@ export const ProcessTreeSidebar = ({
 
   useEffect(() => {
     dispatch(getProcessEntity(processId));
-    dispatch(getPhaseEntities({}));
-    dispatch(getActivityEntities({ eagerload: true }));
-  }, [dispatch, processId]);
+    if (!hasProcessCatalogData(processId, phaseEntities)) {
+      dispatch(getPhaseEntities({}));
+      dispatch(getActivityEntities({ eagerload: true }));
+    }
+  }, [activityEntities, dispatch, phaseEntities, processId]);
 
   const phases = useMemo(() => {
     const processPhases = phaseEntities.filter(phase => phase.process?.id === processId);

@@ -81,6 +81,11 @@ $activity-canvas-toolbar-control-height: 2.125rem;
     gap: 0.25rem;
   }
 
+  &__toolbar-control--icon-only {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
   &__action-icon {
     margin-right: 0.35rem;
     flex-shrink: 0;
@@ -122,6 +127,10 @@ $activity-canvas-toolbar-control-height: 2.125rem;
 
   &__layout-icon {
     margin-right: 0.35rem;
+
+    &--solo {
+      margin-right: 0;
+    }
     flex-shrink: 0;
   }
 
