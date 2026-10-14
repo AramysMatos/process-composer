@@ -1,5 +1,5 @@
 id;name;description;process_id
-301;Release Planning;Planning game e seleção de escopo do release;3
-302;Ciclo da Story;Aceitação, TDD, pair programming e integração contínua;3
-303;Práticas de Design Contínuo;Design simples, metáfora e padrões coletivos;3
-304;Feedback e Release;Aceitação, small release e feedback do cliente on-site;3
+301;Release Planning;Fase de alinhamento entre o representante do negócio (cliente) e a equipe técnica por meio do jogo de planejamento (Planning Game). Define o escopo da próxima versão, estima o esforço das histórias de usuário e seleciona o que será construído em cada iteração curta.;3
+302;Ciclo da Story;Núcleo de construção do Extreme Programming para cada história de usuário. Integra a especificação de testes de aceitação, o desenvolvimento guiado por testes (TDD), a programação em pares e a integração contínua, assegurando validação técnica imediata durante a codificação.;3
+303;Práticas de Design Contínuo;Disciplinas que preservam a qualidade interna e a clareza da arquitetura ao longo das iterações: projeto simples, refatoração constante, uso da metáfora do sistema e adoção de padrões coletivos de código. Evitam a degradação estrutural sem exigir uma fase longa de projeto prévio.;3
+304;Feedback e Release;Etapa de validação funcional junto ao cliente presente, publicação de versões pequenas e frequentes (small releases) e realimentação do planejamento. Garante que o software evolua em estreita sintonia com as prioridades reais do negócio.;3

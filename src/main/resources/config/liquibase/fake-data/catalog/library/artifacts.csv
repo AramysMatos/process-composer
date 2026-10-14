@@ -1,21 +1,21 @@
 id;name;description;optional
-1;Documento de Visão;Problema, stakeholders e objetivos do produto;false
-2;Backlog do Produto;Lista priorizada de histórias e épicos;false
-3;Especificação de Requisitos;Requisitos funcionais e não funcionais detalhados;false
-4;Diagrama de Arquitetura;Componentes, integrações e fluxos do sistema;true
-5;Protótipo de Interface;Mockups ou wireframes das telas principais;true
-6;Plano de Testes;Casos de teste e critérios de aceitação;false
-7;Código-fonte;Implementação versionada no repositório Git;false
-8;Relatório de Cobertura;Métricas de cobertura de testes;true
-9;Notas de Release;Changelog com funcionalidades e correções;false
-10;Manual de Deploy;Instruções de build e publicação;true
-11;Board Kanban;Visualização do fluxo de trabalho em colunas;false
-12;Políticas de Fluxo Explícitas;Regras de pull, WIP e classes de serviço;false
-13;Métricas de Lead e Cycle Time;Indicadores de desempenho do fluxo;true
-14;User Story;História de usuário com critérios de aceitação;false
-15;Incremento de Produto;Versão utilizável entregue ao final da iteração;false
-16;Arquitetura Baseline;Arquitetura de referência validada;false
-17;Modelo de Casos de Uso;Atores e casos de uso principais;false
-18;Build Iterativo;Pacote de software pronto para validação;false
-19;Protótipo de Risco;Prova de conceito para mitigar risco técnico;true
-20;Sprint Backlog;Itens selecionados e plano da sprint atual;false
+1;Documento de Visão;Síntese do problema, oportunidade, partes interessadas e direção desejada do produto ou projeto. Ancora decisões de escopo e comunica o porquê antes do como. Comum na iniciação (RUP, Scrum ou XP) para alinhar expectativas.;false
+2;Backlog do Produto;Lista emergente e ordenada de itens que ainda podem entregar valor (histórias, épicos, demandas). Reflete prioridade atual, não um plano fixo de longo prazo. Fonte única do que pode ser selecionado para sprints ou iterações.;false
+3;Especificação de Requisitos;Detalhamento estruturado de requisitos funcionais, não funcionais e regras de negócio. Reduz ambiguidade para arquitetura, testes e implementação. Deve ser rastreável a casos de uso, histórias ou objetivos de negócio.;false
+4;Diagrama de Arquitetura;Representação visual de componentes, integrações e fluxos principais do sistema. Apoia discussão técnica e integração de novos membros. Artefato opcional quando a equipe já compartilha o mesmo entendimento por outro meio.;true
+5;Protótipo de Interface;Esboços de tela, wireframes ou protótipo interativo que antecipam a experiência de uso antes da implementação. Reduz retrabalho em telas e fluxos críticos. Opcional quando o risco de usabilidade ou alinhamento visual justificar.;true
+6;Plano de Testes;Estratégia e casos que cobrem funcionalidade, regressão e critérios de aceitação. Define o que será verificado e como saber que a entrega está correta. Evolui junto com o produto, não é documento único congelado.;false
+7;Código-fonte;Implementação versionada do software, normalmente em repositório Git com histórico e revisões. É o artefato central de construção incremental. Deve refletir os critérios de pronto acordados pela equipe.;false
+8;Relatório de Cobertura;Métricas de cobertura de testes automatizados (linhas, ramos ou requisitos cobertos). Apoia decisões sobre risco residual de qualidade. Opcional quando a equipe já monitora cobertura na integração contínua.;true
+9;Notas de Release;Registro das mudanças entregues: funcionalidades, correções, mudanças incompatíveis e orientações de uso. Comunica consumidores internos ou externos sobre o que mudou na versão. Complementa o incremento técnico com narrativa de produto.;false
+10;Manual de Deploy;Instruções para compilação, configuração, publicação e reversão em ambientes alvo. Torna a implantação repetível e auditável. Opcional em times maduros com pipeline totalmente automatizado e documentado.;true
+11;Board Kanban;Visualização do fluxo de trabalho em colunas (e eventualmente raias), refletindo estados reais do serviço. Torna limites de trabalho em progresso e gargalos visíveis para todo o time. Base operacional do método Kanban no catálogo.;false
+12;Políticas de Fluxo Explícitas;Regras escritas de quando um item entra, avança ou sai de cada etapa do fluxo. Complementam limites de trabalho em progresso com critérios de qualidade e compromisso. Reduzem interpretações divergentes do mesmo quadro.;false
+13;Métricas de Lead e Cycle Time;Indicadores de tempo desde a entrada até a conclusão e tempo em execução ativa. Fundamentam melhoria baseada em dados no Kanban. Opcional como artefato formal quando métricas já vivem na ferramenta.;true
+14;User Story;Descrição concisa de valor para um usuário ou persona, em geral com critérios de aceitação. Unidade comum de trabalho em Scrum e XP. Deve ser pequena o suficiente para completar dentro de um ciclo curto.;false
+15;Incremento de Produto;Versão do produto que atende aos critérios de pronto e agrega valor utilizável ao anterior. No Scrum, é resultado de uma sprint, em outros fluxos, entrega concluída conforme critérios de saída.;false
+16;Arquitetura Baseline;Arquitetura de referência estável o suficiente para guiar construção iterativa (conceito RUP). Não impede evolução, mas fixa decisões estruturais já validadas. Reduz risco de implementar em larga escala sobre base instável.;false
+17;Modelo de Casos de Uso;Modelagem de atores e casos de uso que capturam comportamento essencial do sistema. Apoia escopo e testes de aceitação em abordagens orientadas a casos de uso. Foca no essencial antes de detalhar casos raros.;false
+18;Build Iterativo;Pacote de software integrado e identificado (versão) pronto para testes ou demonstração. Resultado típico de uma iteração de construção. Deve ser reproduzível a partir do controle de versão e pipeline acordados.;false
+19;Protótipo de Risco;Prova de conceito focada em incerteza técnica (desempenho, integração, tecnologia nova). Mitiga risco antes de comprometer a arquitetura ou o cronograma. Opcional quando há risco arquitetural explícito a validar.;true
+20;Sprint Backlog;Conjunto de itens selecionados e plano de entrega para o ciclo corrente (sprint no Scrum ou iteração no XP). Deriva do backlog do produto e reflete compromisso da equipe para aquela janela de tempo. Evolui durante o ciclo conforme aprendizado, dentro das regras do processo.;false

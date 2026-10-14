@@ -1,13 +1,13 @@
 id;name;description
-1;Template de História de Usuário;Como [persona], quero [ação], para [benefício]
-2;Template de Caso de Teste;Pré-condições, passos e resultado esperado
-3;Template de ADR;Contexto, opções e consequências da decisão
-4;Template de Sprint Planning;Agenda com metas e capacidade da equipe
-5;Template de Retrospectiva;Formato Start/Stop/Continue
-6;Template de Pull Request;Checklist de revisão e breaking changes
-7;Template de Especificação de API;Contrato OpenAPI com endpoints e schemas
-8;Template de Bug Report;Passos de reprodução e severidade
-9;Template de Release Notes;Novidades, correções e breaking changes
-10;Template de Diagrama C4;Contexto, containers, componentes e código
-11;Template de Caso de Uso;Ator, fluxo principal e alternativos
-12;Template de Política de Fluxo;Regras explícitas de entrada e saída de colunas
+1;Template de História de Usuário;Modelo para registrar histórias no backlog. Campos recomendados: título resumido, persona ou tipo de usuário, narrativa (Como [persona] quero [ação] para [benefício]), contexto ou regra de negócio (opcional), critérios de aceitação em lista numerada e testável, dependências ou premissas (opcional), estimativa de esforço (opcional). Garante valor explícito antes da implementação e base para refinamento e testes de aceitação.
+2;Template de Caso de Teste;Modelo com identificador e nome do caso, objetivo ou requisito rastreado, pré-condições, passos numerados (ação e dados de entrada), resultado esperado, pós-condições, prioridade quando couber e status de execução. Padroniza testes manuais ou automatizados e liga requisito, teste e defeito.
+3;Template de ADR;Modelo de registro de decisão arquitetural: número e título, data e status (proposto, aceito, substituído), contexto e problema, decisão, alternativas com prós e contras, consequências e referências. Um registro por decisão relevante, em linguagem clara para quem entrar no time depois.
+4;Template de Sprint Planning;Ata com data e participantes, meta da sprint, itens selecionados do backlog, capacidade e compromisso da equipe, plano inicial de entrega, riscos ou impedimentos e confirmação de prontidão dos itens. Apoia o tempo fixo da sprint e o alinhamento até a daily e a review.
+5;Template de Retrospectiva;Registro com data e formato (ex.: manter, parar, começar), pontos positivos, dificuldades, ideias de melhoria, ações com responsável e prazo e acompanhamento da retro anterior. Converte conversa em melhorias concretas para o próximo ciclo.
+6;Template de Pull Request;Descrição da mudança, tipo (correção, funcionalidade, refatoração), vínculo com issue ou história, verificação (testes, documentação, impacto em API), mudanças incompatíveis se houver, evidências úteis e revisores sugeridos. Alinha autor e revisor sobre entrega pronta no código.
+7;Template de Especificação de API;Esqueleto OpenAPI: informações gerais, servidores, endpoints (método, caminho, resumo), parâmetros e corpo, respostas com códigos e exemplos, autenticação e erros padronizados. Contrato entre backend, frontend e integradores.
+8;Template de Bug Report;Título, severidade, ambiente e versão, passos para reproduzir, comportamento esperado e observado, frequência, evidências (captura, log) e triagem. Relatórios completos encurtam o ciclo entre QA e desenvolvimento.
+9;Template de Release Notes;Versão e data, resumo, novidades, correções, mudanças incompatíveis e migração, instruções de atualização, problemas conhecidos. Comunica a versão para usuários, suporte e operação.
+10;Template de Diagrama C4;Níveis contexto (sistema e externos), contêineres (aplicações e dados), componentes internos e código (opcional), cada um com nome, responsabilidade e relações. Ajusta o detalhe à audiência (negócio ou implementação).
+11;Template de Caso de Uso;Nome, atores, resumo, pré-condições, fluxo principal numerado, alternativos e exceções, pós-condições e requisitos especiais. Apoia RUP e especificação orientada a comportamento.
+12;Template de Política de Fluxo;Por coluna Kanban: nome, critérios de entrada e saída, limite de trabalho em progresso, classe de serviço e quem puxa ou move itens. Deixa regras do fluxo explícitas para toda a equipe.

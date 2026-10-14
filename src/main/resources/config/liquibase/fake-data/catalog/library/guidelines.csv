@@ -1,13 +1,13 @@
 id;name;description
-1;Definition of Ready;História só entra na sprint com critérios de prontidão
-2;Definition of Done;Critérios mínimos para considerar entrega concluída
-3;Code Review obrigatório;Pull request revisado por pelo menos um sênior
-4;Cobertura mínima de testes;Novas funcionalidades mantêm cobertura acima de 80%
-5;Conventional Commits;Mensagens de commit no padrão Conventional Commits
-6;Pair Programming;Atividades críticas desenvolvidas em par
-7;Trunk-Based Development;Integrações frequentes na branch principal
-8;Documentar ADRs;Decisões arquiteturais registradas formalmente
-9;Segurança por padrão;Validar autenticação e autorização em novas APIs
-10;Retrospectiva contínua;Registrar lições aprendidas ao final de cada ciclo
-11;Limites de WIP;Respeitar limites de trabalho em progresso por coluna
-12;Desenvolvimento Orientado a Testes;Escrever testes antes ou junto ao código
+1;Definition of Ready;Critérios mínimos para um item entrar em sprint ou iteração (valor claro, critérios de aceitação, dependências conhecidas). Evita comprometer trabalho ainda nebuloso. Quando ignorada, aumenta bloqueios e replanejamento no meio do ciclo.
+2;Definition of Done;Critérios mínimos para considerar uma entrega concluída (testes, revisão, documentação acordada). Garante incremento utilizável e sustentável. Violações criam dívida oculta e falsa sensação de progresso.
+3;Code Review obrigatório;Toda mudança relevante passa por solicitação de merge revisada por pelo menos um par qualificado. Captura defeitos e dissemina conhecimento antes da integração. Sem revisão, a qualidade depende só do autor original.
+4;Cobertura mínima de testes;Novas funcionalidades mantêm cobertura automatizada acima do limiar acordado (ex.: 80%). Sinaliza risco de regressão em áreas tocadas. Exceções devem ser conscientes e temporárias.
+5;Conventional Commits;Mensagens de commit seguem padrão convencional (tipo, escopo, descrição) para histórico legível e registro automático de versões. Facilita rastreio de mudanças. Commits ambíguos dificultam auditoria e reversão.
+6;Pair Programming;Atividades críticas ou de alto aprendizado são desenvolvidas em par (piloto e copiloto). Prática central do XP para qualidade e transferência de conhecimento. Aplica-se onde o processo vincula a prática, não em todo momento.
+7;Trunk-Based Development;Integrações frequentes na branch principal compartilhada, com branches de vida curta. Reduz conflitos grandes de merge e mantém o software integrado. Conflita com branches longas isoladas por semanas.
+8;Documentar ADRs;Decisões arquiteturais relevantes registradas formalmente (registro de decisão de arquitetura): contexto, alternativas e consequências. Preserva memória quando pessoas saem do time. Decisões só na cabeça se perdem com rotatividade.
+9;Segurança por padrão;Novas APIs e fluxos sensíveis validam autenticação, autorização e tratamento de dados conforme política da organização. Incorpora segurança no desenho, não só em teste de invasão no fim. Omissões geram vulnerabilidades caras de corrigir tarde.
+10;Retrospectiva contínua;Lições aprendidas registradas ao final de cada ciclo (sprint, iteração ou cadência Kanban). Transforma inspeção em ações de melhoria concretas. Sem registro, a equipe repete os mesmos problemas.
+11;Limites de WIP;Respeitar limites de trabalho em progresso por coluna ou etapa do fluxo Kanban. Protege a taxa de entrega e torna gargalos visíveis. Ultrapassar o limite simula produtividade enquanto aumenta o tempo de ciclo.
+12;Desenvolvimento Orientado a Testes;Escrever ou esqueletar testes antes ou junto ao código (desenvolvimento guiado por testes). Guia desenho testável e documenta comportamento esperado. Prática forte no XP: abandoná-la aumenta regressões e medo de refatorar.

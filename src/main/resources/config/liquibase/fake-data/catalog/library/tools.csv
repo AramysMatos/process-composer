@@ -1,13 +1,13 @@
 id;name;description
-1;Jira;Gestão ágil de backlog, sprints e issues
-2;GitHub;Versionamento, pull requests e CI/CD
-3;Figma;Design colaborativo e protótipos
-4;SonarQube;Análise estática de qualidade de código
-5;Docker;Containerização para dev e produção
-6;Postman;Testes e documentação de APIs REST
-7;Confluence;Documentação de requisitos e decisões
-8;Jenkins;Automação de build, teste e deploy
-9;Draw.io;Diagramas de arquitetura e fluxos
-10;Slack;Comunicação da equipe e integrações
-11;Trello;Boards visuais para fluxo Kanban
-12;Miro;Mapas de fluxo de valor e workshops
+1;Jira;Plataforma de gestão ágil para backlog, sprints, quadros e rastreamento de demandas. Centraliza priorização, fluxo de trabalho e histórico de entregas. Muito usada em Scrum e combinações com Kanban.
+2;GitHub;Hospedagem de repositórios Git com solicitações de merge, revisão de código e automações. Suporta integração contínua e colaboração assíncrona. Base comum para versionamento e governança de mudanças.
+3;Figma;Ferramenta colaborativa de design de interfaces e protótipos interativos. Permite alinhar experiência de uso antes ou durante a implementação. Útil quando o risco de usabilidade ou a passagem design-desenvolvimento é alto.
+4;SonarQube;Análise estática de código para detectar defeitos, vulnerabilidades e dívidas técnicas. Integra-se a pipelines para retorno contínuo sobre qualidade. Complementa testes automatizados, não os substitui.
+5;Docker;Containerização para empacotar aplicações e dependências de forma reproduzível. Facilita ambientes de desenvolvimento, teste e produção consistentes. Reduz diferenças entre máquina local e servidor.
+6;Postman;Cliente para construir, testar e documentar APIs REST. Apoia validação de contratos antes e depois da implementação. Útil em times com integrações entre serviços.
+7;Confluence;Repositório de documentação colaborativa: visão, requisitos, registros de decisão e atas. Mantém conhecimento acessível além do código. Complementa ferramentas ágeis quando documentação formal é necessária.
+8;Jenkins;Servidor de automação para pipelines de compilação, teste e implantação. Orquestra jobs em ambientes internos ou híbridos. Alternativa ou complemento a GitHub Actions conforme infraestrutura.
+9;Draw.io;Editor de diagramas (arquitetura, fluxos, modelo C4) integrável a wikis e documentos. Apoia comunicação visual de decisões técnicas. Leve para linhas de base e mapas de fluxo Kanban.
+10;Slack;Comunicação síncrona e assíncrona da equipe com canais e integrações. Facilita dailies remotas, alertas de integração contínua e coordenação rápida. Não substitui registro formal em backlog ou documentação quando exigido.
+11;Trello;Quadros visuais simples para fluxo Kanban ou listas de trabalho. Adequado a times pequenos ou fluxos leves. Limites de trabalho em progresso podem ser representados com regras de coluna e etiquetas.
+12;Miro;Quadro digital para oficinas, mapas de fluxo de valor e dinâmicas de retrospectiva. Apoia facilitação remota e co-criação. Comum na descoberta Kanban e sessões de alinhamento entre áreas.

@@ -5,6 +5,9 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="20260716130000-1" author="catalog" context="faker">
+        <validCheckSum>8:6b64259a4bcdc5653f6d1c68af426181</validCheckSum>
+        <validCheckSum>8:d192137313a122af151f5828acf8bc35</validCheckSum>
+        <validCheckSum>8:933ccb0f3ff26fd03349fa95447741cf</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/library/roles.csv"
                   separator=";"
@@ -17,6 +20,9 @@
     </changeSet>
 
     <changeSet id="20260716130000-2" author="catalog" context="faker">
+        <validCheckSum>8:cb98b7427f700c3e3ca66dc7fb0a0b64</validCheckSum>
+        <validCheckSum>8:527a06d0e601f63f72295fa5c78f8107</validCheckSum>
+        <validCheckSum>8:ef509b2e7ea16d8d9a6b7c2aee34b39a</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/library/artifacts.csv"
                   separator=";"
@@ -30,6 +36,9 @@
     </changeSet>
 
     <changeSet id="20260716130000-3" author="catalog" context="faker">
+        <validCheckSum>8:96611626326b79eb68d8bb9a89d01189</validCheckSum>
+        <validCheckSum>8:95850346a2a5e8bce7d0a5a5f90b4327</validCheckSum>
+        <validCheckSum>8:8f99370fb8f9317c539e8f22b38c71ad</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/library/tools.csv"
                   separator=";"
@@ -42,6 +51,9 @@
     </changeSet>
 
     <changeSet id="20260716130000-4" author="catalog" context="faker">
+        <validCheckSum>8:f78176b3f19db5ee548ce3ee6b7246b0</validCheckSum>
+        <validCheckSum>8:0345b407096a7d63116fe7bccf87094d</validCheckSum>
+        <validCheckSum>8:12f9f2231ea77a2187e7b8ea101c4388</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/library/guidelines.csv"
                   separator=";"
@@ -54,6 +66,9 @@
     </changeSet>
 
     <changeSet id="20260716130000-5" author="catalog" context="faker">
+        <validCheckSum>8:0fa81afbd0dd5d91a0e55ee1b2ef6ea9</validCheckSum>
+        <validCheckSum>8:62c74b53585b2af8cead86e55e432c31</validCheckSum>
+        <validCheckSum>8:7910b555c64899f357e36b110c42e133</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/library/templates.csv"
                   separator=";"
@@ -77,6 +92,10 @@
     </changeSet>
 
     <changeSet id="20260716130000-7" author="catalog" context="faker">
+        <validCheckSum>8:912f1931ab4fafb8c9734aeda6224fb8</validCheckSum>
+        <validCheckSum>8:f5d28b1a235ecb2d38702ddac6e4b559</validCheckSum>
+        <validCheckSum>8:2326ef3f3c610f58886255e2eb00b98d</validCheckSum>
+        <validCheckSum>8:e221d5db64df7cbe25148b40da2d8190</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/process.csv"
                   separator=";"
@@ -89,6 +108,9 @@
     </changeSet>
 
     <changeSet id="20260716130000-8" author="catalog" context="faker">
+        <validCheckSum>8:c6ba153f2127128a6b1b25f49137add9</validCheckSum>
+        <validCheckSum>8:b0f10de2809fc0d73018dc586d510ecf</validCheckSum>
+        <validCheckSum>8:7539ee009a458ba7e3a5284d899fa810</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/scrum/phase.csv"
                   separator=";"
@@ -102,6 +124,9 @@
     </changeSet>
 
     <changeSet id="20260716130000-9" author="catalog" context="faker">
+        <validCheckSum>8:5dfdcd415e9357a5b01b3c75242568ad</validCheckSum>
+        <validCheckSum>8:bee6c5c3f17f77b398bbfed684bc95c1</validCheckSum>
+        <validCheckSum>8:0b857270808957937101a4a2d6e8dd8f</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/scrum/activity.csv"
                   separator=";"
@@ -116,6 +141,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-10" author="catalog" context="faker">
+        <validCheckSum>8:6faf15c532292d410761c86f5aa60a2e</validCheckSum>
+        <validCheckSum>8:82ffab623d3a5bad1140f0fb84199cb1</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__responsible_roles.csv"
                   separator=";"
@@ -127,6 +154,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-11" author="catalog" context="faker">
+        <validCheckSum>8:1d015c17054e4deb2b615350f696b86e</validCheckSum>
+        <validCheckSum>8:635d9519fbbe2b758db795e56d865b70</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__participant_roles.csv"
                   separator=";"
@@ -138,6 +167,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-12" author="catalog" context="faker">
+        <validCheckSum>8:346a9481ea2e03cf8c7f16ba410cca60</validCheckSum>
+        <validCheckSum>8:e48db88f73bf8bdc3d2cb4c5dfab1de0</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__required_artifacts.csv"
                   separator=";"
@@ -149,6 +180,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-13" author="catalog" context="faker">
+        <validCheckSum>8:af41b904dcce98cdac60fc07503d3d92</validCheckSum>
+        <validCheckSum>8:d29bed7409df0e8e0280ab58ece29434</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__produced_artifacts.csv"
                   separator=";"
@@ -160,6 +193,9 @@
     </changeSet>
 
     <changeSet id="20260716130000-14" author="catalog" context="faker">
+        <validCheckSum>8:ad6a671302579fe710ad2a026fb408f3</validCheckSum>
+        <validCheckSum>8:8236598774f3db6693a9cf12c51ccfd2</validCheckSum>
+        <validCheckSum>8:6c58fcceefdca38637b2362e1376ac56</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__sub_activities.csv"
                   separator=";"
@@ -171,6 +207,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-15" author="catalog" context="faker">
+        <validCheckSum>8:a872ea466b5fba748bd096e6b9bcf0c7</validCheckSum>
+        <validCheckSum>8:c396f17d853128d3256f589d4ab13aaf</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__tools.csv"
                   separator=";"
@@ -182,6 +220,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-16" author="catalog" context="faker">
+        <validCheckSum>8:33e8bf070b33a4546dc3866f8d1a3700</validCheckSum>
+        <validCheckSum>8:e3cb6569706fb5622a835341cc5f1618</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__guidelines.csv"
                   separator=";"
@@ -193,6 +233,9 @@
     </changeSet>
 
     <changeSet id="20260716130000-17" author="catalog" context="faker">
+        <validCheckSum>8:fb8b631985b3a9ea622b403e66707da2</validCheckSum>
+        <validCheckSum>8:37a482c72f566f6efc11189b5bb3805a</validCheckSum>
+        <validCheckSum>8:4fbb9ea9f5e9a9c79a42c1d68e92b6c8</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/scrum/rel_activity__templates.csv"
                   separator=";"
@@ -204,6 +247,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-18" author="catalog" context="faker">
+        <validCheckSum>8:4a072b601bd0ded6c2dcb6c54f77a87e</validCheckSum>
+        <validCheckSum>8:8e95ddec20d76643fd45309549bdd278</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/kanban/phase.csv"
                   separator=";"
@@ -217,6 +262,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-19" author="catalog" context="faker">
+        <validCheckSum>8:2ac7ded671ca5b6f52144f0d9a6b2604</validCheckSum>
+        <validCheckSum>8:01ce5be8a50ff020b5a78427166312d9</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/kanban/activity.csv"
                   separator=";"
@@ -242,6 +289,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-21" author="catalog" context="faker">
+        <validCheckSum>8:d48ce59eb357a7f98ed26f40e7595bf0</validCheckSum>
+        <validCheckSum>8:d84ff086aa7feba0dc8a855d03700649</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/kanban/rel_activity__participant_roles.csv"
                   separator=";"
@@ -308,6 +357,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-27" author="catalog" context="faker">
+        <validCheckSum>8:0fb9bf6e378aa87ebe52eccf654deb68</validCheckSum>
+        <validCheckSum>8:85e0fe649ccfcfccbf2c8d6c03fccf62</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/kanban/rel_activity__templates.csv"
                   separator=";"
@@ -319,6 +370,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-28" author="catalog" context="faker">
+        <validCheckSum>8:ad2007564b2d1d5c7a17adfd4ff38e08</validCheckSum>
+        <validCheckSum>8:eb4e8dda5e9d5793f92962ba1d5c4afe</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/xp/phase.csv"
                   separator=";"
@@ -332,6 +385,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-29" author="catalog" context="faker">
+        <validCheckSum>8:c9a07a29d02ae5b58024177885541944</validCheckSum>
+        <validCheckSum>8:a8ebcad917fc48771466d6439ae01dc1</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/xp/activity.csv"
                   separator=";"
@@ -357,6 +412,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-31" author="catalog" context="faker">
+        <validCheckSum>8:efffe4de9830487e823b22cd24016d4f</validCheckSum>
+        <validCheckSum>8:a55d5a4eb42eaccd5b1a9f70856de651</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__participant_roles.csv"
                   separator=";"
@@ -368,6 +425,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-32" author="catalog" context="faker">
+        <validCheckSum>8:e75cf7a1356d4fbec309035fc69b452e</validCheckSum>
+        <validCheckSum>8:1363ef2b7ff33d8fa82b53eb0c56f74b</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__required_artifacts.csv"
                   separator=";"
@@ -390,6 +449,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-34" author="catalog" context="faker">
+        <validCheckSum>8:df8703e8cfe648bf5586f8b6f2904cb2</validCheckSum>
+        <validCheckSum>8:82e4485710ea92719cf43bd684a15041</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__sub_activities.csv"
                   separator=";"
@@ -401,6 +462,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-35" author="catalog" context="faker">
+        <validCheckSum>8:b15ffacc7d91efe12be48f9c739a9005</validCheckSum>
+        <validCheckSum>8:089708e43fbfecdf23354f7b4ec20ecc</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/xp/rel_activity__tools.csv"
                   separator=";"
@@ -434,6 +497,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-38" author="catalog" context="faker">
+        <validCheckSum>8:ef40ff9ebf58fb147399825113b14276</validCheckSum>
+        <validCheckSum>8:bf0854ef9afb36952777f3b757ea2d78</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/rup/phase.csv"
                   separator=";"
@@ -447,6 +512,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-39" author="catalog" context="faker">
+        <validCheckSum>8:d4d3321188cad9aec1438d7509c18fbf</validCheckSum>
+        <validCheckSum>8:147a8c3d71cd7c291e8a12b12b23f5ae</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/rup/activity.csv"
                   separator=";"
@@ -494,6 +561,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-43" author="catalog" context="faker">
+        <validCheckSum>8:49eefb050ac90f3ead4232e9268c41fd</validCheckSum>
+        <validCheckSum>8:27ba37d443c23c7f63a446f003134ea6</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__produced_artifacts.csv"
                   separator=";"
@@ -516,6 +585,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-45" author="catalog" context="faker">
+        <validCheckSum>8:9eacecfcbb947167942189bfb3850a15</validCheckSum>
+        <validCheckSum>8:f5fb60d8a39289fd9374979e137fa41e</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__tools.csv"
                   separator=";"
@@ -538,6 +609,8 @@
     </changeSet>
 
     <changeSet id="20260716130000-47" author="catalog" context="faker">
+        <validCheckSum>8:f0add2d68a737d7d70c266dedae40f23</validCheckSum>
+        <validCheckSum>8:64ffe92653d13c05b24ecb3ffc4d26aa</validCheckSum>
         <loadData
                   file="config/liquibase/fake-data/catalog/processes/rup/rel_activity__templates.csv"
                   separator=";"

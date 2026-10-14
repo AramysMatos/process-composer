@@ -1,5 +1,5 @@
 id;name;description;process_id
-201;Design do Sistema de Fluxo (STATIK);Análise de demanda e mapeamento do workflow;2
-202;Políticas Explícitas e WIP;Limites de WIP e regras de pull do sistema;2
-203;Fluxo de Entrega;Replenishment, pull e execução contínua de itens;2
-204;Cadências de Melhoria;Service Delivery Review e Risk Review;2
+201;Design do Sistema de Fluxo (STATIK);Etapa de concepção do sistema Kanban segundo a abordagem sistêmica STATIK (Systems Thinking Approach to Introducing Kanban). Compreende a análise das fontes de demanda, o mapeamento das etapas reais de trabalho e a definição das classes de serviço, formando a base do quadro visual.;2
+202;Políticas Explícitas e WIP;Fase de estruturação da governança do fluxo, na qual se determinam os limites de trabalho em andamento (WIP) e as regras explícitas de transição entre as colunas. Estabelece as condições objetivas para puxar novos itens e evita a sobrecarga da equipe.;2
+203;Fluxo de Entrega;Operação contínua do sistema puxado: reabastecimento da fila de entrada, puxada de itens conforme a capacidade disponível, execução técnica e coleta de métricas de desempenho. Mantém o trabalho fluindo de forma previsível e expõe gargalos operacionais no dia a dia.;2
+204;Cadências de Melhoria;Ciclos periódicos de avaliação e evolução do serviço Kanban, incluindo a revisão de entrega do serviço (Service Delivery Review) e a revisão de riscos (Risk Review). Utiliza os indicadores de fluxo coletados para recalibrar limites, políticas e prioridades junto ao negócio.;2

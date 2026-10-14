@@ -1,21 +1,21 @@
 id;name;description
-1;Product Owner;Prioriza backlog e define valor de negócio do produto
-2;Scrum Master;Facilita cerimônias ágeis e remove impedimentos
-3;Desenvolvedor Backend;Implementa APIs, regras de negócio e integrações
-4;Desenvolvedor Frontend;Desenvolve interfaces e integra com APIs REST
-5;Arquiteto de Software;Define padrões arquiteturais e decisões técnicas
-6;Analista de Requisitos;Levanta, documenta e valida requisitos
-7;QA / Testador;Planeja e executa testes manuais e automatizados
-8;DevOps Engineer;Configura pipelines CI/CD e infraestrutura
-9;UX Designer;Cria wireframes, protótipos e pesquisas de usabilidade
-10;Tech Lead;Coordena decisões técnicas e revisa código
-11;Flow Manager;Gerencia fluxo de trabalho e políticas Kanban
-12;Service Request Manager;Prioriza demandas e classes de serviço
-13;XP Coach;Orienta práticas de Extreme Programming na equipe
-14;Cliente On-site;Representa stakeholders e valida entregas
-15;Gerente de Projeto;Coordena escopo, cronograma e riscos do projeto
-16;Desenvolvedor Full Stack;Atua em frontend e backend do produto
-17;Especialista de Domínio;Fornece conhecimento de negócio à equipe
-18;Facilitador de Cerimônias;Conduz reuniões e dinâmicas de melhoria
-19;Analista de Negócios;Traduz necessidades de negócio em requisitos
-20;Líder Técnico;Governa qualidade técnica e padrões de engenharia
+1;Product Owner;Responsável por maximizar o valor do produto e por ordenar o backlog conforme essa prioridade. Traduz necessidades de negócio e das partes interessadas em objetivos claros para a equipe. No Scrum, é o papel com responsabilidade formal sobre o produto, não apenas apoio ocasional à priorização.
+2;Scrum Master;Papel do Scrum voltado à eficácia da equipe, do Product Owner e da organização na aplicação do método. Facilita eventos, promove transparência, inspeção e adaptação e remove impedimentos. Diferencia-se de um facilitador genérico por atuar dentro das regras e valores do Scrum.
+3;Desenvolvedor Backend;Implementa lógica de servidor, APIs, persistência e integrações que sustentam o produto. Colabora na definição técnica de contratos e na qualidade do código sob sua área. Entrega incrementos testáveis alinhados à arquitetura acordada.
+4;Desenvolvedor Frontend;Implementa interfaces, experiência de uso no cliente e integração com serviços backend. Garante acessibilidade, desempenho percebido e consistência visual quando aplicável. Trabalha em par com backend e design para entregas de ponta a ponta.
+5;Arquiteto de Software;Define e faz evoluir a estrutura do sistema: componentes, integrações, padrões e decisões que reduzem risco técnico. Equilibra necessidades atuais com capacidade de mudar o sistema ao longo do tempo e com custo de manutenção. Documenta decisões relevantes para alinhamento da equipe.
+6;Analista de Requisitos;Levanta, analisa e especifica requisitos funcionais e não funcionais com rastreabilidade. Valida entendimento com partes interessadas e reduz ambiguidade antes da construção. Foco em especificação clara e verificável, não apenas em atas de reunião.
+7;QA / Testador;Planeja e executa estratégias de teste (manuais e automatizadas) para revelar defeitos antes da produção. Define critérios de aceitação testáveis e apoia os critérios de pronto acordados pela equipe (Definition of Done). Atua como guardião da qualidade do produto, sem bloquear entregas de forma burocrática.
+8;DevOps Engineer;Automatiza compilação, teste, implantação e observabilidade para entregas repetíveis e seguras. Configura pipelines de integração e entrega contínuas e infraestrutura como código quando cabível. Reduz atrito entre desenvolvimento e operação.
+9;UX Designer;Pesquisa necessidades de uso, propõe fluxos e protótipos que reduzem risco de usabilidade. Traduz objetivos de negócio em soluções compreensíveis para quem usa o produto. Entrega artefatos de design que orientam implementação, não apenas aparência visual.
+10;Tech Lead;Coordena decisões técnicas do time de desenvolvimento no dia a dia da entrega. Facilita alinhamento entre membros, desbloqueia dúvidas de implementação e revisa código crítico. Atua no escopo da equipe, em contraste com governança técnica mais ampla.
+11;Flow Manager;Papel orientado ao Kanban: cuida do desenho e saúde do fluxo de valor (políticas, limites de trabalho em progresso, cadências de reunião). Facilita melhoria contínua do sistema de trabalho com base em métricas e retorno da equipe. Não substitui gestão de produto, mas otimiza como o trabalho flui.
+12;Service Request Manager;Prioriza demandas entrantes conforme classes de serviço, capacidade e risco do fluxo Kanban. Equilibra urgências com trabalho padrão sem estourar limites de trabalho em progresso. Conecta expectativas de clientes internos ou externos à taxa real de entrega.
+13;XP Coach;Orienta a equipe na adoção disciplinada das práticas de Extreme Programming (XP). Ajuda a manter rituais como jogo de planejamento, testes guiados pelo teste e integração contínua na rotina. Atua como mentor de processo e engenharia, não como gerente de tarefas.
+14;Cliente On-site;Representante das partes interessadas disponível para esclarecer requisitos e validar entregas com frequência. No XP, a proximidade reduz mal-entendidos e acelera retorno sobre valor entregue. Participa de decisões de escopo e aceitação, não apenas aprova documentos finais.
+15;Gerente de Projeto;Coordena escopo, cronograma, recursos e riscos quando o contexto exige gestão formal (ex.: RUP ou projetos regulados). Comunica status e dependências organizacionais. Complementa papéis ágeis sem substituir a responsabilidade formal sobre produto ou equipe.
+16;Desenvolvedor Full Stack;Atua em camadas de interface e servidor para entregar funcionalidades completas. Útil em times enxutos ou em histórias que exigem percurso vertical rápido. Mantém mesmos padrões de qualidade e revisão que especialistas de cada camada.
+17;Especialista de Domínio;Detém conhecimento profundo do negócio ou regulatório que o software suporta. Esclarece regras, exceções e linguagem comum entre negócio e técnica. Reduz retrabalho por interpretações incorretas do domínio.
+18;Facilitador de Cerimônias;Conduz reuniões e dinâmicas (planejamento, retrospectiva, oficinas) com neutralidade e foco em resultado. Não assume necessariamente a responsabilidade formal de Scrum Master ou Flow Manager. Útil quando a equipe precisa de condução sem alterar papéis do processo.
+19;Analista de Negócios;Traduz objetivos estratégicos e processos de negócio em necessidades priorizáveis para produto ou projeto. Ponte entre áreas não técnicas e equipe de entrega. Diferencia-se do analista de requisitos por foco em valor e processo, antes do detalhamento formal.
+20;Líder Técnico;Governa padrões de engenharia, qualidade e coerência técnica além de uma única equipe. Define diretrizes compartilhadas, apoia decisões difíceis e eleva maturidade de práticas (testes, segurança, revisão). Contrasta com o Tech Lead, mais voltado à coordenação do time no sprint ou iteração.

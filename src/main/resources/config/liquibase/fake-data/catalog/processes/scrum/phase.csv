@@ -1,6 +1,6 @@
 id;name;description;process_id
-101;Product Backlog;Gestão contínua do Product Goal e itens priorizados;1
-102;Planejamento da Sprint;Evento de planejamento: meta, seleção e plano de entrega;1
-103;Execução da Sprint;Daily Scrum e trabalho de desenvolvimento do Incremento;1
-104;Encerramento da Sprint;Sprint Review e Sprint Retrospective;1
-105;Release;Estabilização e implantação do Incremento em produção;1
+101;Product Backlog;Etapa contínua de estruturação e evolução do backlog do produto, orientada pelo objetivo de longo prazo (Product Goal). Compreende a identificação de necessidades, a redação de histórias de usuário, a priorização por valor e o refinamento técnico e funcional antes das sprints. Garante que a equipe tenha sempre itens claros, viáveis e alinhados à estratégia do negócio.;1
+102;Planejamento da Sprint;Fase correspondente ao evento de abertura da sprint (Sprint Planning), na qual a equipe estabelece a meta do ciclo (Sprint Goal), seleciona os itens prioritários do backlog e define o plano técnico de entrega. Resulta no backlog da sprint, firmando um compromisso realista com base na capacidade produtiva da equipe.;1
+103;Execução da Sprint;Período de construção, integração e validação contínua em que os itens planejados são transformados em um incremento de software funcional. Envolve o alinhamento diário da equipe (Daily Scrum) para inspecionar o avanço em direção à meta da sprint, remover impedimentos e assegurar o cumprimento dos critérios de conclusão (Definition of Done).;1
+104;Encerramento da Sprint;Ciclo de inspeção e adaptação ao término da sprint, composto pela revisão do incremento com as partes interessadas (Sprint Review) e pela retrospectiva interna da equipe (Sprint Retrospective). Permite validar o produto construído para ajustar prioridades futuras e aprimorar continuamente o processo de trabalho.;1
+105;Release;Fase dedicada à estabilização final, preparação de ambiente e publicação do incremento em produção. Atende cenários em que a liberação para os usuários finais exige validações adicionais de segurança, desempenho ou janelas controladas de implantação após o término da sprint.;1
