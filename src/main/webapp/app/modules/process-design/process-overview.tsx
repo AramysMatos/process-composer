@@ -1,7 +1,7 @@
 import './process-overview.scss';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   Alert,
   Button,
@@ -10,11 +10,15 @@ import {
   CardBody,
   CardHeader,
   Collapse,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Spinner,
+  UncontrolledDropdown,
   UncontrolledTooltip,
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -45,20 +49,15 @@ import { EntityEditButton } from 'app/modules/process-design/components/entity-e
 import { EntitySaveToLibraryButton } from 'app/modules/process-design/components/entity-save-to-library-button';
 import { PhaseDetailDrawer } from 'app/modules/process-design/components/phase-detail-drawer/phase-detail-drawer';
 import { ProcessDetailDrawer } from 'app/modules/process-design/components/process-detail-drawer/process-detail-drawer';
-import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
+import { ProcessDescriptionSummary } from 'app/modules/process-design/components/process-description-summary/process-description-summary';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
-import { useResizableSidebarWidth } from 'app/modules/process-design/hooks/use-resizable-sidebar-width';
 import { useSaveToLibrary } from 'app/modules/process-design/hooks/use-save-to-library';
 import { countArtifacts, countRoles } from 'app/shared/util/process-stats.utils';
 import { sortActivitiesByFlow, sortPhasesByActivityFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 
 /** Rota `/processos/:id/canvas` registrada em `routes.tsx`. */
 export const PROCESS_CANVAS_ROUTE_ENABLED = true;
-
-type ViewMode = 'list' | 'canvas';
-
-const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
 
 export const ProcessOverview = () => {
   const dispatch = useAppDispatch();
@@ -77,7 +76,6 @@ export const ProcessOverview = () => {
   const activityEntities = useAppSelector(state => state.activity.entities);
   const activityLoading = useAppSelector(state => state.activity.loading);
 
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedActivityId, setSelectedActivityId] = useState<number | undefined>();
   const [drawerActivityId, setDrawerActivityId] = useState<number | null>(null);
   const [drawerPhaseId, setDrawerPhaseId] = useState<number | null>(null);
@@ -92,8 +90,6 @@ export const ProcessOverview = () => {
   const [promoteTarget, setPromoteTarget] = useState(false);
   const [promotingToSystemTemplate, setPromotingToSystemTemplate] = useState(false);
   const accordionInitializedRef = React.useRef(false);
-
-  const { widthPx: sidebarWidthPx, minWidthPx, maxWidthPx, isResizing, startResize, resetWidth } = useResizableSidebarWidth();
 
   const phases = useMemo(() => {
     if (!isValidProcessId) {
@@ -125,10 +121,18 @@ export const ProcessOverview = () => {
   }, [phases]);
 
   useEffect(() => {
+    if (!isValidProcessId) {
+      return;
+    }
+    dispatch(getProcessEntity(processId));
+    dispatch(getPhaseEntities({}));
+    dispatch(getActivityEntities({ eagerload: true }));
+  }, [dispatch, isValidProcessId, processId]);
+
+  useEffect(() => {
     accordionInitializedRef.current = false;
     setOpenPhaseIds(new Set());
     setSelectedActivityId(undefined);
-    setViewMode('list');
   }, [processId]);
 
   useEffect(() => {
@@ -552,12 +556,26 @@ export const ProcessOverview = () => {
         </CardHeader>
         <Collapse isOpen={isOpen}>
           <CardBody id={panelId} className="p-0">
+            {phase.description && <p className="process-overview__phase-description">{phase.description}</p>}
             {phaseActivities.length === 0 ? (
               <p className="process-overview__empty px-3 py-2 mb-0">
                 <Translate contentKey="processComposerApp.processDesign.tree.noActivities">No activities yet</Translate>
               </p>
             ) : (
               <ul className="process-overview__activity-list">{phaseActivities.map(renderActivityRow)}</ul>
+            )}
+            {!readOnly && isOpen && (
+              <div className="process-overview__phase-create-wrap">
+                <button
+                  type="button"
+                  className="process-overview__phase-create"
+                  onClick={() => handleCreateActivity(phase.id as number)}
+                  data-cy={`overview-create-activity-phase-${phase.id}`}
+                >
+                  <FontAwesomeIcon icon="plus" />
+                  <Translate contentKey="processComposerApp.processDesign.tree.newActivity">New activity</Translate>
+                </button>
+              </div>
             )}
           </CardBody>
         </Collapse>
@@ -593,6 +611,10 @@ export const ProcessOverview = () => {
         {processMatches && <CardActionsMenu data-cy={`processOverviewMenu-${processId}`} items={headerMenuItems} />}
       </header>
 
+      {processMatches && !loading && (
+        <ProcessDescriptionSummary description={process.processDescription} data-cy="process-overview-description" />
+      )}
+
       {readOnly && (
         <Alert color="info" className="mb-3" data-cy="process-read-only-banner">
           <Translate contentKey="processComposerApp.processDesign.overview.readOnlyModel">
@@ -601,97 +623,87 @@ export const ProcessOverview = () => {
         </Alert>
       )}
 
-      <div className={`process-overview__layout${isResizing ? ' process-overview__layout--sidebar-resizing' : ''}`}>
-        <div className="process-overview__sidebar-shell" style={{ width: sidebarWidthPx }} data-cy="process-overview-sidebar-shell">
-          <aside className="process-overview__sidebar">
-            <ProcessTreeSidebar
-              processId={processId}
-              selectedActivityId={selectedActivityId}
-              onSelectActivity={handleSelectActivity}
-              onCreateActivity={readOnly ? undefined : handleCreateActivity}
-              onCreatePhase={readOnly ? undefined : handleCreatePhase}
-              onEditPhase={readOnly ? undefined : handleEditPhase}
-              onSavePhaseToLibrary={readOnly ? undefined : handleSavePhaseToLibrary}
-              onSaveActivityToLibrary={readOnly ? undefined : handleSaveActivityToLibrary}
-              isSavingToLibrary={isSaving}
-              onDeletePhase={
-                readOnly ? undefined : (phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })
-              }
-              onDeleteActivity={readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
-            />
-          </aside>
-          <div
-            className="process-overview__sidebar-resizer"
-            role="separator"
-            aria-orientation="vertical"
-            aria-valuenow={sidebarWidthPx}
-            aria-valuemin={minWidthPx}
-            aria-valuemax={maxWidthPx}
-            aria-label={translate('processComposerApp.processDesign.overview.sidebarResize', 'Resize process tree sidebar')}
-            data-cy="process-overview-sidebar-resizer"
-            onPointerDown={startResize}
-            onDoubleClick={resetWidth}
-          />
-        </div>
+      <section
+        className="process-overview__main"
+        aria-label={translate('processComposerApp.processDesign.overview.contentAriaLabel', 'Process content')}
+      >
+        <div className="process-overview__toolbar">
+          <ButtonGroup className="process-overview__view-toggle" data-cy="process-view-toggle">
+            <Button color="primary" active className="process-overview__view-toggle-btn">
+              <FontAwesomeIcon icon="list" className="me-1" />
+              <Translate contentKey="processComposerApp.processDesign.overview.viewList">List</Translate>
+            </Button>
+            <Button
+              tag={Link}
+              to={`/processos/${processId}/canvas`}
+              id="process-overview-canvas-toggle"
+              color="primary"
+              outline
+              className="process-overview__view-toggle-btn"
+              disabled={!PROCESS_CANVAS_ROUTE_ENABLED}
+            >
+              <FontAwesomeIcon icon="project-diagram" className="me-1" />
+              <Translate contentKey="processComposerApp.processDesign.overview.viewCanvas">Canvas</Translate>
+            </Button>
+          </ButtonGroup>
 
-        <section
-          className="process-overview__content"
-          aria-label={translate('processComposerApp.processDesign.overview.contentAriaLabel', 'Process content')}
-        >
-          <div className="process-overview__toolbar">
-            <ButtonGroup className="process-overview__view-toggle" data-cy="process-view-toggle">
-              <Button color="primary" outline={viewMode !== 'list'} active={viewMode === 'list'} onClick={() => setViewMode('list')}>
-                <FontAwesomeIcon icon="list" className="me-1" />
-                <Translate contentKey="processComposerApp.processDesign.overview.viewList">List</Translate>
+          {!readOnly && (
+            <div className="process-overview__toolbar-actions">
+              <Button color="primary" outline onClick={handleCreatePhase} data-cy="overview-create-phase">
+                <FontAwesomeIcon icon="plus" className="me-1" />
+                <Translate contentKey="processComposerApp.processDesign.tree.newPhase">New phase</Translate>
               </Button>
-              <Button
-                tag={Link}
-                to={`/processos/${processId}/canvas`}
-                id="process-overview-canvas-toggle"
-                color="primary"
-                outline={viewMode !== 'canvas'}
-                active={viewMode === 'canvas'}
-                disabled={!PROCESS_CANVAS_ROUTE_ENABLED}
-              >
-                <FontAwesomeIcon icon="project-diagram" className="me-1" />
-                <Translate contentKey="processComposerApp.processDesign.overview.viewCanvas">Canvas</Translate>
-              </Button>
-            </ButtonGroup>
-
-            {!PROCESS_CANVAS_ROUTE_ENABLED && (
-              <UncontrolledTooltip target="process-overview-canvas-toggle">
-                <Translate contentKey="processComposerApp.processDesign.overview.canvasUnavailable">
-                  Canvas view will be available soon
-                </Translate>
-              </UncontrolledTooltip>
-            )}
-          </div>
-
-          {loading && (
-            <div className="process-overview__loading">
-              <Spinner color="primary" />
+              <UncontrolledDropdown>
+                <DropdownToggle color="primary" outline caret disabled={phases.length === 0} data-cy="overview-create-activity">
+                  <FontAwesomeIcon icon="plus" className="me-1" />
+                  <Translate contentKey="processComposerApp.processDesign.tree.newActivity">New activity</Translate>
+                </DropdownToggle>
+                <DropdownMenu end>
+                  {phases.map(phase =>
+                    phase.id ? (
+                      <DropdownItem key={phase.id} onClick={() => handleCreateActivity(phase.id as number)}>
+                        {phase.name}
+                      </DropdownItem>
+                    ) : null
+                  )}
+                </DropdownMenu>
+              </UncontrolledDropdown>
             </div>
           )}
 
-          {!loading && !processMatches && (
-            <Alert color="warning">
-              <Translate contentKey="processComposerApp.processDesign.tree.processNotFound">Process not found</Translate>
-            </Alert>
+          {!PROCESS_CANVAS_ROUTE_ENABLED && (
+            <UncontrolledTooltip target="process-overview-canvas-toggle">
+              <Translate contentKey="processComposerApp.processDesign.overview.canvasUnavailable">
+                Canvas view will be available soon
+              </Translate>
+            </UncontrolledTooltip>
           )}
+        </div>
 
-          {!loading && processMatches && viewMode === 'list' && (
-            <>
-              {phases.length === 0 ? (
-                <Alert color="info">
-                  <Translate contentKey="processComposerApp.processDesign.tree.noPhases">No phases defined yet</Translate>
-                </Alert>
-              ) : (
-                <div className="process-overview__accordion">{phases.map(renderPhasePanel)}</div>
-              )}
-            </>
-          )}
-        </section>
-      </div>
+        {loading && (
+          <div className="process-overview__loading">
+            <Spinner color="primary" />
+          </div>
+        )}
+
+        {!loading && !processMatches && (
+          <Alert color="warning">
+            <Translate contentKey="processComposerApp.processDesign.tree.processNotFound">Process not found</Translate>
+          </Alert>
+        )}
+
+        {!loading && processMatches && (
+          <>
+            {phases.length === 0 ? (
+              <Alert color="info">
+                <Translate contentKey="processComposerApp.processDesign.tree.noPhases">No phases defined yet</Translate>
+              </Alert>
+            ) : (
+              <div className="process-overview__accordion">{phases.map(renderPhasePanel)}</div>
+            )}
+          </>
+        )}
+      </section>
 
       <ProcessDetailDrawer
         processId={processId}

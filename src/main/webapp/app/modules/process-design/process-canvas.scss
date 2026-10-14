@@ -22,6 +22,10 @@
       cursor: col-resize;
       user-select: none;
     }
+
+    &--sidebar-hidden {
+      gap: 0;
+    }
   }
 
   &__sidebar-shell {
@@ -85,15 +89,6 @@
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 6rem);
-  }
-
-  &__toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
   }
 
   &__canvas-area {

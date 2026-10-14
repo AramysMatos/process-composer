@@ -17,16 +17,13 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Alert, Button, ButtonGroup, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
+import { Link } from 'react-router-dom';
+import { Alert, Button, ButtonGroup, DropdownItem, DropdownMenu, DropdownToggle, Spinner, UncontrolledDropdown } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import {
-  createEntitySilent as createActivityEntity,
-  getEntities as getActivityEntities,
-  updateEntitySilent as updateActivityEntity,
-} from 'app/entities/activity/activity.reducer';
+import { getEntities as getActivityEntities, updateEntitySilent as updateActivityEntity } from 'app/entities/activity/activity.reducer';
 import { getEntities as getPhaseEntities } from 'app/entities/phase/phase.reducer';
 import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
@@ -63,6 +60,11 @@ export interface ActivityCanvasProps {
   readOnly?: boolean;
   embeddedActivities?: IActivity[];
   embeddedPhases?: IPhase[];
+  /** When set, shows process-design chrome (sidebar toggle, list/canvas, create actions). */
+  sidebarVisible?: boolean;
+  onToggleSidebar?: () => void;
+  onCreatePhase?: () => void;
+  onCreateActivity?: (phaseId: number) => void;
 }
 
 const sortById = <T extends { id?: number }>(items: T[]): T[] => [...items].sort((left, right) => (left.id ?? 0) - (right.id ?? 0));
@@ -159,6 +161,158 @@ const buildGraphNodesAndEdges = (
   return { nodes, edges: Array.from(edgeMap.values()) };
 };
 
+interface ActivityCanvasToolbarProps {
+  processId: number;
+  sidebarVisible: boolean;
+  onToggleSidebar?: () => void;
+  readOnly: boolean;
+  phases: IPhase[];
+  layoutMode: CanvasLayoutMode;
+  onLayoutModeChange: (mode: CanvasLayoutMode) => void;
+  onCreatePhase?: () => void;
+  onCreateActivity?: (phaseId: number) => void;
+}
+
+const ActivityCanvasToolbar = ({
+  processId,
+  sidebarVisible,
+  onToggleSidebar,
+  readOnly,
+  phases,
+  layoutMode,
+  onLayoutModeChange,
+  onCreatePhase,
+  onCreateActivity,
+}: ActivityCanvasToolbarProps) => {
+  const isProcessDesign = Boolean(onToggleSidebar);
+
+  const showLeftCluster = Boolean(onToggleSidebar || isProcessDesign);
+
+  return (
+    <div className="activity-canvas__toolbar" data-cy="activity-canvas-toolbar">
+      {showLeftCluster && (
+        <div className="activity-canvas__toolbar-start">
+          <div className="activity-canvas__float-group">
+            {onToggleSidebar && (
+              <Button
+                type="button"
+                color="light"
+                className="activity-canvas__toolbar-control activity-canvas__sidebar-toggle"
+                onClick={onToggleSidebar}
+                title={
+                  sidebarVisible
+                    ? translate('processComposerApp.processDesign.overview.hideSidebar', 'Hide tree')
+                    : translate('processComposerApp.processDesign.overview.showSidebar', 'Show tree')
+                }
+                aria-label={
+                  sidebarVisible
+                    ? translate('processComposerApp.processDesign.overview.hideSidebar', 'Hide tree')
+                    : translate('processComposerApp.processDesign.overview.showSidebar', 'Show tree')
+                }
+                data-cy="process-canvas-sidebar-toggle"
+              >
+                <FontAwesomeIcon icon={sidebarVisible ? 'chevron-left' : 'sitemap'} />
+              </Button>
+            )}
+            {isProcessDesign && (
+              <ButtonGroup className="activity-canvas__view-toggle" data-cy="process-view-toggle">
+                <Button tag={Link} to={`/processos/${processId}`} color="primary" outline className="activity-canvas__view-toggle-btn">
+                  <FontAwesomeIcon icon="list" className="me-1" />
+                  <Translate contentKey="processComposerApp.processDesign.overview.viewList">List</Translate>
+                </Button>
+                <Button color="primary" active className="activity-canvas__view-toggle-btn">
+                  <FontAwesomeIcon icon="project-diagram" className="me-1" />
+                  <Translate contentKey="processComposerApp.processDesign.overview.viewCanvas">Canvas</Translate>
+                </Button>
+              </ButtonGroup>
+            )}
+          </div>
+        </div>
+      )}
+      <div className="activity-canvas__toolbar-end">
+        <div className="activity-canvas__float-group activity-canvas__float-group--actions">
+          {isProcessDesign && !readOnly && onCreatePhase && (
+            <Button
+              color="primary"
+              outline
+              className="activity-canvas__toolbar-control"
+              onClick={onCreatePhase}
+              data-cy="canvas-create-phase"
+              title={translate('processComposerApp.processDesign.tree.newPhase', 'New phase')}
+            >
+              <FontAwesomeIcon icon="plus" className="activity-canvas__action-icon" />
+              <span className="activity-canvas__action-label">
+                <Translate contentKey="processComposerApp.processDesign.tree.newPhase">New phase</Translate>
+              </span>
+            </Button>
+          )}
+          {isProcessDesign && !readOnly && onCreateActivity && (
+            <UncontrolledDropdown>
+              <DropdownToggle
+                color="primary"
+                outline
+                caret
+                className="activity-canvas__toolbar-control activity-canvas__toolbar-control--dropdown"
+                disabled={phases.length === 0}
+                data-cy="canvas-create-activity"
+                title={translate('processComposerApp.processDesign.tree.newActivity', 'New activity')}
+              >
+                <FontAwesomeIcon icon="plus" className="activity-canvas__action-icon" />
+                <span className="activity-canvas__action-label">
+                  <Translate contentKey="processComposerApp.processDesign.tree.newActivity">New activity</Translate>
+                </span>
+              </DropdownToggle>
+              <DropdownMenu end>
+                {phases.map(phase =>
+                  phase.id ? (
+                    <DropdownItem key={phase.id} onClick={() => onCreateActivity(phase.id as number)}>
+                      {phase.name}
+                    </DropdownItem>
+                  ) : null
+                )}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          )}
+          <div
+            className="activity-canvas__layout-mode"
+            role="group"
+            aria-label={translate('processComposerApp.processDesign.canvas.layoutMode.label', 'Layout')}
+          >
+            <ButtonGroup className="activity-canvas__layout-toggle" data-cy="canvas-layout-toggle">
+              <Button
+                type="button"
+                color="light"
+                className="activity-canvas__toolbar-control"
+                active={layoutMode === 'byPhase'}
+                onClick={() => onLayoutModeChange('byPhase')}
+                data-cy="canvas-layout-by-phase"
+              >
+                <FontAwesomeIcon icon="layer-group" className="activity-canvas__layout-icon" />
+                <span className="activity-canvas__layout-label">
+                  <Translate contentKey="processComposerApp.processDesign.canvas.layoutMode.byPhase">By phase</Translate>
+                </span>
+              </Button>
+              <Button
+                type="button"
+                color="light"
+                className="activity-canvas__toolbar-control"
+                active={layoutMode === 'horizontal'}
+                onClick={() => onLayoutModeChange('horizontal')}
+                data-cy="canvas-layout-horizontal"
+              >
+                <FontAwesomeIcon icon="left-right" className="activity-canvas__layout-icon" />
+                <span className="activity-canvas__layout-label">
+                  <Translate contentKey="processComposerApp.processDesign.canvas.layoutMode.horizontal">Horizontal</Translate>
+                </span>
+              </Button>
+            </ButtonGroup>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ActivityCanvasInner = ({
   processId,
   onSelectActivity,
@@ -166,6 +320,10 @@ const ActivityCanvasInner = ({
   readOnly = false,
   embeddedActivities,
   embeddedPhases,
+  sidebarVisible = true,
+  onToggleSidebar,
+  onCreatePhase,
+  onCreateActivity,
 }: ActivityCanvasProps) => {
   const dispatch = useAppDispatch();
   const { fitView } = useReactFlow();
@@ -174,13 +332,8 @@ const ActivityCanvasInner = ({
   const phaseLoading = useAppSelector(state => state.phase.loading);
   const activityEntities = useAppSelector(state => state.activity.entities);
   const activityLoading = useAppSelector(state => state.activity.loading);
-  const activityUpdating = useAppSelector(state => state.activity.updating);
-
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<ActivityNodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [newActivityName, setNewActivityName] = useState('');
-  const [newActivityPhaseId, setNewActivityPhaseId] = useState<number | ''>('');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [layoutMode, setLayoutMode] = useState<CanvasLayoutMode>(() => loadCanvasLayoutMode(processId));
   const nodePositionsRef = useRef<Map<string, { x: number; y: number }>>(new Map());
@@ -459,40 +612,6 @@ const ActivityCanvasInner = ({
     [activitiesById]
   );
 
-  const handleCreateActivity = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setSubmitError(null);
-
-    const trimmedName = newActivityName.trim();
-    if (!trimmedName || newActivityPhaseId === '') {
-      setSubmitError(translate('processComposerApp.processDesign.canvas.createValidation', 'Name and phase are required.'));
-      return;
-    }
-
-    const phase = phases.find(item => item.id === newActivityPhaseId);
-    if (!phase?.id) {
-      setSubmitError(translate('processComposerApp.processDesign.canvas.createValidation', 'Name and phase are required.'));
-      return;
-    }
-
-    try {
-      await dispatch(
-        createActivityEntity({
-          name: trimmedName,
-          phase: { id: phase.id, name: phase.name },
-          subActivities: [],
-          predecessorActivities: [],
-        })
-      ).unwrap();
-      await refreshActivities();
-      setCreateModalOpen(false);
-      setNewActivityName('');
-      setNewActivityPhaseId('');
-    } catch {
-      setSubmitError(translate('processComposerApp.processDesign.canvas.createError', 'Could not create the activity.'));
-    }
-  };
-
   const loading = embeddedActivities !== undefined ? false : phaseLoading || activityLoading;
 
   if (loading) {
@@ -513,43 +632,26 @@ const ActivityCanvasInner = ({
         </Alert>
       )}
 
+      {(phases.length > 0 || onToggleSidebar) && (
+        <ActivityCanvasToolbar
+          processId={processId}
+          sidebarVisible={sidebarVisible}
+          onToggleSidebar={onToggleSidebar}
+          readOnly={readOnly}
+          phases={phases}
+          layoutMode={layoutMode}
+          onLayoutModeChange={handleLayoutModeChange}
+          onCreatePhase={onCreatePhase}
+          onCreateActivity={onCreateActivity}
+        />
+      )}
+
       {phases.length === 0 ? (
-        <Alert color="info" className="m-3">
+        <Alert color="info" className="activity-canvas__empty">
           <Translate contentKey="processComposerApp.processDesign.tree.noPhases">No phases defined yet</Translate>
         </Alert>
       ) : (
         <>
-          <div
-            className="activity-canvas__layout-toggle"
-            role="group"
-            aria-label={translate('processComposerApp.processDesign.canvas.layoutMode.label', 'Layout')}
-          >
-            <ButtonGroup data-cy="canvas-layout-toggle">
-              <Button
-                type="button"
-                size="sm"
-                color="light"
-                active={layoutMode === 'byPhase'}
-                onClick={() => handleLayoutModeChange('byPhase')}
-                data-cy="canvas-layout-by-phase"
-              >
-                <FontAwesomeIcon icon="layer-group" className="me-1" />
-                <Translate contentKey="processComposerApp.processDesign.canvas.layoutMode.byPhase">By phase</Translate>
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                color="light"
-                active={layoutMode === 'horizontal'}
-                onClick={() => handleLayoutModeChange('horizontal')}
-                data-cy="canvas-layout-horizontal"
-              >
-                <FontAwesomeIcon icon="left-right" className="me-1" />
-                <Translate contentKey="processComposerApp.processDesign.canvas.layoutMode.horizontal">Horizontal</Translate>
-              </Button>
-            </ButtonGroup>
-          </div>
-
           <ReactFlow
             className="activity-canvas__flow"
             nodes={nodes}
@@ -573,75 +675,7 @@ const ActivityCanvasInner = ({
             <Controls />
             <MiniMap zoomable pannable />
           </ReactFlow>
-
-          {!readOnly && (
-            <Button
-              type="button"
-              color="primary"
-              className="activity-canvas__fab"
-              onClick={() => {
-                setSubmitError(null);
-                setNewActivityPhaseId(orderedPhaseIds[0] ?? '');
-                setCreateModalOpen(true);
-              }}
-              data-cy="create-activity-fab"
-            >
-              <FontAwesomeIcon icon="plus" className="me-1" />
-              <Translate contentKey="processComposerApp.processDesign.canvas.newActivity">New activity</Translate>
-            </Button>
-          )}
         </>
-      )}
-
-      {!readOnly && (
-        <Modal isOpen={createModalOpen} toggle={() => setCreateModalOpen(false)}>
-          <Form onSubmit={handleCreateActivity}>
-            <ModalHeader toggle={() => setCreateModalOpen(false)}>
-              <Translate contentKey="processComposerApp.processDesign.canvas.createTitle">New activity</Translate>
-            </ModalHeader>
-            <ModalBody>
-              <FormGroup>
-                <Label for="new-activity-name">
-                  <Translate contentKey="processComposerApp.processDesign.canvas.activityName">Activity name</Translate>
-                </Label>
-                <Input
-                  id="new-activity-name"
-                  value={newActivityName}
-                  onChange={event => setNewActivityName(event.target.value)}
-                  data-cy="new-activity-name"
-                  required
-                />
-              </FormGroup>
-              <FormGroup>
-                <Label for="new-activity-phase">
-                  <Translate contentKey="processComposerApp.processDesign.canvas.targetPhase">Target phase</Translate>
-                </Label>
-                <Input
-                  id="new-activity-phase"
-                  type="select"
-                  value={newActivityPhaseId}
-                  onChange={event => setNewActivityPhaseId(event.target.value === '' ? '' : Number(event.target.value))}
-                  data-cy="new-activity-phase"
-                  required
-                >
-                  {phases.map(phase => (
-                    <option key={phase.id} value={phase.id}>
-                      {phase.name}
-                    </option>
-                  ))}
-                </Input>
-              </FormGroup>
-            </ModalBody>
-            <ModalFooter>
-              <Button color="secondary" type="button" onClick={() => setCreateModalOpen(false)}>
-                <Translate contentKey="entity.action.cancel">Cancel</Translate>
-              </Button>
-              <Button color="primary" type="submit" disabled={activityUpdating} data-cy="confirm-create-activity">
-                <Translate contentKey="entity.action.save">Save</Translate>
-              </Button>
-            </ModalFooter>
-          </Form>
-        </Modal>
       )}
     </div>
   );

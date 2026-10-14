@@ -1,8 +1,8 @@
 import './process-canvas.scss';
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Alert, Button, ButtonGroup, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
 import { toast } from 'react-toastify';
@@ -27,11 +27,14 @@ import { CreateActivityModal } from 'app/modules/process-design/components/creat
 import { CreatePhaseModal } from 'app/modules/process-design/components/create-phase-modal';
 import { PhaseDetailDrawer } from 'app/modules/process-design/components/phase-detail-drawer/phase-detail-drawer';
 import { ProcessDetailDrawer } from 'app/modules/process-design/components/process-detail-drawer/process-detail-drawer';
+import { ProcessDescriptionSummary } from 'app/modules/process-design/components/process-description-summary/process-description-summary';
 import { ProcessTreeSidebar } from 'app/modules/process-design/components/process-tree-sidebar';
+import { useCanvasSidebarVisible } from 'app/modules/process-design/hooks/use-canvas-sidebar-visible';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
 import { useResizableSidebarWidth } from 'app/modules/process-design/hooks/use-resizable-sidebar-width';
 import { useSaveToLibrary } from 'app/modules/process-design/hooks/use-save-to-library';
+import { sortPhasesByActivityFlow } from 'app/shared/util/sort-activities-by-flow.utils';
 
 export const ProcessCanvas = () => {
   const dispatch = useAppDispatch();
@@ -54,10 +57,12 @@ export const ProcessCanvas = () => {
   const readOnly = processMatches && isProcessReadOnlyForUser(process, isAdmin, account.id);
   const canPromoteToSystemTemplate = processMatches && canPromoteProcessToSystemTemplate(process, isAdmin, account.id);
 
-  const phases = useMemo(
-    () => phaseEntities.filter(phase => phase.process?.id === processId).sort((left, right) => (left.id ?? 0) - (right.id ?? 0)),
-    [phaseEntities, processId]
-  );
+  const phases = useMemo(() => {
+    const processPhases = phaseEntities.filter(phase => phase.process?.id === processId);
+    const ids = new Set(processPhases.flatMap(phase => (phase.id !== undefined ? [phase.id] : [])));
+    const processActivities = activityEntities.filter(activity => activity.phase?.id !== undefined && ids.has(activity.phase.id));
+    return sortPhasesByActivityFlow(processPhases, processActivities);
+  }, [activityEntities, phaseEntities, processId]);
   const phaseIds = useMemo((): ReadonlySet<number> => {
     const ids = phases.flatMap(phase => (phase.id !== undefined ? [phase.id] : []));
     return new Set(ids);
@@ -78,6 +83,7 @@ export const ProcessCanvas = () => {
   const [promotingToSystemTemplate, setPromotingToSystemTemplate] = useState(false);
 
   const { widthPx: sidebarWidthPx, minWidthPx, maxWidthPx, isResizing, startResize, resetWidth } = useResizableSidebarWidth();
+  const { visible: sidebarVisible, toggle: toggleSidebar } = useCanvasSidebarVisible();
 
   const handleSelectActivity = useCallback((activityId: number) => {
     setSelectedActivityId(activityId);
@@ -354,6 +360,10 @@ export const ProcessCanvas = () => {
         {processMatches && <CardActionsMenu data-cy={`processCanvasMenu-${processId}`} items={headerMenuItems} />}
       </header>
 
+      {processMatches && !loading && (
+        <ProcessDescriptionSummary description={process.processDescription} data-cy="process-canvas-description" />
+      )}
+
       {readOnly && (
         <Alert color="info" className="mb-3 mx-3" data-cy="process-read-only-banner">
           <Translate contentKey="processComposerApp.processDesign.overview.readOnlyModel">
@@ -362,66 +372,61 @@ export const ProcessCanvas = () => {
         </Alert>
       )}
 
-      <div className={`process-canvas__layout${isResizing ? ' process-canvas__layout--sidebar-resizing' : ''}`}>
-        <div className="process-canvas__sidebar-shell" style={{ width: sidebarWidthPx }} data-cy="process-canvas-sidebar-shell">
-          <aside className="process-canvas__sidebar">
-            <ProcessTreeSidebar
-              processId={processId}
-              selectedActivityId={selectedActivityId}
-              onSelectActivity={handleSelectActivity}
-              onCreateActivity={readOnly ? undefined : handleCreateActivity}
-              onCreatePhase={readOnly ? undefined : handleCreatePhase}
-              onEditPhase={readOnly ? undefined : handleEditPhase}
-              onSavePhaseToLibrary={readOnly ? undefined : handleSavePhaseToLibrary}
-              onSaveActivityToLibrary={readOnly ? undefined : handleSaveActivityToLibrary}
-              isSavingToLibrary={isSaving}
-              onDeletePhase={
-                readOnly ? undefined : (phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })
-              }
-              onDeleteActivity={readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
+      <div
+        className={`process-canvas__layout${isResizing ? ' process-canvas__layout--sidebar-resizing' : ''}${
+          sidebarVisible ? '' : ' process-canvas__layout--sidebar-hidden'
+        }`}
+      >
+        {sidebarVisible && (
+          <div className="process-canvas__sidebar-shell" style={{ width: sidebarWidthPx }} data-cy="process-canvas-sidebar-shell">
+            <aside className="process-canvas__sidebar">
+              <ProcessTreeSidebar
+                processId={processId}
+                selectedActivityId={selectedActivityId}
+                onSelectActivity={handleSelectActivity}
+                onCreateActivity={readOnly ? undefined : handleCreateActivity}
+                onCreatePhase={readOnly ? undefined : handleCreatePhase}
+                onEditPhase={readOnly ? undefined : handleEditPhase}
+                onSavePhaseToLibrary={readOnly ? undefined : handleSavePhaseToLibrary}
+                onSaveActivityToLibrary={readOnly ? undefined : handleSaveActivityToLibrary}
+                isSavingToLibrary={isSaving}
+                onDeletePhase={
+                  readOnly
+                    ? undefined
+                    : (phaseId, name, activityCount) => requestDelete({ type: 'phase', id: phaseId, name, activityCount })
+                }
+                onDeleteActivity={readOnly ? undefined : (activityId, name) => requestDelete({ type: 'activity', id: activityId, name })}
+              />
+            </aside>
+            <div
+              className="process-canvas__sidebar-resizer"
+              role="separator"
+              aria-orientation="vertical"
+              aria-valuenow={sidebarWidthPx}
+              aria-valuemin={minWidthPx}
+              aria-valuemax={maxWidthPx}
+              aria-label={translate('processComposerApp.processDesign.overview.sidebarResize', 'Resize process tree sidebar')}
+              data-cy="process-canvas-sidebar-resizer"
+              onPointerDown={startResize}
+              onDoubleClick={resetWidth}
             />
-          </aside>
-          <div
-            className="process-canvas__sidebar-resizer"
-            role="separator"
-            aria-orientation="vertical"
-            aria-valuenow={sidebarWidthPx}
-            aria-valuemin={minWidthPx}
-            aria-valuemax={maxWidthPx}
-            aria-label={translate('processComposerApp.processDesign.overview.sidebarResize', 'Resize process tree sidebar')}
-            data-cy="process-canvas-sidebar-resizer"
-            onPointerDown={startResize}
-            onDoubleClick={resetWidth}
-          />
-        </div>
+          </div>
+        )}
 
         <section
           className="process-canvas__content"
           aria-label={translate('processComposerApp.processDesign.canvas.contentAriaLabel', 'Activity canvas')}
         >
-          <div className="process-canvas__toolbar">
-            <ButtonGroup className="process-canvas__view-toggle" data-cy="process-view-toggle">
-              <Button tag={Link} to={`/processos/${processId}`} color="primary" outline>
-                <FontAwesomeIcon icon="list" className="me-1" />
-                <Translate contentKey="processComposerApp.processDesign.overview.viewList">List</Translate>
-              </Button>
-              <Button color="primary" active>
-                <FontAwesomeIcon icon="project-diagram" className="me-1" />
-                <Translate contentKey="processComposerApp.processDesign.overview.viewCanvas">Canvas</Translate>
-              </Button>
-            </ButtonGroup>
-
-            <Button color="secondary" outline size="sm" onClick={() => navigate(`/processos/${processId}`)}>
-              <Translate contentKey="processComposerApp.processDesign.canvas.backToList">Back to list view</Translate>
-            </Button>
-          </div>
-
           <div className="process-canvas__canvas-area">
             <ActivityCanvas
               processId={processId}
               selectedActivityId={selectedActivityId}
               onSelectActivity={handleSelectActivity}
               readOnly={readOnly}
+              sidebarVisible={sidebarVisible}
+              onToggleSidebar={toggleSidebar}
+              onCreatePhase={readOnly ? undefined : handleCreatePhase}
+              onCreateActivity={readOnly ? undefined : handleCreateActivity}
             />
           </div>
         </section>
