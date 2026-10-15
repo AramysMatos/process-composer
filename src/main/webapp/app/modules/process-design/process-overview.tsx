@@ -626,59 +626,6 @@ export const ProcessOverview = () => {
         className="process-overview__main"
         aria-label={translate('processComposerApp.processDesign.overview.contentAriaLabel', 'Process content')}
       >
-        <div className="process-overview__toolbar">
-          <ButtonGroup className="process-overview__view-toggle" data-cy="process-view-toggle">
-            <Button color="primary" active className="process-overview__view-toggle-btn">
-              <FontAwesomeIcon icon="list" className="me-1" />
-              <Translate contentKey="processComposerApp.processDesign.overview.viewList">List</Translate>
-            </Button>
-            <Button
-              tag={Link}
-              to={`/processos/${processId}/canvas`}
-              id="process-overview-canvas-toggle"
-              color="primary"
-              outline
-              className="process-overview__view-toggle-btn"
-              disabled={!PROCESS_CANVAS_ROUTE_ENABLED}
-            >
-              <FontAwesomeIcon icon="project-diagram" className="me-1" />
-              <Translate contentKey="processComposerApp.processDesign.overview.viewCanvas">Canvas</Translate>
-            </Button>
-          </ButtonGroup>
-
-          {!readOnly && (
-            <div className="process-overview__toolbar-actions">
-              <Button color="primary" outline onClick={handleCreatePhase} data-cy="overview-create-phase">
-                <FontAwesomeIcon icon="plus" className="me-1" />
-                <Translate contentKey="processComposerApp.processDesign.tree.newPhase">New phase</Translate>
-              </Button>
-              <UncontrolledDropdown>
-                <DropdownToggle color="primary" outline caret disabled={phases.length === 0} data-cy="overview-create-activity">
-                  <FontAwesomeIcon icon="plus" className="me-1" />
-                  <Translate contentKey="processComposerApp.processDesign.tree.newActivity">New activity</Translate>
-                </DropdownToggle>
-                <DropdownMenu end>
-                  {phases.map(phase =>
-                    phase.id ? (
-                      <DropdownItem key={phase.id} onClick={() => handleCreateActivity(phase.id as number)}>
-                        {phase.name}
-                      </DropdownItem>
-                    ) : null
-                  )}
-                </DropdownMenu>
-              </UncontrolledDropdown>
-            </div>
-          )}
-
-          {!PROCESS_CANVAS_ROUTE_ENABLED && (
-            <UncontrolledTooltip target="process-overview-canvas-toggle">
-              <Translate contentKey="processComposerApp.processDesign.overview.canvasUnavailable">
-                Canvas view will be available soon
-              </Translate>
-            </UncontrolledTooltip>
-          )}
-        </div>
-
         {loading && (
           <div className="process-overview__loading">
             <Spinner color="primary" />
@@ -692,15 +639,68 @@ export const ProcessOverview = () => {
         )}
 
         {!loading && processMatches && (
-          <>
+          <div className="process-overview__phases-panel" data-cy="process-overview-phases-panel">
+            <div className="process-overview__toolbar">
+              <ButtonGroup className="process-overview__view-toggle" data-cy="process-view-toggle">
+                <Button color="primary" active className="process-overview__view-toggle-btn">
+                  <FontAwesomeIcon icon="list" className="me-1" />
+                  <Translate contentKey="processComposerApp.processDesign.overview.viewList">List</Translate>
+                </Button>
+                <Button
+                  tag={Link}
+                  to={`/processos/${processId}/canvas`}
+                  id="process-overview-canvas-toggle"
+                  color="primary"
+                  outline
+                  className="process-overview__view-toggle-btn"
+                  disabled={!PROCESS_CANVAS_ROUTE_ENABLED}
+                >
+                  <FontAwesomeIcon icon="project-diagram" className="me-1" />
+                  <Translate contentKey="processComposerApp.processDesign.overview.viewCanvas">Canvas</Translate>
+                </Button>
+              </ButtonGroup>
+
+              {!readOnly && (
+                <div className="process-overview__toolbar-actions">
+                  <Button color="primary" outline onClick={handleCreatePhase} data-cy="overview-create-phase">
+                    <FontAwesomeIcon icon="plus" className="me-1" />
+                    <Translate contentKey="processComposerApp.processDesign.tree.newPhase">New phase</Translate>
+                  </Button>
+                  <UncontrolledDropdown>
+                    <DropdownToggle color="primary" outline caret disabled={phases.length === 0} data-cy="overview-create-activity">
+                      <FontAwesomeIcon icon="plus" className="me-1" />
+                      <Translate contentKey="processComposerApp.processDesign.tree.newActivity">New activity</Translate>
+                    </DropdownToggle>
+                    <DropdownMenu end>
+                      {phases.map(phase =>
+                        phase.id ? (
+                          <DropdownItem key={phase.id} onClick={() => handleCreateActivity(phase.id as number)}>
+                            {phase.name}
+                          </DropdownItem>
+                        ) : null
+                      )}
+                    </DropdownMenu>
+                  </UncontrolledDropdown>
+                </div>
+              )}
+
+              {!PROCESS_CANVAS_ROUTE_ENABLED && (
+                <UncontrolledTooltip target="process-overview-canvas-toggle">
+                  <Translate contentKey="processComposerApp.processDesign.overview.canvasUnavailable">
+                    Canvas view will be available soon
+                  </Translate>
+                </UncontrolledTooltip>
+              )}
+            </div>
+
             {phases.length === 0 ? (
-              <Alert color="info">
+              <Alert color="info" className="process-overview__phases-panel-empty mb-0">
                 <Translate contentKey="processComposerApp.processDesign.tree.noPhases">No phases defined yet</Translate>
               </Alert>
             ) : (
               <div className="process-overview__accordion">{phases.map(renderPhasePanel)}</div>
             )}
-          </>
+          </div>
         )}
       </section>
 
