@@ -123,6 +123,7 @@
         "artifactsCount": "{{count}} artifacts",
         "readOnlyModel": "This is a standard model method. You can view, export, and clone it, but not edit it.",
         "sidebarResize": "Resize process tree sidebar",
+        "descriptionShow": "View description",
         "descriptionSeeMore": "See more",
         "descriptionSeeLess": "See less",
         "showSidebar": "Show tree",

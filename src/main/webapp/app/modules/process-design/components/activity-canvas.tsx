@@ -512,6 +512,30 @@ const ActivityCanvasInner = ({
     fitView,
   ]);
 
+  useEffect(() => {
+    if (nodes.length === 0) {
+      return undefined;
+    }
+
+    let resizeTimer: ReturnType<typeof setTimeout> | undefined;
+    const handleResize = () => {
+      if (resizeTimer !== undefined) {
+        clearTimeout(resizeTimer);
+      }
+      resizeTimer = setTimeout(() => {
+        void fitView({ padding: 0.2 });
+      }, 150);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimer !== undefined) {
+        clearTimeout(resizeTimer);
+      }
+    };
+  }, [fitView, nodes.length]);
+
   const handleNodesChange = useCallback(
     (changes: NodeChange<Node<ActivityNodeData>>[]) => {
       onNodesChange(changes);

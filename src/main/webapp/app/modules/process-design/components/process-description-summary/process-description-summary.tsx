@@ -1,6 +1,6 @@
 import './process-description-summary.scss';
 
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Translate } from 'react-jhipster';
 
 export interface ProcessDescriptionSummaryProps {
@@ -11,44 +11,46 @@ export interface ProcessDescriptionSummaryProps {
 export const ProcessDescriptionSummary = ({ description, 'data-cy': dataCy }: ProcessDescriptionSummaryProps) => {
   const trimmed = description?.trim();
   const [expanded, setExpanded] = useState(false);
-  const [canExpand, setCanExpand] = useState(false);
-  const textRef = useRef<HTMLParagraphElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    if (expanded || !trimmed) {
-      return;
+  useEffect(() => {
+    if (!expanded) {
+      return undefined;
     }
-    const element = textRef.current;
-    if (!element) {
-      return;
-    }
-    setCanExpand(element.scrollHeight > element.clientHeight + 1);
-  }, [expanded, trimmed]);
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        setExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [expanded]);
 
   if (!trimmed) {
     return null;
   }
 
-  const showToggle = canExpand || expanded;
-
   return (
-    <div className="process-description-summary" data-cy={dataCy}>
-      <p ref={textRef} className={`process-description-summary__text${expanded ? '' : ' process-description-summary__text--clamped'}`}>
-        {trimmed}
-      </p>
-      {showToggle && (
-        <button
-          type="button"
-          className="process-description-summary__toggle"
-          onClick={() => setExpanded(current => !current)}
-          data-cy={dataCy ? `${dataCy}-toggle` : 'process-description-toggle'}
-        >
-          {expanded ? (
-            <Translate contentKey="processComposerApp.processDesign.overview.descriptionSeeLess">See less</Translate>
-          ) : (
-            <Translate contentKey="processComposerApp.processDesign.overview.descriptionSeeMore">See more</Translate>
-          )}
-        </button>
+    <div
+      ref={rootRef}
+      className={`process-description-summary${expanded ? ' process-description-summary--expanded' : ''}`}
+      data-cy={dataCy}
+    >
+      <button
+        type="button"
+        className="process-description-summary__trigger"
+        aria-expanded={expanded}
+        onClick={() => setExpanded(current => !current)}
+        data-cy={dataCy ? `${dataCy}-toggle` : 'process-description-toggle'}
+      >
+        <Translate contentKey="processComposerApp.processDesign.overview.descriptionShow">View description</Translate>
+      </button>
+      {expanded && (
+        <p className="process-description-summary__text" role="region">
+          {trimmed}
+        </p>
       )}
     </div>
   );

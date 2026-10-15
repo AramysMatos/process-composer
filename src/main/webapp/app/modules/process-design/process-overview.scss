@@ -4,12 +4,16 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
   }
 
   &__header-main {
     flex: 1;
     min-width: 0;
+
+    .jh-breadcrumb {
+      margin-bottom: 0;
+    }
   }
 
   &__main {

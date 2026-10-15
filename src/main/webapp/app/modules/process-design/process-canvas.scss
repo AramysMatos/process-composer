@@ -1,21 +1,32 @@
 .process-canvas {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
   &__header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
   }
 
   &__header-main {
     flex: 1;
     min-width: 0;
+
+    .jh-breadcrumb {
+      margin-bottom: 0;
+    }
   }
 
   &__layout {
+    position: relative;
     display: flex;
     gap: 1.5rem;
     align-items: stretch;
+    flex: 1 1 auto;
     min-height: calc(100vh - 6rem);
 
     &--sidebar-resizing {
@@ -98,7 +109,7 @@
   }
 
   &__content {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -106,19 +117,23 @@
   }
 
   &__canvas-area {
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 28rem;
+    display: flex;
+    flex-direction: column;
   }
 
   @media (max-width: 991.98px) {
     &__layout {
       flex-direction: column;
+      min-height: calc(100vh - 8rem);
     }
 
-    &__sidebar-shell {
+    &__sidebar-shell:not(&__sidebar-shell--hidden) {
       width: 100% !important;
       position: static;
-      max-height: none;
+      max-height: min(40vh, 22rem);
+      flex-shrink: 0;
     }
 
     &__sidebar-resizer {
@@ -129,10 +144,12 @@
       flex: 1 1 auto;
       max-width: none;
       width: 100%;
+      min-height: 0;
     }
 
     &__content {
-      min-height: 32rem;
+      flex: 1 1 auto;
+      min-height: 0;
     }
   }
 }
