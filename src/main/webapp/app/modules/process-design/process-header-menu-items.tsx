@@ -4,7 +4,7 @@ import { Translate } from 'react-jhipster';
 
 import { CardActionItem } from 'app/shared-ui/card-actions-menu';
 
-type BuildProcessHeaderMenuItemsParams = {
+export type BuildProcessHeaderMenuItemsParams = {
   processId: number;
   readOnly: boolean;
   onEdit: () => void;
@@ -41,7 +41,7 @@ export const buildProcessHeaderMenuItems = ({
       label: (
         <>
           <FontAwesomeIcon icon="pencil-alt" className="me-2" />
-          <Translate contentKey="processComposerApp.processDesign.list.actions.edit">Edit process</Translate>
+          <Translate contentKey="processComposerApp.processDesign.list.actions.editNameAndDescription">Edit name and description</Translate>
         </>
       ),
       onClick: onEdit,
@@ -49,32 +49,38 @@ export const buildProcessHeaderMenuItems = ({
     });
   }
 
+  items.push({
+    key: 'duplicate',
+    label: (
+      <>
+        <FontAwesomeIcon icon="copy" className="me-2" />
+        <Translate contentKey="processComposerApp.processDesign.list.actions.duplicate">Duplicate process</Translate>
+      </>
+    ),
+    onClick: onDuplicate,
+    disabled: duplicatingProcess,
+    'data-cy': `processDuplicate-${processId}`,
+  });
+
+  if (canPromoteToSystemTemplate && onPromoteToSystemTemplate) {
+    items.push({
+      key: 'promoteSystemTemplate',
+      label: (
+        <>
+          <FontAwesomeIcon icon="bookmark" className="me-2" />
+          <Translate contentKey="processComposerApp.processDesign.list.actions.promoteToSystemTemplate">Save as system model</Translate>
+        </>
+      ),
+      onClick: onPromoteToSystemTemplate,
+      disabled: promotingToSystemTemplate,
+      'data-cy': `processPromoteSystemTemplate-${processId}`,
+    });
+  }
+
   items.push(
     {
-      key: 'duplicate',
-      label: (
-        <>
-          <FontAwesomeIcon icon="copy" className="me-2" />
-          <Translate contentKey="processComposerApp.processDesign.list.actions.duplicate">Duplicate process</Translate>
-        </>
-      ),
-      onClick: onDuplicate,
-      disabled: duplicatingProcess,
-      'data-cy': `processDuplicate-${processId}`,
-    },
-    {
-      key: 'visualize',
-      label: (
-        <>
-          <FontAwesomeIcon icon="book" className="me-2" />
-          <Translate contentKey="processComposerApp.processDesign.list.actions.visualize">View process site</Translate>
-        </>
-      ),
-      onClick: () => window.open(`/processos/${processId}/visualizar`, '_blank', 'noopener,noreferrer'),
-      'data-cy': `processVisualize-${processId}`,
-    },
-    {
       key: 'export',
+      dividerBefore: true,
       label: (
         <>
           <FontAwesomeIcon icon="file-code" className="me-2" />
@@ -98,24 +104,10 @@ export const buildProcessHeaderMenuItems = ({
     }
   );
 
-  if (canPromoteToSystemTemplate && onPromoteToSystemTemplate) {
-    items.push({
-      key: 'promoteSystemTemplate',
-      label: (
-        <>
-          <FontAwesomeIcon icon="bookmark" className="me-2" />
-          <Translate contentKey="processComposerApp.processDesign.list.actions.promoteToSystemTemplate">Save as system model</Translate>
-        </>
-      ),
-      onClick: onPromoteToSystemTemplate,
-      disabled: promotingToSystemTemplate,
-      'data-cy': `processPromoteSystemTemplate-${processId}`,
-    });
-  }
-
   if (!readOnly) {
     items.push({
       key: 'delete',
+      dividerBefore: true,
       label: (
         <>
           <FontAwesomeIcon icon="trash" className="me-2" />

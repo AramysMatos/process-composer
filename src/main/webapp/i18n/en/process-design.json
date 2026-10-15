@@ -32,6 +32,8 @@
         },
         "actions": {
           "edit": "Edit process",
+          "editNameAndDescription": "Edit name and description",
+          "documentation": "Documentation",
           "promoteToSystemTemplate": "Save as system model",
           "duplicate": "Duplicate process",
           "exportYaml": "Export YAML",

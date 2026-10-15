@@ -32,14 +32,13 @@ import { deleteEntity as deleteProcess, getEntity as getProcessEntity } from 'ap
 import { duplicateProcess } from 'app/modules/process-design/duplicate-process';
 import { canPromoteProcessToSystemTemplate, isProcessReadOnlyForUser } from 'app/modules/process-design/process-edit-access';
 import { promoteProcessToSystemTemplate } from 'app/modules/process-design/promote-process-to-system-template';
-import { buildProcessHeaderMenuItems } from 'app/modules/process-design/process-header-menu-items';
+import { ProcessHeaderActions } from 'app/modules/process-design/process-header-actions';
 import { AUTHORITIES } from 'app/config/constants';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { downloadStaticSiteForProcessId } from 'app/modules/process-visualization/download-static-site-for-process';
 import { IActivity } from 'app/shared/model/activity.model';
 import { IPhase } from 'app/shared/model/phase.model';
 import { Breadcrumb } from 'app/shared-ui/breadcrumb';
-import { CardActionsMenu } from 'app/shared-ui/card-actions-menu';
 import { ActivityDetailDrawer } from 'app/modules/process-design/components/activity-detail-drawer/activity-detail-drawer';
 import { ConfirmDeleteModal } from 'app/modules/process-design/components/confirm-delete-modal';
 import { CreateActivityModal } from 'app/modules/process-design/components/create-activity-modal';
@@ -375,42 +374,6 @@ export const ProcessOverview = () => {
     }
   }, [dispatch, processId, promotingToSystemTemplate]);
 
-  const headerMenuItems = useMemo(
-    () =>
-      buildProcessHeaderMenuItems({
-        processId,
-        readOnly,
-        onEdit: handleOpenProcessEdit,
-        onDuplicate: () => {
-          void handleDuplicateProcess();
-        },
-        onDownloadStaticSite: () => {
-          void handleDownloadStaticSite();
-        },
-        duplicatingProcess,
-        downloadingStaticSite,
-        deletingProcess,
-        onRequestDelete: handleRequestDeleteProcess,
-        canPromoteToSystemTemplate,
-        onPromoteToSystemTemplate: handleRequestPromoteToSystemTemplate,
-        promotingToSystemTemplate,
-      }),
-    [
-      canPromoteToSystemTemplate,
-      deletingProcess,
-      downloadingStaticSite,
-      duplicatingProcess,
-      handleDownloadStaticSite,
-      handleDuplicateProcess,
-      handleOpenProcessEdit,
-      handleRequestDeleteProcess,
-      handleRequestPromoteToSystemTemplate,
-      processId,
-      promotingToSystemTemplate,
-      readOnly,
-    ]
-  );
-
   const togglePhasePanel = (phaseId: number) => {
     setOpenPhaseIds(current => {
       const next = new Set(current);
@@ -615,7 +578,27 @@ export const ProcessOverview = () => {
             data-cy="process-overview-breadcrumb"
           />
         </div>
-        {processMatches && <CardActionsMenu data-cy={`processOverviewMenu-${processId}`} items={headerMenuItems} />}
+        {processMatches && (
+          <ProcessHeaderActions
+            processId={processId}
+            menuDataCy={`processOverviewMenu-${processId}`}
+            readOnly={readOnly}
+            onEdit={handleOpenProcessEdit}
+            onDuplicate={() => {
+              void handleDuplicateProcess();
+            }}
+            onDownloadStaticSite={() => {
+              void handleDownloadStaticSite();
+            }}
+            duplicatingProcess={duplicatingProcess}
+            downloadingStaticSite={downloadingStaticSite}
+            deletingProcess={deletingProcess}
+            onRequestDelete={handleRequestDeleteProcess}
+            canPromoteToSystemTemplate={canPromoteToSystemTemplate}
+            onPromoteToSystemTemplate={handleRequestPromoteToSystemTemplate}
+            promotingToSystemTemplate={promotingToSystemTemplate}
+          />
+        )}
       </header>
 
       {processMatches && !loading && (

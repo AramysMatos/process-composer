@@ -32,6 +32,8 @@
         },
         "actions": {
           "edit": "Editar processo",
+          "editNameAndDescription": "Editar nome e descrição",
+          "documentation": "Documentação",
           "promoteToSystemTemplate": "Tornar modelo do sistema",
           "duplicate": "Duplicar processo",
           "exportYaml": "Exportar YAML",

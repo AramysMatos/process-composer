@@ -13,6 +13,7 @@ export interface CardActionItem {
   to?: string;
   danger?: boolean;
   disabled?: boolean;
+  dividerBefore?: boolean;
   'data-cy'?: string;
 }
 
@@ -36,23 +37,30 @@ export const CardActionsMenu = ({ items, 'data-cy': dataCy }: CardActionsMenuPro
         <FontAwesomeIcon icon="ellipsis-v" />
       </DropdownToggle>
       <DropdownMenu end className="card-actions-menu__menu">
-        {items.map(item =>
-          item.to ? (
-            <DropdownItem key={item.key} tag={Link} to={item.to} data-cy={item['data-cy']}>
-              {item.label}
-            </DropdownItem>
-          ) : (
-            <DropdownItem
-              key={item.key}
-              onClick={item.onClick}
-              disabled={item.disabled}
-              className={item.danger ? 'text-danger' : undefined}
-              data-cy={item['data-cy']}
-            >
-              {item.label}
-            </DropdownItem>
-          )
-        )}
+        {items.flatMap(item => {
+          const nodes: React.ReactNode[] = [];
+          if (item.dividerBefore) {
+            nodes.push(<DropdownItem divider key={`${item.key}-divider`} />);
+          }
+          nodes.push(
+            item.to ? (
+              <DropdownItem key={item.key} tag={Link} to={item.to} data-cy={item['data-cy']}>
+                {item.label}
+              </DropdownItem>
+            ) : (
+              <DropdownItem
+                key={item.key}
+                onClick={item.onClick}
+                disabled={item.disabled}
+                className={item.danger ? 'text-danger' : undefined}
+                data-cy={item['data-cy']}
+              >
+                {item.label}
+              </DropdownItem>
+            )
+          );
+          return nodes;
+        })}
       </DropdownMenu>
     </UncontrolledDropdown>
   );
