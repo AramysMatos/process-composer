@@ -20,6 +20,7 @@ import {
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { JhiItemCount, JhiPagination, Translate, translate } from 'react-jhipster';
+import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { AUTHORITIES } from 'app/config/constants';
@@ -133,6 +134,7 @@ export const LibraryPhasesMasterDetail = ({ selectedId, onSelectItem }: LibraryP
         refreshLibraryPhases();
         onSelectItem(createdId);
         navigate(`/biblioteca/phases/${createdId}`);
+        toast.success(translate('processComposerApp.library.phases.createSuccess', 'Phase created successfully.'));
       }
     } catch {
       setCreateError(translate('processComposerApp.library.phases.createError', 'Could not create the phase.'));

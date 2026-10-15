@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { Alert, Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { Translate, translate } from 'react-jhipster';
+import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { createEntitySilent as createActivityEntity } from 'app/entities/activity/activity.reducer';
@@ -119,6 +120,7 @@ export const CreateActivityModal = ({ isOpen, phaseId, processId, phaseName, onC
         if (createdId) {
           onCreated?.(createdId);
         }
+        toast.success(translate('processComposerApp.processDesign.canvas.createActivitySuccess', 'Activity created successfully.'));
         onClose();
         return;
       }
@@ -137,6 +139,7 @@ export const CreateActivityModal = ({ isOpen, phaseId, processId, phaseName, onC
       });
 
       onCreated?.(createdId);
+      toast.success(translate('processComposerApp.processDesign.canvas.cloneActivitySuccess', 'Activity cloned successfully.'));
       onClose();
     } catch {
       setSubmitError(translate('processComposerApp.processDesign.canvas.createError', 'Could not create the activity.'));

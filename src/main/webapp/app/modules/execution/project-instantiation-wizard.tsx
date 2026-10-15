@@ -6,13 +6,14 @@ import { FieldError, useForm } from 'react-hook-form';
 import { Alert, Button, Card, CardBody, Form, FormFeedback, Input, Label, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
+import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getActivities } from 'app/entities/activity/activity.reducer';
 import { getEntities as getPhases } from 'app/entities/phase/phase.reducer';
 import { getEntities as getProcesses } from 'app/entities/process/process.reducer';
-import { createEntity as createProject } from 'app/entities/project/project.reducer';
-import { createEntity as createTask } from 'app/entities/task/task.reducer';
+import { createEntitySilent as createProject, getEntities as getProjects } from 'app/entities/project/project.reducer';
+import { createEntitySilent as createTask } from 'app/entities/task/task.reducer';
 import { ActivitySelectionTree } from 'app/modules/execution/components/activity-selection-tree';
 import { buildActivitySelectionTree, getAllActivityIdsFromTree } from 'app/modules/execution/components/activity-selection-tree.utils';
 import { IProject } from 'app/shared/model/project.model';
@@ -200,6 +201,7 @@ export const ProjectInstantiationWizard = () => {
         throw new Error('Created project has no id');
       }
 
+      const taskCount = validation.data.selectedActivityIds.length;
       for (const activityId of validation.data.selectedActivityIds) {
         const activityName = activityNameById.get(activityId) ?? `Activity ${activityId}`;
         const taskPayload: ITask = {
@@ -210,6 +212,16 @@ export const ProjectInstantiationWizard = () => {
         };
         await dispatch(createTask(taskPayload)).unwrap();
       }
+
+      await dispatch(getProjects({}));
+
+      toast.success(
+        translate(
+          'processComposerApp.execution.wizard.createSuccess',
+          { name: validation.data.projectName, count: taskCount },
+          'Project "{{name}}" created with {{count}} tasks.'
+        )
+      );
 
       navigate(`/projetos/${createdProjectId}/tarefas`);
     } catch {

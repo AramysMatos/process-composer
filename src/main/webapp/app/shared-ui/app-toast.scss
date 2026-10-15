@@ -1,0 +1,79 @@
+@import '../bootstrap-variables';
+
+$toast-error: #b42318;
+$toast-error-subtle: #fef3f2;
+$toast-warning: #b54708;
+$toast-warning-subtle: #fffaeb;
+$toast-info: $primary;
+$toast-info-subtle: $primary-subtle;
+
+.toastify-container {
+  --toastify-font-family: #{$font-family-sans-serif};
+  --toastify-toast-width: 22rem;
+  --toastify-color-light: #{$body-bg};
+  --toastify-text-color-light: #{$body-color};
+  --toastify-color-success: #{$success};
+  --toastify-color-error: #{$toast-error};
+  --toastify-color-warning: #{$toast-warning};
+  --toastify-color-info: #{$toast-info};
+  --toastify-icon-color-success: #{$success};
+  --toastify-icon-color-error: #{$toast-error};
+  --toastify-icon-color-warning: #{$toast-warning};
+  --toastify-icon-color-info: #{$toast-info};
+  --toastify-z-index: 1100;
+
+  padding: 1rem;
+
+  .toastify-toast.Toastify__toast {
+    min-height: auto;
+    margin-bottom: 0.5rem;
+    padding: 0.75rem 0.875rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    box-shadow: $box-shadow-sm;
+    color: $body-color;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    font-weight: 500;
+
+    .Toastify__toast-body {
+      padding: 0;
+      align-items: flex-start;
+    }
+
+    .Toastify__toast-icon {
+      width: 1.125rem;
+      margin-inline-end: 0.625rem;
+      margin-top: 0.125rem;
+    }
+
+    .Toastify__close-button {
+      color: $secondary;
+      opacity: 0.7;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    &.Toastify__toast--success {
+      border-left: 4px solid $success;
+      background-color: mix($success-subtle, $body-bg, 55%);
+    }
+
+    &.Toastify__toast--error {
+      border-left: 4px solid $toast-error;
+      background-color: $toast-error-subtle;
+    }
+
+    &.Toastify__toast--warning {
+      border-left: 4px solid $toast-warning;
+      background-color: $toast-warning-subtle;
+    }
+
+    &.Toastify__toast--info {
+      border-left: 4px solid $primary;
+      background-color: $toast-info-subtle;
+    }
+  }
+}

@@ -20,6 +20,7 @@ import {
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { JhiItemCount, JhiPagination, Translate, translate } from 'react-jhipster';
+import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import {
@@ -140,6 +141,7 @@ export const LibraryActivitiesMasterDetail = ({ selectedId, onSelectItem }: Libr
         refreshLibraryActivities();
         onSelectItem(createdId);
         navigate(`/biblioteca/activities/${createdId}`);
+        toast.success(translate('processComposerApp.library.activities.createSuccess', 'Activity created successfully.'));
       }
     } catch {
       setCreateError(translate('processComposerApp.library.activities.createError', 'Could not create the activity.'));

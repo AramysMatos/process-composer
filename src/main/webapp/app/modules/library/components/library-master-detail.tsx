@@ -20,6 +20,7 @@ import {
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { JhiItemCount, JhiPagination, Translate, translate } from 'react-jhipster';
+import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { cloneLibraryEntity } from 'app/modules/library/clone-library-entity';
@@ -189,7 +190,13 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
     }
     setCloning(true);
     cloneLibraryEntity(config.type, detailEntity.id)
-      .then(() => dispatch(config.thunks.getEntities({})))
+      .then(() => {
+        dispatch(config.thunks.getEntities({}));
+        toast.success(translate('processComposerApp.library.cloneSuccess', 'Item cloned successfully.'));
+      })
+      .catch(() => {
+        toast.error(translate('processComposerApp.library.cloneError', 'Could not clone the item.'));
+      })
       .finally(() => setCloning(false));
   };
 

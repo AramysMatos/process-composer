@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { Card } from 'reactstrap';
 import { BrowserRouter, useLocation } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-
 import 'react-toastify/dist/ReactToastify.css';
+import AppToastContainer from 'app/shared-ui/app-toast-container';
 import './app.scss';
 import 'app/config/dayjs.ts';
 
@@ -43,7 +42,7 @@ const AppLayout = () => {
   if (authPublicPage || visualizationPage) {
     return (
       <>
-        <ToastContainer position={toast.POSITION.TOP_LEFT} className="toastify-container" toastClassName="toastify-toast" />
+        <AppToastContainer />
         <ErrorBoundary>
           <AppRoutes />
         </ErrorBoundary>
@@ -65,7 +64,7 @@ const AppLayout = () => {
       </ErrorBoundary>
       <div className="app-shell__main">
         <div className="app-container">
-          <ToastContainer position={toast.POSITION.TOP_LEFT} className="toastify-container" toastClassName="toastify-toast" />
+          <AppToastContainer />
           <ErrorBoundary>
             <Header ribbonEnv={ribbonEnv} isInProduction={isInProduction} />
           </ErrorBoundary>

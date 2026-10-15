@@ -13,6 +13,8 @@
       "systemTemplate": "Template",
       "readOnlyModel": "This is a system model. You can view and clone it, but not edit or delete it.",
       "clone": "Clone",
+      "cloneSuccess": "Item cloned successfully.",
+      "cloneError": "Could not clone the item.",
       "saveAsSystemTemplate": "Save as system template",
       "audit": {
         "createdBy": "Created by {{user}}"
@@ -30,13 +32,15 @@
         "createLabel": "New activity",
         "createTitle": "New activity",
         "selectItem": "Select an activity from the list or create a new one",
-        "createError": "Could not create the activity."
+        "createError": "Could not create the activity.",
+        "createSuccess": "Activity created successfully."
       },
       "phases": {
         "createLabel": "New phase",
         "createTitle": "New phase",
         "selectItem": "Select a phase from the list or create a new one",
         "createError": "Could not create the phase.",
+        "createSuccess": "Phase created successfully.",
         "duplicate": "Duplicate phase",
         "duplicateSuccess": "Phase duplicated successfully.",
         "duplicateError": "Could not duplicate the phase.",

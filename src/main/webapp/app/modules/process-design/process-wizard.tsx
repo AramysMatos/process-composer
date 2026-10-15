@@ -7,12 +7,12 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { Alert, Button, Card, CardBody, Form, FormFeedback, FormGroup, Input, Label, ListGroup, ListGroupItem, Spinner } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Translate, translate } from 'react-jhipster';
+import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getActivities } from 'app/entities/activity/activity.reducer';
-import { createEntity as createPhase } from 'app/entities/phase/phase.reducer';
-import { getEntities as getPhases } from 'app/entities/phase/phase.reducer';
-import { createEntity as createProcess, getEntities as getProcesses } from 'app/entities/process/process.reducer';
+import { createEntitySilent as createPhase, getEntities as getPhases } from 'app/entities/phase/phase.reducer';
+import { createEntitySilent as createProcess, getEntities as getProcesses } from 'app/entities/process/process.reducer';
 import { ActivitySelectionTree } from 'app/modules/execution/components/activity-selection-tree';
 import {
   buildActivitySelectionTree,
@@ -207,6 +207,7 @@ export const ProcessWizard = () => {
           throw new Error('Created process has no id');
         }
 
+        const phaseCount = validation.data.phases.length;
         for (const phase of validation.data.phases) {
           const phasePayload: IPhase = {
             name: phase.name,
@@ -215,6 +216,17 @@ export const ProcessWizard = () => {
           };
           await dispatch(createPhase(phasePayload)).unwrap();
         }
+
+        await dispatch(getProcesses({}));
+        await dispatch(getPhases({}));
+
+        toast.success(
+          translate(
+            'processComposerApp.processDesign.wizard.createSuccess',
+            { name: validation.data.processName, count: phaseCount },
+            'Process "{{name}}" created with {{count}} phases.'
+          )
+        );
       }
 
       navigate(`/processos/${createdProcessId}`);

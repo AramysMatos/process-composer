@@ -13,6 +13,8 @@
       "systemTemplate": "Modelo",
       "readOnlyModel": "Este é um modelo do sistema. Você pode visualizar e clonar, mas não editar ou excluir.",
       "clone": "Clonar",
+      "cloneSuccess": "Item clonado com sucesso.",
+      "cloneError": "Não foi possível clonar o item.",
       "saveAsSystemTemplate": "Salvar como modelo de sistema",
       "audit": {
         "createdBy": "Criado por {{user}}"
@@ -30,13 +32,15 @@
         "createLabel": "Nova atividade",
         "createTitle": "Nova atividade",
         "selectItem": "Selecione uma atividade da lista ou crie uma nova",
-        "createError": "Não foi possível criar a atividade."
+        "createError": "Não foi possível criar a atividade.",
+        "createSuccess": "Atividade criada com sucesso."
       },
       "phases": {
         "createLabel": "Nova fase",
         "createTitle": "Nova fase",
         "selectItem": "Selecione uma fase da lista ou crie uma nova",
         "createError": "Não foi possível criar a fase.",
+        "createSuccess": "Fase criada com sucesso.",
         "duplicate": "Duplicar fase",
         "duplicateSuccess": "Fase duplicada com sucesso.",
         "duplicateError": "Não foi possível duplicar a fase.",

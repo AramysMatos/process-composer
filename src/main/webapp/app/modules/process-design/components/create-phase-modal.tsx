@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { Alert, Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { Translate, translate } from 'react-jhipster';
+import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { createEntitySilent as createPhaseEntity } from 'app/entities/phase/phase.reducer';
@@ -116,6 +117,7 @@ export const CreatePhaseModal = ({ isOpen, processId, onClose, onCreated }: Crea
         if (createdId) {
           onCreated?.(createdId);
         }
+        toast.success(translate('processComposerApp.processDesign.canvas.createPhaseSuccess', 'Phase created successfully.'));
         onClose();
         return;
       }
@@ -134,6 +136,7 @@ export const CreatePhaseModal = ({ isOpen, processId, onClose, onCreated }: Crea
       });
 
       onCreated?.(createdId);
+      toast.success(translate('processComposerApp.processDesign.canvas.clonePhaseSuccess', 'Phase cloned successfully.'));
       onClose();
     } catch {
       setSubmitError(translate('processComposerApp.processDesign.canvas.createPhaseError', 'Could not create the phase.'));

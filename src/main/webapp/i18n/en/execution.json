@@ -40,6 +40,7 @@
           "confirm": "Create project",
           "creating": "Creating..."
         },
+        "createSuccess": "Project \"{{name}}\" created with {{count}} tasks.",
         "submitError": "Could not create the project. Please try again.",
         "validation": {
           "processRequired": "Select a source process.",

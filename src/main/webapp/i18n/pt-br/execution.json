@@ -40,6 +40,7 @@
           "confirm": "Criar projeto",
           "creating": "Criando..."
         },
+        "createSuccess": "Projeto \"{{name}}\" criado com {{count}} tarefas.",
         "submitError": "Não foi possível criar o projeto. Tente novamente.",
         "validation": {
           "processRequired": "Selecione um processo de origem.",

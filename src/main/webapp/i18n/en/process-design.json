@@ -88,6 +88,7 @@
           "confirm": "Create process",
           "creating": "Creating..."
         },
+        "createSuccess": "Process \"{{name}}\" created with {{count}} phases.",
         "submitError": "Could not create the process. Please try again.",
         "validation": {
           "processNameRequired": "Process name is required.",
@@ -199,6 +200,10 @@
         "targetProcess": "Target process",
         "createPhaseValidation": "Name and process are required.",
         "createPhaseError": "Could not create the phase.",
+        "createPhaseSuccess": "Phase created successfully.",
+        "clonePhaseSuccess": "Phase cloned successfully.",
+        "createActivitySuccess": "Activity created successfully.",
+        "cloneActivitySuccess": "Activity cloned successfully.",
         "createPhaseModeLabel": "Creation mode",
         "createPhaseModeBlank": "Blank phase",
         "createPhaseModeClone": "Clone from existing phase",
