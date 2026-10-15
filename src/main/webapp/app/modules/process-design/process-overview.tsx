@@ -50,6 +50,7 @@ import { EntitySaveToLibraryButton } from 'app/modules/process-design/components
 import { PhaseDetailDrawer } from 'app/modules/process-design/components/phase-detail-drawer/phase-detail-drawer';
 import { ProcessDetailDrawer } from 'app/modules/process-design/components/process-detail-drawer/process-detail-drawer';
 import { ProcessDescriptionSummary } from 'app/modules/process-design/components/process-description-summary/process-description-summary';
+import { SystemModelBadge } from 'app/shared-ui/system-model-badge/system-model-badge';
 import { useProcessEntityDelete } from 'app/modules/process-design/hooks/use-process-entity-delete';
 import { useProcessActivityDeepLink } from 'app/modules/process-design/hooks/use-process-activity-deep-link';
 import { useSaveToLibrary } from 'app/modules/process-design/hooks/use-save-to-library';
@@ -152,6 +153,9 @@ export const ProcessOverview = () => {
   const processName = process.processName ?? translate('processComposerApp.processDesign.tree.untitledProcess', 'Untitled process');
   const readOnly = processMatches && isProcessReadOnlyForUser(process, isAdmin, account.id);
   const canPromoteToSystemTemplate = processMatches && canPromoteProcessToSystemTemplate(process, isAdmin, account.id);
+  const systemModelBadgeSuffix = readOnly ? (
+    <SystemModelBadge description={translate('global.systemModelBadge.tooltipProcess')} />
+  ) : undefined;
 
   const handleSelectActivity = useCallback((activityId: number) => {
     setSelectedActivityId(activityId);
@@ -603,7 +607,10 @@ export const ProcessOverview = () => {
                 label: translate('processComposerApp.processDesign.overview.breadcrumbProcesses', 'Processes'),
                 path: '/processos',
               },
-              { label: processMatches ? processName : translate('processComposerApp.processDesign.overview.loadingProcess', 'Loading...') },
+              {
+                label: processMatches ? processName : translate('processComposerApp.processDesign.overview.loadingProcess', 'Loading...'),
+                suffix: systemModelBadgeSuffix,
+              },
             ]}
             data-cy="process-overview-breadcrumb"
           />
@@ -613,14 +620,6 @@ export const ProcessOverview = () => {
 
       {processMatches && !loading && (
         <ProcessDescriptionSummary description={process.processDescription} data-cy="process-overview-description" />
-      )}
-
-      {readOnly && (
-        <Alert color="info" className="mb-3" data-cy="process-read-only-banner">
-          <Translate contentKey="processComposerApp.processDesign.overview.readOnlyModel">
-            This is a standard model method. You can view, export, and clone it, but not edit it.
-          </Translate>
-        </Alert>
       )}
 
       <section

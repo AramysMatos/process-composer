@@ -49,6 +49,11 @@
       },
       "language": "Idioma"
     },
+    "systemModelBadge": {
+      "label": "Modelo do sistema · Somente leitura",
+      "tooltipProcess": "Você pode visualizar, exportar e clonar, mas não editar.",
+      "tooltipLibrary": "Você pode visualizar e clonar, mas não editar ou excluir."
+    },
     "form": {
       "username.label": "Usuário",
       "username.placeholder": "Seu usuário",

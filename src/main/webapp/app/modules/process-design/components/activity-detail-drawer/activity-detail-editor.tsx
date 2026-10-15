@@ -8,6 +8,8 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { deleteEntity, getEntity, updateEntity, updateEntitySilent } from 'app/entities/activity/activity.reducer';
 import { duplicateActivity } from 'app/modules/process-design/duplicate-activity';
 import { IActivity } from 'app/shared/model/activity.model';
+import { isSystemTemplate } from 'app/shared/model/owned-entity.model';
+import { SystemModelBadge } from 'app/shared-ui/system-model-badge/system-model-badge';
 import { CardActionsMenu, CardActionItem } from 'app/shared-ui/card-actions-menu';
 import { ArtifactsTab } from './artifacts-tab';
 import { cloneActivityDraft, collectDependencySyncUpdates, toActivityUpdatePayload } from './activity-drawer.utils';
@@ -270,7 +272,16 @@ export const ActivityDetailEditor = ({
       {variant === 'panel' && draft && !embeddedInPhase && (
         <div className="activity-detail-editor__panel-header">
           <div className="activity-detail-editor__title-block">
-            <h2 className="h5 mb-0">{draft.name}</h2>
+            <h2 className="h5 mb-0 system-model-badge-title-row">
+              <span className="system-model-badge-title-row__text">{draft.name}</span>
+              {isLibraryContext && isSystemTemplate(draft) && (
+                <SystemModelBadge
+                  size="compact"
+                  description={translate('global.systemModelBadge.tooltipLibrary')}
+                  data-cy="librarySystemModelBadge"
+                />
+              )}
+            </h2>
             {draft.phase?.name && <p className="text-muted small mb-0">{draft.phase.name}</p>}
           </div>
           {menuItems.length > 0 && <CardActionsMenu data-cy={`activityEditorMenu-${draft.id}`} items={menuItems} />}

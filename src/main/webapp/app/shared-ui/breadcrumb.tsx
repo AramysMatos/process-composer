@@ -7,6 +7,7 @@ import './breadcrumb.scss';
 export interface IBreadcrumbItem {
   label: string;
   path?: string;
+  suffix?: React.ReactNode;
 }
 
 export interface IBreadcrumbProps {
@@ -32,25 +33,38 @@ export const Breadcrumb = ({ items, className, 'data-cy': dataCy }: IBreadcrumbP
         const isLast = index === items.length - 1;
         const key = `${item.label}-${index}`;
 
+        const suffix = item.suffix ? <span className="jh-breadcrumb__suffix">{item.suffix}</span> : null;
+
         if (isLast) {
           return (
-            <BreadcrumbItem key={key} active tag="li" aria-current="page">
-              {item.label}
+            <BreadcrumbItem key={key} active tag="li" className="jh-breadcrumb__item" aria-current="page">
+              <span className="jh-breadcrumb__item-inner">
+                <span className="jh-breadcrumb__label">{item.label}</span>
+                {suffix}
+              </span>
             </BreadcrumbItem>
           );
         }
 
         if (item.path) {
           return (
-            <BreadcrumbItem key={key} tag="li">
-              <Link to={item.path}>{item.label}</Link>
+            <BreadcrumbItem key={key} tag="li" className="jh-breadcrumb__item">
+              <span className="jh-breadcrumb__item-inner">
+                <Link to={item.path} className="jh-breadcrumb__label">
+                  {item.label}
+                </Link>
+                {suffix}
+              </span>
             </BreadcrumbItem>
           );
         }
 
         return (
-          <BreadcrumbItem key={key} tag="li">
-            {item.label}
+          <BreadcrumbItem key={key} tag="li" className="jh-breadcrumb__item">
+            <span className="jh-breadcrumb__item-inner">
+              <span className="jh-breadcrumb__label">{item.label}</span>
+              {suffix}
+            </span>
           </BreadcrumbItem>
         );
       })}

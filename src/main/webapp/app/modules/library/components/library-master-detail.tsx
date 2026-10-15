@@ -28,6 +28,7 @@ import { UsedInActivitiesList } from 'app/modules/library/components/used-in-act
 import { AUTHORITIES } from 'app/config/constants';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { canEditEntity, isSystemTemplate } from 'app/shared/model/owned-entity.model';
+import { SystemModelBadge } from 'app/shared-ui/system-model-badge/system-model-badge';
 
 const LIST_PAGE_SIZE = 20;
 const NEW_ITEM_ID = 'new';
@@ -276,21 +277,17 @@ export const LibraryMasterDetail = <T extends LibraryEntityBase>({ config, selec
           </div>
         ) : (
           <div className="library-master-detail__detail-body">
-            {readOnly && isSystemTemplate(detailEntity) && !isAdmin && (
-              <Alert color="info" className="mb-3" data-cy="libraryReadOnlyBanner">
-                <Translate contentKey="processComposerApp.library.readOnlyModel">
-                  This is a system model. You can view and clone it, but not edit or delete it.
-                </Translate>
-              </Alert>
-            )}
-
             <div className="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
-              <h2 className="h4 mb-0 d-flex align-items-center gap-2 flex-wrap">
-                {isCreating ? <Translate contentKey="processComposerApp.library.createTitle">New item</Translate> : detailEntity.name}
+              <h2 className="h4 mb-0 library-master-detail__detail-heading">
+                <span className="library-master-detail__detail-title">
+                  {isCreating ? <Translate contentKey="processComposerApp.library.createTitle">New item</Translate> : detailEntity.name}
+                </span>
                 {showSystemBadge && (
-                  <Badge color="info">
-                    <Translate contentKey="processComposerApp.library.systemTemplate">Modelo</Translate>
-                  </Badge>
+                  <SystemModelBadge
+                    size="compact"
+                    description={translate('global.systemModelBadge.tooltipLibrary')}
+                    data-cy="librarySystemModelBadge"
+                  />
                 )}
               </h2>
               {!isCreating && detailEntity.id && (

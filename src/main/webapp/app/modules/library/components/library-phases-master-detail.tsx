@@ -316,13 +316,6 @@ export const LibraryPhasesMasterDetail = ({ selectedId, onSelectItem }: LibraryP
           </div>
         ) : (
           <div className="library-master-detail__detail-body">
-            {readOnly && detailPhase && isSystemTemplate(detailPhase) && !isAdmin && (
-              <Alert color="info" className="mb-3" data-cy="libraryPhasesReadOnlyBanner">
-                <Translate contentKey="processComposerApp.library.readOnlyModel">
-                  This is a system model. You can view and clone it, but not edit or delete it.
-                </Translate>
-              </Alert>
-            )}
             <PhaseDetailEditor
               phaseId={selectedNumericId ?? null}
               variant="panel"

@@ -49,6 +49,11 @@
       },
       "language": "Language"
     },
+    "systemModelBadge": {
+      "label": "System model · Read-only",
+      "tooltipProcess": "You can view, export, and clone it, but not edit it.",
+      "tooltipLibrary": "You can view and clone it, but not edit or delete it."
+    },
     "form": {
       "username.label": "Username",
       "username.placeholder": "Your username",

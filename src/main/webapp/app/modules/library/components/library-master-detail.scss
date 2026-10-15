@@ -77,6 +77,21 @@
     padding: 1.25rem;
   }
 
+  &__detail-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  &__detail-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   &__detail-empty {
     min-height: 28rem;
     display: flex;

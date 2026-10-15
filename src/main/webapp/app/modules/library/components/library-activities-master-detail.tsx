@@ -321,13 +321,6 @@ export const LibraryActivitiesMasterDetail = ({ selectedId, onSelectItem }: Libr
           </div>
         ) : (
           <div className="library-master-detail__detail-body">
-            {readOnly && detailActivity && isSystemTemplate(detailActivity) && !isAdmin && (
-              <Alert color="info" className="mb-3" data-cy="libraryActivitiesReadOnlyBanner">
-                <Translate contentKey="processComposerApp.library.readOnlyModel">
-                  This is a system model. You can view and clone it, but not edit or delete it.
-                </Translate>
-              </Alert>
-            )}
             <ActivityDetailEditor
               activityId={selectedNumericId ?? null}
               variant="panel"

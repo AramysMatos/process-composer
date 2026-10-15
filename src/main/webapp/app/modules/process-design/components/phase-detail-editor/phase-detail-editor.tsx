@@ -10,6 +10,8 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { deleteEntity, getEntity, updateEntity, updateEntitySilent } from 'app/entities/phase/phase.reducer';
 import { clonePhase } from 'app/modules/process-design/clone-phase';
 import { IPhase } from 'app/shared/model/phase.model';
+import { isSystemTemplate } from 'app/shared/model/owned-entity.model';
+import { SystemModelBadge } from 'app/shared-ui/system-model-badge/system-model-badge';
 import { CardActionsMenu, CardActionItem } from 'app/shared-ui/card-actions-menu';
 import { PhaseActivitiesSection } from './phase-activities-section';
 
@@ -199,7 +201,16 @@ export const PhaseDetailEditor = ({
       {variant === 'panel' && draft && (
         <div className="phase-detail-editor__panel-header">
           <div className="phase-detail-editor__title-block">
-            <h2 className="h5 mb-0">{draft.name}</h2>
+            <h2 className="h5 mb-0 system-model-badge-title-row">
+              <span className="system-model-badge-title-row__text">{draft.name}</span>
+              {isLibraryContext && isSystemTemplate(draft) && (
+                <SystemModelBadge
+                  size="compact"
+                  description={translate('global.systemModelBadge.tooltipLibrary')}
+                  data-cy="librarySystemModelBadge"
+                />
+              )}
+            </h2>
           </div>
           {menuItems.length > 0 && <CardActionsMenu data-cy={`phaseEditorMenu-${draft.id}`} items={menuItems} />}
         </div>

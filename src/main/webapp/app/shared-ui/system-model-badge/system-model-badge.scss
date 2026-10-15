@@ -1,0 +1,51 @@
+.system-model-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  font-weight: var(--bs-badge-font-weight, 700);
+  vertical-align: middle;
+  max-width: 100%;
+
+  &:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+  }
+
+  &__icon {
+    font-size: 0.75em;
+    flex-shrink: 0;
+  }
+
+  &__label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &--compact {
+    font-size: 0.6875rem;
+    padding: 0.2em 0.45em;
+    gap: 0.2rem;
+    font-weight: 600;
+
+    .system-model-badge__icon {
+      font-size: 0.7em;
+    }
+  }
+}
+
+.system-model-badge-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+
+  &__text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
